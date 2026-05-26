@@ -1,4 +1,5 @@
 import NetInfo from '@react-native-community/netinfo';
+import { processOfflineQueue } from '@hooks/useOfflineQueue';
 import { useAppStore } from '@store/appStore';
 
 export function setupNetworkMonitoring(): void {
@@ -14,6 +15,5 @@ export function setupNetworkMonitoring(): void {
 }
 
 async function syncOfflineData(): Promise<void> {
-  // TODO: Sync queued mutations from offline mode
-  console.log('Syncing offline data...');
+  await processOfflineQueue();
 }
