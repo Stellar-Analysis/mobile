@@ -7,6 +7,8 @@ import { NavigationContainer } from '@react-navigation/native';
 import { RootNavigator } from './navigation/RootNavigator';
 import { useAppStore } from './store/appStore';
 import { initializeApp } from './services/initialization';
+import { processOfflineQueue } from './hooks/useOfflineQueue';
+import { NetworkStatusIndicator } from './components/NetworkStatusIndicator';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -19,12 +21,18 @@ const queryClient = new QueryClient({
 });
 
 function App(): React.JSX.Element {
-  const { theme } = useAppStore();
+  const { theme, isOnline } = useAppStore();
   const isDark = theme === 'dark';
 
   React.useEffect(() => {
     initializeApp();
   }, []);
+
+  React.useEffect(() => {
+    if (isOnline) {
+      processOfflineQueue();
+    }
+  }, [isOnline]);
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -32,6 +40,7 @@ function App(): React.JSX.Element {
         <QueryClientProvider client={queryClient}>
           <NavigationContainer>
             <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
+            <NetworkStatusIndicator />
             <RootNavigator />
           </NavigationContainer>
         </QueryClientProvider>
