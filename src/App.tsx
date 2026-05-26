@@ -9,6 +9,7 @@ import { useAppStore } from './store/appStore';
 import { initializeApp } from './services/initialization';
 import { processOfflineQueue } from './hooks/useOfflineQueue';
 import { NetworkStatusIndicator } from './components/NetworkStatusIndicator';
+import { OfflineCachingIndicator } from './components/OfflineCaching';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -41,6 +42,7 @@ function App(): React.JSX.Element {
           <NavigationContainer>
             <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
             <NetworkStatusIndicator />
+            <OfflineCachingIndicator showCacheSize={true} />
             <RootNavigator />
           </NavigationContainer>
         </QueryClientProvider>
