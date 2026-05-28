@@ -31,6 +31,20 @@ import { processOfflineQueue } from './hooks/useOfflineQueue';
 import { NetworkStatusIndicator } from './components/NetworkStatusIndicator';
 import { OfflineCachingIndicator } from './components/OfflineCaching';
 
+const linking: LinkingOptions<RootStackParamList> = {
+  prefixes: ['stellar-insights://'],
+  config: {
+    screens: {
+      Main: {
+        screens: {
+          Anchors: 'anchors',
+        },
+      },
+      Auth: 'auth',
+    },
+  },
+};
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {

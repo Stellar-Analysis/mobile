@@ -4,7 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { View, Text } from 'react-native';
 import { DashboardScreen } from '@screens/main/DashboardScreen';
 import { CorridorsScreen } from '@screens/main/CorridorsScreen';
-import { AnchorsScreen } from '@screens/main/AnchorsScreen';
+import { AnchorsList } from '@components/AnchorsList';
 import { SettingsScreen } from '@screens/main/SettingsScreen';
 import { CorridorDetail } from '@components/CorridorDetail';
 import { OfflineQueue } from '@components/OfflineQueue';
@@ -105,6 +105,12 @@ export function MainNavigator() {
         options={{ headerShown: false }}
       />
       <Tab.Screen name="Anchors" component={AnchorsScreen} />
+      <Tab.Screen name="Corridors" component={CorridorsScreen} />
+      <Tab.Screen
+        name="Anchors"
+        component={AnchorsList}
+        options={{ title: 'Anchors' }}
+      />
       <Tab.Screen
         name="OfflineQueue"
         component={OfflineQueue}
