@@ -22,7 +22,8 @@
       "@utils/*": ["src/utils/*"],
       "@types/*": ["src/types/*"],
       "@store/*": ["src/store/*"],
-      "@config/*": ["src/config/*"]
+      "@config/*": ["src/config/*"],
+      "@navigation/*": ["src/navigation/*"]
     }
   },
   "include": ["src/**/*"],
