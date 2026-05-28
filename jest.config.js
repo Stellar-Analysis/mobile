@@ -16,4 +16,16 @@ module.exports = {
     '^@store/(.*)$': '<rootDir>/src/store/$1',
     '^@config/(.*)$': '<rootDir>/src/config/$1',
   },
+  collectCoverageFrom: [
+    'src/components/AnchorsList.tsx',
+    'src/hooks/useAnchorsList.ts',
+  ],
+  coverageThreshold: {
+    global: {
+      branches: 80,
+      functions: 80,
+      lines: 80,
+      statements: 80,
+    },
+  },
 };

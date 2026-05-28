@@ -3,13 +3,28 @@ import { StatusBar } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, LinkingOptions } from '@react-navigation/native';
 import { RootNavigator } from './navigation/RootNavigator';
+import type { RootStackParamList } from './navigation/RootNavigator';
 import { useAppStore } from './store/appStore';
 import { initializeApp } from './services/initialization';
 import { processOfflineQueue } from './hooks/useOfflineQueue';
 import { NetworkStatusIndicator } from './components/NetworkStatusIndicator';
 import { OfflineCachingIndicator } from './components/OfflineCaching';
+
+const linking: LinkingOptions<RootStackParamList> = {
+  prefixes: ['stellar-insights://'],
+  config: {
+    screens: {
+      Main: {
+        screens: {
+          Anchors: 'anchors',
+        },
+      },
+      Auth: 'auth',
+    },
+  },
+};
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -39,7 +54,7 @@ function App(): React.JSX.Element {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <QueryClientProvider client={queryClient}>
-          <NavigationContainer>
+          <NavigationContainer linking={linking}>
             <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
             <NetworkStatusIndicator />
             <OfflineCachingIndicator showCacheSize={true} />
