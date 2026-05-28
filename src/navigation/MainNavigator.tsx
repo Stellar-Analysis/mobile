@@ -3,7 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { View, Text } from 'react-native';
 import { DashboardScreen } from '@screens/main/DashboardScreen';
 import { CorridorsScreen } from '@screens/main/CorridorsScreen';
-import { AnchorsScreen } from '@screens/main/AnchorsScreen';
+import { AnchorsList } from '@components/AnchorsList';
 import { SettingsScreen } from '@screens/main/SettingsScreen';
 import { OfflineQueue } from '@components/OfflineQueue';
 import { InfiniteScroll } from '@components/InfiniteScroll';
@@ -73,7 +73,11 @@ export function MainNavigator() {
     <Tab.Navigator screenOptions={{ headerShown: true }}>
       <Tab.Screen name="Dashboard" component={DashboardScreen} />
       <Tab.Screen name="Corridors" component={CorridorsScreen} />
-      <Tab.Screen name="Anchors" component={AnchorsScreen} />
+      <Tab.Screen
+        name="Anchors"
+        component={AnchorsList}
+        options={{ title: 'Anchors' }}
+      />
       <Tab.Screen
         name="OfflineQueue"
         component={OfflineQueue}
