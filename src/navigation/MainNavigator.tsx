@@ -1,16 +1,25 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { View, Text } from 'react-native';
 import { DashboardScreen } from '@screens/main/DashboardScreen';
 import { CorridorsScreen } from '@screens/main/CorridorsScreen';
 import { AnchorsList } from '@components/AnchorsList';
 import { SettingsScreen } from '@screens/main/SettingsScreen';
+import { CorridorDetail } from '@components/CorridorDetail';
 import { OfflineQueue } from '@components/OfflineQueue';
 import { InfiniteScroll } from '@components/InfiniteScroll';
 import { PullToRefresh } from '@components/PullToRefresh';
 import { OfflineCaching } from '@components/OfflineCaching';
 import { NetworkSwitchButton } from '@components/NetworkSwitchDialog';
 import { SearchFunctionality } from '@components/SearchFunctionality';
+
+export type CorridorsStackParamList = {
+  CorridorsList: undefined;
+  CorridorDetail: {
+    corridorId: string;
+  };
+};
 
 export type MainTabParamList = {
   Dashboard: undefined;
@@ -26,6 +35,24 @@ export type MainTabParamList = {
 };
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
+const CorridorsStack = createNativeStackNavigator<CorridorsStackParamList>();
+
+function CorridorsNavigator() {
+  return (
+    <CorridorsStack.Navigator>
+      <CorridorsStack.Screen
+        name="CorridorsList"
+        component={CorridorsScreen}
+        options={{ title: 'Corridors', headerShown: false }}
+      />
+      <CorridorsStack.Screen
+        name="CorridorDetail"
+        component={CorridorDetail}
+        options={{ title: 'Corridor Detail' }}
+      />
+    </CorridorsStack.Navigator>
+  );
+}
 
 // Wrapper component for Network Switch
 const NetworkSwitchScreen = () => {
@@ -72,6 +99,12 @@ export function MainNavigator() {
   return (
     <Tab.Navigator screenOptions={{ headerShown: true }}>
       <Tab.Screen name="Dashboard" component={DashboardScreen} />
+      <Tab.Screen
+        name="Corridors"
+        component={CorridorsNavigator}
+        options={{ headerShown: false }}
+      />
+      <Tab.Screen name="Anchors" component={AnchorsScreen} />
       <Tab.Screen name="Corridors" component={CorridorsScreen} />
       <Tab.Screen
         name="Anchors"

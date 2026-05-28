@@ -6,6 +6,25 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { NavigationContainer, LinkingOptions } from '@react-navigation/native';
 import { RootNavigator } from './navigation/RootNavigator';
 import type { RootStackParamList } from './navigation/RootNavigator';
+
+const linking: LinkingOptions<RootStackParamList> = {
+  prefixes: ['stellar-insights://'],
+  config: {
+    screens: {
+      Main: {
+        screens: {
+          Corridors: {
+            screens: {
+              CorridorsList: 'corridors',
+              CorridorDetail: 'corridors/:corridorId',
+            },
+          },
+        },
+      },
+      Auth: 'auth',
+    },
+  },
+};
 import { useAppStore } from './store/appStore';
 import { initializeApp } from './services/initialization';
 import { processOfflineQueue } from './hooks/useOfflineQueue';
