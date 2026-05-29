@@ -6,9 +6,16 @@ import type { AnchorListItem } from '@hooks/useAnchorsList';
 
 const mockRefetch = jest.fn();
 const mockUseAnchorsList = jest.fn();
+const mockNavigate = jest.fn();
 
 jest.mock('@hooks/useAnchorsList', () => ({
   useAnchorsList: (...args: unknown[]) => mockUseAnchorsList(...args),
+}));
+
+jest.mock('@react-navigation/native', () => ({
+  useNavigation: () => ({
+    navigate: mockNavigate,
+  }),
 }));
 
 const SAMPLE_ANCHORS: AnchorListItem[] = [
@@ -177,6 +184,22 @@ describe('Anchors List', () => {
     );
 
     expect(onAnchorPress).toHaveBeenCalledWith('anchor-1');
+  });
+
+  it('navigates to anchor detail when no onAnchorPress is provided', () => {
+    mockUseAnchorsList.mockReturnValue(mockHookReturn());
+
+    const { getByLabelText } = render(<AnchorsList />);
+
+    fireEvent.press(
+      getByLabelText(
+        'MoneyGram Access, Healthy, reliability 99.2 percent, uptime 99.2 percent',
+      ),
+    );
+
+    expect(mockNavigate).toHaveBeenCalledWith('AnchorDetail', {
+      anchorId: 'anchor-1',
+    });
   });
 
   it('refetches when pull-to-refresh is triggered', () => {

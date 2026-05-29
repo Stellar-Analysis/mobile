@@ -18,8 +18,8 @@ module.exports = {
     '^@navigation/(.*)$': '<rootDir>/src/navigation/$1',
   },
   collectCoverageFrom: [
-    'src/components/CorridorsList.tsx',
-    'src/hooks/useCorridorsList.ts',
+    'src/components/AnchorDetail.tsx',
+    'src/hooks/useAnchorDetail.ts',
   ],
   coverageThreshold: {
     global: {

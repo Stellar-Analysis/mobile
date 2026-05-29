@@ -10,12 +10,20 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { useAnchorsList, AnchorListItem, AnchorDataSource } from '@hooks/useAnchorsList';
+import { AnchorsStackParamList } from '@navigation/MainNavigator';
 
 export interface AnchorsListProps {
   onAnchorPress?: (anchorId: string) => void;
 }
+
+type AnchorsListNavigationProp = NativeStackNavigationProp<
+  AnchorsStackParamList,
+  'AnchorsList'
+>;
 
 function truncateAddress(address: string): string {
   if (address.length <= 16) {
@@ -143,6 +151,7 @@ const AnchorCard: React.FC<AnchorCardProps> = ({ anchor, onPress }) => {
 };
 
 export const AnchorsList: React.FC<AnchorsListProps> = ({ onAnchorPress }) => {
+  const navigation = useNavigation<AnchorsListNavigationProp>();
   const {
     anchors,
     total,
@@ -152,6 +161,14 @@ export const AnchorsList: React.FC<AnchorsListProps> = ({ onAnchorPress }) => {
     dataSource,
     refetch,
   } = useAnchorsList();
+
+  const handleAnchorPress = (anchorId: string) => {
+    if (onAnchorPress) {
+      onAnchorPress(anchorId);
+      return;
+    }
+    navigation.navigate('AnchorDetail', { anchorId });
+  };
 
   if (loading && anchors.length === 0 && !error) {
     return (
@@ -249,7 +266,7 @@ export const AnchorsList: React.FC<AnchorsListProps> = ({ onAnchorPress }) => {
           </>
         }
         renderItem={({ item }) => (
-          <AnchorCard anchor={item} onPress={onAnchorPress} />
+          <AnchorCard anchor={item} onPress={handleAnchorPress} />
         )}
         ListEmptyComponent={
           <View

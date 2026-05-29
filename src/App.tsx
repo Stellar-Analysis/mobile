@@ -7,6 +7,7 @@ import { NavigationContainer, LinkingOptions } from '@react-navigation/native';
 import { RootNavigator } from './navigation/RootNavigator';
 import type { RootStackParamList } from './navigation/RootNavigator';
 import { useAppStore } from './store/appStore';
+import { initializeApp } from './services/initialization';
 import { processOfflineQueue } from './hooks/useOfflineQueue';
 import { NetworkStatusIndicator } from './components/NetworkStatusIndicator';
 import { OfflineCachingIndicator } from './components/OfflineCaching';
@@ -17,7 +18,12 @@ const linking: LinkingOptions<RootStackParamList> = {
     screens: {
       Main: {
         screens: {
-          Anchors: 'anchors',
+          Anchors: {
+            screens: {
+              AnchorsList: 'anchors',
+              AnchorDetail: 'anchors/:anchorId',
+            },
+          },
           Corridors: {
             screens: {
               CorridorsList: 'corridors',
@@ -35,8 +41,8 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 2,
-      staleTime: 5 * 60 * 1000,
-      cacheTime: 10 * 60 * 1000,
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      cacheTime: 10 * 60 * 1000, // 10 minutes
     },
   },
 });
@@ -44,6 +50,10 @@ const queryClient = new QueryClient({
 function App(): React.JSX.Element {
   const { theme, isOnline } = useAppStore();
   const isDark = theme === 'dark';
+
+  React.useEffect(() => {
+    initializeApp();
+  }, []);
 
   React.useEffect(() => {
     if (isOnline) {

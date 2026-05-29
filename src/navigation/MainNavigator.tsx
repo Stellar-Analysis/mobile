@@ -7,6 +7,7 @@ import { CorridorsList } from '@components/CorridorsList';
 import { AnchorsList } from '@components/AnchorsList';
 import { SettingsScreen } from '@screens/main/SettingsScreen';
 import { CorridorDetail } from '@components/CorridorDetail';
+import { AnchorDetail } from '@components/AnchorDetail';
 import { OfflineQueue } from '@components/OfflineQueue';
 import { InfiniteScroll } from '@components/InfiniteScroll';
 import { PullToRefresh } from '@components/PullToRefresh';
@@ -19,6 +20,13 @@ export type CorridorsStackParamList = {
   CorridorsList: undefined;
   CorridorDetail: {
     corridorId: string;
+  };
+};
+
+export type AnchorsStackParamList = {
+  AnchorsList: undefined;
+  AnchorDetail: {
+    anchorId: string;
   };
 };
 
@@ -38,6 +46,7 @@ export type MainTabParamList = {
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 const CorridorsStack = createNativeStackNavigator<CorridorsStackParamList>();
+const AnchorsStack = createNativeStackNavigator<AnchorsStackParamList>();
 
 function CorridorsNavigator() {
   return (
@@ -53,6 +62,23 @@ function CorridorsNavigator() {
         options={{ title: 'Corridor Detail' }}
       />
     </CorridorsStack.Navigator>
+  );
+}
+
+function AnchorsNavigator() {
+  return (
+    <AnchorsStack.Navigator>
+      <AnchorsStack.Screen
+        name="AnchorsList"
+        component={AnchorsList}
+        options={{ title: 'Anchors', headerShown: false }}
+      />
+      <AnchorsStack.Screen
+        name="AnchorDetail"
+        component={AnchorDetail}
+        options={{ title: 'Anchor Detail' }}
+      />
+    </AnchorsStack.Navigator>
   );
 }
 
@@ -108,8 +134,8 @@ export function MainNavigator() {
       />
       <Tab.Screen
         name="Anchors"
-        component={AnchorsList}
-        options={{ title: 'Anchors' }}
+        component={AnchorsNavigator}
+        options={{ headerShown: false }}
       />
       <Tab.Screen
         name="OfflineQueue"
