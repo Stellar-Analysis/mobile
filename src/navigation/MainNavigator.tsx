@@ -13,6 +13,7 @@ import { PullToRefresh } from '@components/PullToRefresh';
 import { OfflineCaching } from '@components/OfflineCaching';
 import { NetworkSwitchButton } from '@components/NetworkSwitchDialog';
 import { SearchFunctionality } from '@components/SearchFunctionality';
+import { IOSProjectSetup } from '@components/IOSProjectSetup';
 
 export type CorridorsStackParamList = {
   CorridorsList: undefined;
@@ -31,6 +32,7 @@ export type MainTabParamList = {
   OfflineCaching: undefined;
   NetworkSwitchDialog: undefined;
   SearchFunctionality: undefined;
+  IOSProjectSetup: undefined;
   Settings: undefined;
 };
 
@@ -140,6 +142,11 @@ export function MainNavigator() {
         name="SearchFunctionality"
         component={SearchFunctionalityScreen}
         options={{ title: 'Search' }}
+      />
+      <Tab.Screen
+        name="IOSProjectSetup"
+        component={IOSProjectSetup}
+        options={{ title: 'iOS Setup' }}
       />
       <Tab.Screen name="Settings" component={SettingsScreen} />
     </Tab.Navigator>
