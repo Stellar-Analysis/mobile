@@ -6,6 +6,10 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { NavigationContainer, LinkingOptions } from '@react-navigation/native';
 import { RootNavigator } from './navigation/RootNavigator';
 import type { RootStackParamList } from './navigation/RootNavigator';
+import { useAppStore } from './store/appStore';
+import { processOfflineQueue } from './hooks/useOfflineQueue';
+import { NetworkStatusIndicator } from './components/NetworkStatusIndicator';
+import { OfflineCachingIndicator } from './components/OfflineCaching';
 
 const linking: LinkingOptions<RootStackParamList> = {
   prefixes: ['stellar-insights://'],
@@ -13,6 +17,7 @@ const linking: LinkingOptions<RootStackParamList> = {
     screens: {
       Main: {
         screens: {
+          Anchors: 'anchors',
           Corridors: {
             screens: {
               CorridorsList: 'corridors',
@@ -25,32 +30,13 @@ const linking: LinkingOptions<RootStackParamList> = {
     },
   },
 };
-import { useAppStore } from './store/appStore';
-import { initializeApp } from './services/initialization';
-import { processOfflineQueue } from './hooks/useOfflineQueue';
-import { NetworkStatusIndicator } from './components/NetworkStatusIndicator';
-import { OfflineCachingIndicator } from './components/OfflineCaching';
-
-const linking: LinkingOptions<RootStackParamList> = {
-  prefixes: ['stellar-insights://'],
-  config: {
-    screens: {
-      Main: {
-        screens: {
-          Anchors: 'anchors',
-        },
-      },
-      Auth: 'auth',
-    },
-  },
-};
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 2,
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      cacheTime: 10 * 60 * 1000, // 10 minutes
+      staleTime: 5 * 60 * 1000,
+      cacheTime: 10 * 60 * 1000,
     },
   },
 });
@@ -58,10 +44,6 @@ const queryClient = new QueryClient({
 function App(): React.JSX.Element {
   const { theme, isOnline } = useAppStore();
   const isDark = theme === 'dark';
-
-  React.useEffect(() => {
-    initializeApp();
-  }, []);
 
   React.useEffect(() => {
     if (isOnline) {
