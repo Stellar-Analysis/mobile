@@ -18,6 +18,7 @@ const linking: LinkingOptions<RootStackParamList> = {
     screens: {
       Main: {
         screens: {
+          Dashboard: 'dashboard',
           Anchors: {
             screens: {
               AnchorsList: 'anchors',

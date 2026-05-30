@@ -2,7 +2,7 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { View, Text } from 'react-native';
-import { DashboardScreen } from '@screens/main/DashboardScreen';
+import { DashboardScreen } from '@components/DashboardScreen';
 import { CorridorsList } from '@components/CorridorsList';
 import { AnchorsList } from '@components/AnchorsList';
 import { SettingsScreen } from '@screens/main/SettingsScreen';
