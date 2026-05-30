@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState } from 'react';
 import axios from 'axios';
 
 import { apiClient } from '@services/api';
+import { saveToken } from '@services/tokenStorage';
 import { useAuthStore } from '@store/authStore';
 import { AuthTokens, User } from '@types/index';
 
@@ -166,6 +167,17 @@ export function useLoginScreen(
 
       useAuthStore.getState().setTokens(response.tokens);
       useAuthStore.getState().setUser(response.user);
+
+      // Persist the token securely; storage failure must not block sign-in.
+      try {
+        await saveToken(
+          response.tokens.accessToken,
+          response.tokens.expiresAt,
+        );
+      } catch {
+        // Non-fatal: the user is authenticated for this session regardless.
+      }
+
       onLoginSuccess?.();
     } catch (error) {
       setFormError(getLoginErrorMessage(error));
