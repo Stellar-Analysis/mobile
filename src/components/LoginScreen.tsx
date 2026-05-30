@@ -39,6 +39,9 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
     setPassword,
     toggleShowPassword,
     handleSubmit,
+    canUseBiometrics,
+    biometricLabel,
+    handleBiometricLogin,
   } = useLoginScreen({ onLoginSuccess });
 
   return (
@@ -154,6 +157,26 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
             <Text style={styles.submitButtonText}>Sign In</Text>
           )}
         </Pressable>
+
+        {canUseBiometrics ? (
+          <Pressable
+            onPress={() => {
+              void handleBiometricLogin();
+            }}
+            disabled={loading}
+            style={({ pressed }) => [
+              styles.biometricButton,
+              pressed && styles.biometricButtonPressed,
+            ]}
+            accessibilityRole="button"
+            accessibilityLabel={`Sign in with ${biometricLabel}`}
+            accessibilityHint={`Uses ${biometricLabel} to sign in with your saved account`}
+          >
+            <Text style={styles.biometricButtonText}>
+              Sign in with {biometricLabel}
+            </Text>
+          </Pressable>
+        ) : null}
       </View>
     </SafeAreaView>
   );
@@ -182,6 +205,24 @@ const styles = StyleSheet.create({
     marginTop: 8,
     fontSize: 16,
     color: '#6B7280',
+  },
+  biometricButton: {
+    minHeight: 44,
+    marginTop: 16,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: ACCENT_COLOR,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+  },
+  biometricButtonPressed: {
+    opacity: 0.7,
+  },
+  biometricButtonText: {
+    color: ACCENT_COLOR,
+    fontSize: 16,
+    fontWeight: '600',
   },
   errorBanner: {
     backgroundColor: '#FEE2E2',

@@ -8,6 +8,7 @@ import {
 
 import { LoginScreen } from '@components/LoginScreen';
 import {
+  getBiometricLabel,
   getLoginErrorMessage,
   validateIdentifier,
   validatePassword,
@@ -20,9 +21,30 @@ jest.mock('@services/api', () => ({
   },
 }));
 
+jest.mock('@services/tokenStorage', () => ({
+  saveToken: jest.fn(() => Promise.resolve()),
+  getToken: jest.fn(() => Promise.resolve(null)),
+}));
+
+jest.mock('@services/biometricService', () => ({
+  isBiometricAvailable: jest.fn(() => Promise.resolve(false)),
+  getBiometricType: jest.fn(() => Promise.resolve('None')),
+  authenticate: jest.fn(() => Promise.resolve(false)),
+}));
+
 import { apiClient } from '@services/api';
+import { getToken } from '@services/tokenStorage';
+import {
+  authenticate as biometricAuthenticate,
+  getBiometricType,
+  isBiometricAvailable,
+} from '@services/biometricService';
 
 const mockPost = apiClient.post as jest.Mock;
+const mockGetToken = getToken as jest.Mock;
+const mockIsBiometricAvailable = isBiometricAvailable as jest.Mock;
+const mockGetBiometricType = getBiometricType as jest.Mock;
+const mockBiometricAuthenticate = biometricAuthenticate as jest.Mock;
 
 const SUCCESS_RESPONSE = {
   tokens: {
@@ -71,11 +93,22 @@ describe('useLoginScreen validators', () => {
     expect(getLoginErrorMessage(makeAxiosError(403))).toContain('Incorrect');
     expect(getLoginErrorMessage(new Error('boom'))).toContain('Something went wrong');
   });
+
+  it('maps biometric types to platform labels', () => {
+    expect(getBiometricLabel('FaceID')).toBe('Face ID');
+    expect(getBiometricLabel('TouchID')).toBe('Touch ID');
+    expect(getBiometricLabel('Fingerprint')).toBe('Fingerprint');
+    expect(getBiometricLabel('None')).toBe('Biometrics');
+  });
 });
 
 describe('LoginScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockGetToken.mockResolvedValue(null);
+    mockIsBiometricAvailable.mockResolvedValue(false);
+    mockGetBiometricType.mockResolvedValue('None');
+    mockBiometricAuthenticate.mockResolvedValue(false);
     act(() => {
       useAuthStore.setState({
         user: null,
@@ -201,6 +234,85 @@ describe('LoginScreen', () => {
         ),
       ).toBeTruthy();
     });
+  });
+
+  it('hides the biometric button when biometrics are unavailable', async () => {
+    const screen = render(<LoginScreen />);
+    await waitFor(() => expect(mockGetToken).toHaveBeenCalled());
+    expect(screen.queryByLabelText(/Sign in with/)).toBeNull();
+  });
+
+  it('shows the biometric button and signs in a returning user', async () => {
+    mockIsBiometricAvailable.mockResolvedValue(true);
+    mockGetBiometricType.mockResolvedValue('FaceID');
+    mockGetToken.mockResolvedValue('stored-token');
+    mockBiometricAuthenticate.mockResolvedValue(true);
+    const onLoginSuccess = jest.fn();
+
+    const screen = render(<LoginScreen onLoginSuccess={onLoginSuccess} />);
+    const button = await screen.findByLabelText('Sign in with Face ID');
+
+    fireEvent.press(button);
+
+    await waitFor(() => expect(onLoginSuccess).toHaveBeenCalledTimes(1));
+    expect(mockBiometricAuthenticate).toHaveBeenCalledWith(
+      'Sign in with Face ID',
+    );
+    expect(useAuthStore.getState().isAuthenticated).toBe(true);
+  });
+
+  it('falls back to a non-alarming message when biometrics are canceled', async () => {
+    mockIsBiometricAvailable.mockResolvedValue(true);
+    mockGetBiometricType.mockResolvedValue('TouchID');
+    mockGetToken.mockResolvedValue('stored-token');
+    mockBiometricAuthenticate.mockResolvedValue(false);
+
+    const screen = render(<LoginScreen />);
+    const button = await screen.findByLabelText('Sign in with Touch ID');
+
+    fireEvent.press(button);
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(/Touch ID sign-in didn’t complete/),
+      ).toBeTruthy();
+    });
+    expect(useAuthStore.getState().isAuthenticated).toBe(false);
+  });
+
+  it('still authenticates when secure token persistence fails', async () => {
+    mockPost.mockResolvedValue(SUCCESS_RESPONSE);
+    const { saveToken } = jest.requireMock('@services/tokenStorage') as {
+      saveToken: jest.Mock;
+    };
+    saveToken.mockRejectedValueOnce(new Error('keychain unavailable'));
+    const onLoginSuccess = jest.fn();
+
+    const screen = render(<LoginScreen onLoginSuccess={onLoginSuccess} />);
+    fillForm(screen);
+    fireEvent.press(screen.getByLabelText('Sign in'));
+
+    await waitFor(() => expect(onLoginSuccess).toHaveBeenCalledTimes(1));
+    expect(useAuthStore.getState().isAuthenticated).toBe(true);
+  });
+
+  it('shows a fallback message when the stored token is gone at biometric time', async () => {
+    mockIsBiometricAvailable.mockResolvedValue(true);
+    mockGetBiometricType.mockResolvedValue('FaceID');
+    mockGetToken.mockResolvedValueOnce('stored-token').mockResolvedValue(null);
+    mockBiometricAuthenticate.mockResolvedValue(true);
+
+    const screen = render(<LoginScreen />);
+    const button = await screen.findByLabelText('Sign in with Face ID');
+
+    fireEvent.press(button);
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(/Your saved sign-in is no longer available/),
+      ).toBeTruthy();
+    });
+    expect(useAuthStore.getState().isAuthenticated).toBe(false);
   });
 
   it('clears a field error once the user edits the field', async () => {

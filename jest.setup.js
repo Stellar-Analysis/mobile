@@ -49,3 +49,16 @@ jest.mock('react-native-keychain', () => {
     },
   };
 });
+
+jest.mock('react-native-biometrics', () => ({
+  __esModule: true,
+  BiometryTypes: {
+    TouchID: 'TouchID',
+    FaceID: 'FaceID',
+    Biometrics: 'Biometrics',
+  },
+  default: jest.fn().mockImplementation(() => ({
+    isSensorAvailable: jest.fn(() => Promise.resolve({ available: false })),
+    simplePrompt: jest.fn(() => Promise.resolve({ success: false })),
+  })),
+}));
