@@ -33,7 +33,11 @@ const linking: LinkingOptions<RootStackParamList> = {
           },
         },
       },
-      Auth: 'auth',
+      Auth: {
+        screens: {
+          Login: 'login',
+        },
+      },
     },
   },
 };
