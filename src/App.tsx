@@ -7,7 +7,9 @@ import { NavigationContainer, LinkingOptions } from '@react-navigation/native';
 import { RootNavigator } from './navigation/RootNavigator';
 import type { RootStackParamList } from './navigation/RootNavigator';
 import { useAppStore } from './store/appStore';
+import { useAuthStore } from './store/authStore';
 import { initializeApp } from './services/initialization';
+import { hasValidToken } from './services/tokenStorage';
 import { processOfflineQueue } from './hooks/useOfflineQueue';
 import { NetworkStatusIndicator } from './components/NetworkStatusIndicator';
 import { OfflineCachingIndicator } from './components/OfflineCaching';
@@ -57,7 +59,17 @@ function App(): React.JSX.Element {
   const isDark = theme === 'dark';
 
   React.useEffect(() => {
-    initializeApp();
+    void (async () => {
+      await initializeApp();
+      // Decide the initial route from securely stored token presence/expiry.
+      try {
+        if (await hasValidToken()) {
+          useAuthStore.setState({ isAuthenticated: true });
+        }
+      } finally {
+        useAuthStore.setState({ isLoading: false });
+      }
+    })();
   }, []);
 
   React.useEffect(() => {

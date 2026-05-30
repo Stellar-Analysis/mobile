@@ -1,7 +1,10 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
 
 import { apiClient } from '@services/api';
+import { getToken, saveToken } from '@services/tokenStorage';
+import { useBiometricAuthentication } from '@hooks/useBiometricAuthentication';
+import type { BiometricType } from '@services/biometricService';
 import { useAuthStore } from '@store/authStore';
 import { AuthTokens, User } from '@types/index';
 
@@ -42,6 +45,32 @@ export interface UseLoginScreenReturn {
   setPassword: (value: string) => void;
   toggleShowPassword: () => void;
   handleSubmit: () => Promise<void>;
+  /** True only for returning users: biometrics available AND a token is stored. */
+  canUseBiometrics: boolean;
+  /** Platform label for the biometric prompt, e.g. "Face ID". */
+  biometricLabel: string;
+  /** Whether the biometric availability probe is still running. */
+  biometricLoading: boolean;
+  handleBiometricLogin: () => Promise<void>;
+}
+
+/**
+ * Map a biometric type to its user-facing platform label.
+ *
+ * @param type - Detected biometric type.
+ * @returns A display label such as "Face ID", "Touch ID", or "Fingerprint".
+ */
+export function getBiometricLabel(type: BiometricType): string {
+  switch (type) {
+    case 'FaceID':
+      return 'Face ID';
+    case 'TouchID':
+      return 'Touch ID';
+    case 'Fingerprint':
+      return 'Fingerprint';
+    default:
+      return 'Biometrics';
+  }
 }
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -138,10 +167,61 @@ export function useLoginScreen(
     setShowPassword(prev => !prev);
   }, []);
 
+  const [hasStoredToken, setHasStoredToken] = useState(false);
+  const biometrics = useBiometricAuthentication();
+
+  useEffect(() => {
+    let active = true;
+    void (async () => {
+      try {
+        const token = await getToken();
+        if (active) {
+          setHasStoredToken(!!token);
+        }
+      } catch {
+        if (active) {
+          setHasStoredToken(false);
+        }
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const biometricLabel = getBiometricLabel(biometrics.biometricType);
+  const canUseBiometrics = biometrics.isAvailable && hasStoredToken;
+
   const isValid = useMemo(
     () => !validateIdentifier(identifier) && !validatePassword(password),
     [identifier, password],
   );
+
+  const handleBiometricLogin = useCallback(async () => {
+    setFormError(null);
+
+    const succeeded = await biometrics.authenticate(
+      `Sign in with ${biometricLabel}`,
+    );
+    if (!succeeded) {
+      setFormError(
+        `${biometricLabel} sign-in didn’t complete. Enter your credentials to continue.`,
+      );
+      return;
+    }
+
+    const token = await getToken();
+    if (!token) {
+      setFormError(
+        'Your saved sign-in is no longer available. Enter your credentials to continue.',
+      );
+      return;
+    }
+
+    // Returning-user flow: reuse the stored token; do not re-issue credentials.
+    useAuthStore.setState({ isAuthenticated: true });
+    onLoginSuccess?.();
+  }, [biometrics, biometricLabel, onLoginSuccess]);
 
   const handleSubmit = useCallback(async () => {
     const errors: LoginFieldErrors = {
@@ -166,6 +246,17 @@ export function useLoginScreen(
 
       useAuthStore.getState().setTokens(response.tokens);
       useAuthStore.getState().setUser(response.user);
+
+      // Persist the token securely; storage failure must not block sign-in.
+      try {
+        await saveToken(
+          response.tokens.accessToken,
+          response.tokens.expiresAt,
+        );
+      } catch {
+        // Non-fatal: the user is authenticated for this session regardless.
+      }
+
       onLoginSuccess?.();
     } catch (error) {
       setFormError(getLoginErrorMessage(error));
@@ -186,5 +277,9 @@ export function useLoginScreen(
     setPassword,
     toggleShowPassword,
     handleSubmit,
+    canUseBiometrics,
+    biometricLabel,
+    biometricLoading: biometrics.isLoading,
+    handleBiometricLogin,
   };
 }
