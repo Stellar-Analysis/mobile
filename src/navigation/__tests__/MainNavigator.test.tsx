@@ -34,7 +34,7 @@ function mockScreen(label: string) {
   };
 }
 
-jest.mock('@screens/main/DashboardScreen', () => ({
+jest.mock('@components/DashboardScreen', () => ({
   DashboardScreen: mockScreen('Dashboard'),
 }));
 

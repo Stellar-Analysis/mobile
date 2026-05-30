@@ -27,3 +27,38 @@ jest.mock('@react-native-community/netinfo', () => ({
   ),
   addEventListener: jest.fn(() => jest.fn()),
 }));
+
+jest.mock('react-native-keychain', () => {
+  let store = null;
+  return {
+    setGenericPassword: jest.fn((username, password) => {
+      store = { username, password };
+      return Promise.resolve(true);
+    }),
+    getGenericPassword: jest.fn(() => Promise.resolve(store ? store : false)),
+    resetGenericPassword: jest.fn(() => {
+      store = null;
+      return Promise.resolve(true);
+    }),
+    ACCESSIBLE: {},
+    ACCESS_CONTROL: {},
+    BIOMETRY_TYPE: {
+      TOUCH_ID: 'TouchID',
+      FACE_ID: 'FaceID',
+      FINGERPRINT: 'Fingerprint',
+    },
+  };
+});
+
+jest.mock('react-native-biometrics', () => ({
+  __esModule: true,
+  BiometryTypes: {
+    TouchID: 'TouchID',
+    FaceID: 'FaceID',
+    Biometrics: 'Biometrics',
+  },
+  default: jest.fn().mockImplementation(() => ({
+    isSensorAvailable: jest.fn(() => Promise.resolve({ available: false })),
+    simplePrompt: jest.fn(() => Promise.resolve({ success: false })),
+  })),
+}));
