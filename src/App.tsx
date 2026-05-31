@@ -34,6 +34,9 @@ const linking: LinkingOptions<RootStackParamList> = {
             },
           },
           BeaconSupport: 'beacon-support',
+          AirDropIntegration: 'airdrop',
+          ShortcutsSupport: 'shortcuts',
+          AppIntents: 'app-intents',
         },
       },
       Auth: {

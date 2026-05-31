@@ -19,6 +19,9 @@ import { HapticPatternsComponent } from '@components/HapticPatternsComponent';
 import { PictureinPictureComponent } from '@components/PictureinPictureComponent';
 import { VRSupportComponent } from '@components/VRSupportComponent';
 import { BeaconSupportComponent } from '@components/BeaconSupportComponent';
+import { AirDropIntegrationComponent } from '@components/AirDropIntegrationComponent';
+import { ShortcutsSupportComponent } from '@components/ShortcutsSupportComponent';
+import { AppIntentsComponent } from '@components/AppIntentsComponent';
 
 export type CorridorsStackParamList = {
   CorridorsList: undefined;
@@ -49,6 +52,9 @@ export type MainTabParamList = {
   PictureInPicture: undefined;
   VRSupport: undefined;
   BeaconSupport: undefined;
+  AirDropIntegration: undefined;
+  ShortcutsSupport: undefined;
+  AppIntents: undefined;
   Settings: undefined;
 };
 
@@ -199,6 +205,21 @@ export function MainNavigator() {
         name="BeaconSupport"
         component={BeaconSupportComponent}
         options={{ title: 'Beacon' }}
+      />
+      <Tab.Screen
+        name="AirDropIntegration"
+        component={AirDropIntegrationComponent}
+        options={{ title: 'AirDrop' }}
+      />
+      <Tab.Screen
+        name="ShortcutsSupport"
+        component={ShortcutsSupportComponent}
+        options={{ title: 'Shortcuts' }}
+      />
+      <Tab.Screen
+        name="AppIntents"
+        component={AppIntentsComponent}
+        options={{ title: 'App Intents' }}
       />
       <Tab.Screen name="Settings" component={SettingsScreen} />
     </Tab.Navigator>
