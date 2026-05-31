@@ -15,6 +15,10 @@ import { OfflineCaching } from '@components/OfflineCaching';
 import { NetworkSwitchButton } from '@components/NetworkSwitchDialog';
 import { SearchFunctionality } from '@components/SearchFunctionality';
 import { IOSProjectSetup } from '@components/IOSProjectSetup';
+import { HapticPatternsComponent } from '@components/HapticPatternsComponent';
+import { PictureinPictureComponent } from '@components/PictureinPictureComponent';
+import { VRSupportComponent } from '@components/VRSupportComponent';
+import { BeaconSupportComponent } from '@components/BeaconSupportComponent';
 
 export type CorridorsStackParamList = {
   CorridorsList: undefined;
@@ -41,6 +45,10 @@ export type MainTabParamList = {
   NetworkSwitchDialog: undefined;
   SearchFunctionality: undefined;
   IOSProjectSetup: undefined;
+  HapticPatterns: undefined;
+  PictureInPicture: undefined;
+  VRSupport: undefined;
+  BeaconSupport: undefined;
   Settings: undefined;
 };
 
@@ -171,6 +179,26 @@ export function MainNavigator() {
         name="IOSProjectSetup"
         component={IOSProjectSetup}
         options={{ title: 'iOS Setup' }}
+      />
+      <Tab.Screen
+        name="HapticPatterns"
+        component={HapticPatternsComponent}
+        options={{ title: 'Haptics' }}
+      />
+      <Tab.Screen
+        name="PictureInPicture"
+        component={PictureinPictureComponent}
+        options={{ title: 'PiP' }}
+      />
+      <Tab.Screen
+        name="VRSupport"
+        component={VRSupportComponent}
+        options={{ title: 'VR Support' }}
+      />
+      <Tab.Screen
+        name="BeaconSupport"
+        component={BeaconSupportComponent}
+        options={{ title: 'Beacon' }}
       />
       <Tab.Screen name="Settings" component={SettingsScreen} />
     </Tab.Navigator>
