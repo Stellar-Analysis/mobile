@@ -33,6 +33,7 @@ const linking: LinkingOptions<RootStackParamList> = {
               CorridorDetail: 'corridors/:corridorId',
             },
           },
+          BeaconSupport: 'beacon-support',
         },
       },
       Auth: {
