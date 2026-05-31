@@ -23,6 +23,7 @@ const TAB_ROUTE_NAMES = [
   'NetworkSwitchDialog',
   'SearchFunctionality',
   'IOSProjectSetup',
+  'BeaconSupport',
   'Settings',
 ] as const;
 
@@ -84,6 +85,9 @@ jest.mock('@components/SearchFunctionality', () => ({
 
 jest.mock('@components/IOSProjectSetup', () => ({
   IOSProjectSetup: mockScreen('iOS Setup'),
+}));
+jest.mock('@components/BeaconSupportComponent', () => ({
+  BeaconSupportComponent: mockScreen('Beacon Support'),
 }));
 
 function createTabInitialState(activeTab: (typeof TAB_ROUTE_NAMES)[number]) {

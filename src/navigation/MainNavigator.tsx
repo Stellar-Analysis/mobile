@@ -15,6 +15,7 @@ import { OfflineCaching } from '@components/OfflineCaching';
 import { NetworkSwitchButton } from '@components/NetworkSwitchDialog';
 import { SearchFunctionality } from '@components/SearchFunctionality';
 import { IOSProjectSetup } from '@components/IOSProjectSetup';
+import { BeaconSupportComponent } from '@components/BeaconSupportComponent';
 
 export type CorridorsStackParamList = {
   CorridorsList: undefined;
@@ -41,6 +42,7 @@ export type MainTabParamList = {
   NetworkSwitchDialog: undefined;
   SearchFunctionality: undefined;
   IOSProjectSetup: undefined;
+  BeaconSupport: undefined;
   Settings: undefined;
 };
 
@@ -171,6 +173,11 @@ export function MainNavigator() {
         name="IOSProjectSetup"
         component={IOSProjectSetup}
         options={{ title: 'iOS Setup' }}
+      />
+      <Tab.Screen
+        name="BeaconSupport"
+        component={BeaconSupportComponent}
+        options={{ title: 'Beacon' }}
       />
       <Tab.Screen name="Settings" component={SettingsScreen} />
     </Tab.Navigator>
