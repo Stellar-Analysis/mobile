@@ -22,6 +22,9 @@ import { BeaconSupportComponent } from '@components/BeaconSupportComponent';
 import { AirDropIntegrationComponent } from '@components/AirDropIntegrationComponent';
 import { ShortcutsSupportComponent } from '@components/ShortcutsSupportComponent';
 import { AppIntentsComponent } from '@components/AppIntentsComponent';
+import { QuickActionsComponent } from '@components/QuickActionsComponent';
+import { ShareExtensionComponent } from '@components/ShareExtensionComponent';
+import { ActionExtensionComponent } from '@components/ActionExtensionComponent';
 
 export type CorridorsStackParamList = {
   CorridorsList: undefined;
@@ -55,6 +58,9 @@ export type MainTabParamList = {
   AirDropIntegration: undefined;
   ShortcutsSupport: undefined;
   AppIntents: undefined;
+  QuickActions: undefined;
+  ShareExtension: undefined;
+  ActionExtension: undefined;
   Settings: undefined;
 };
 
@@ -220,6 +226,21 @@ export function MainNavigator() {
         name="AppIntents"
         component={AppIntentsComponent}
         options={{ title: 'App Intents' }}
+      />
+      <Tab.Screen
+        name="QuickActions"
+        component={QuickActionsComponent}
+        options={{ title: 'Quick Actions' }}
+      />
+      <Tab.Screen
+        name="ShareExtension"
+        component={ShareExtensionComponent}
+        options={{ title: 'Share' }}
+      />
+      <Tab.Screen
+        name="ActionExtension"
+        component={ActionExtensionComponent}
+        options={{ title: 'Actions' }}
       />
       <Tab.Screen name="Settings" component={SettingsScreen} />
     </Tab.Navigator>

@@ -37,6 +37,9 @@ const linking: LinkingOptions<RootStackParamList> = {
           AirDropIntegration: 'airdrop',
           ShortcutsSupport: 'shortcuts',
           AppIntents: 'app-intents',
+          QuickActions: 'quick-actions',
+          ShareExtension: 'share-extension',
+          ActionExtension: 'action-extension',
         },
       },
       Auth: {
