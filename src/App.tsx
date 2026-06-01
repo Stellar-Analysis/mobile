@@ -45,8 +45,9 @@ const linking: LinkingOptions<RootStackParamList> = {
           Geofencing: 'geofencing',
           BackgroundSync: 'background-sync',
           GestureControls: 'gesture-controls',
-          PhotoGallery: 'photos',
-          CalendarIntegration: 'calendar',
+          WidgetSupport: 'widget-support',
+          ThreeDTouchSupport: '3d-touch',
+          ShakeToRefresh: 'shake-to-refresh',
         },
       },
       Auth: {
@@ -102,6 +103,7 @@ function App(): React.JSX.Element {
             <OfflineCachingIndicator showCacheSize={true} />
             <RootNavigator />
           </NavigationContainer>
+          {/* Widget, 3D Touch, and Shake-to-Refresh are registered via MainNavigator */}
         </QueryClientProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
