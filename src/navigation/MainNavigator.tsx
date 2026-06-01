@@ -30,6 +30,7 @@ import { ForceTouchComponent } from '@components/ForceTouchComponent';
 import { HandoffSupportComponent } from '@components/HandoffSupportComponent';
 import { GeofencingComponent } from '@components/GeofencingComponent';
 import { BackgroundSyncComponent } from '@components/BackgroundSyncComponent';
+import { PhotoGalleryComponent } from '@components/PhotoGalleryComponent';
 import { CalendarIntegrationComponent } from '@components/CalendarIntegrationComponent';
 
 export type CorridorsStackParamList = {
@@ -72,6 +73,7 @@ export type MainTabParamList = {
   Geofencing: undefined;
   BackgroundSync: undefined;
   GestureControls: undefined;
+  PhotoGallery: undefined;
   CalendarIntegration: undefined;
   Settings: undefined;
 };
@@ -276,6 +278,9 @@ export function MainNavigator() {
         options={{ title: 'Gesture Controls' }}
       />
       <Tab.Screen
+        name="PhotoGallery"
+        component={PhotoGalleryComponent}
+        options={{ title: 'Photos' }}
         name="CalendarIntegration"
         component={CalendarIntegrationComponent}
         options={{ title: 'Calendar' }}
