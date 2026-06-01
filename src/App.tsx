@@ -46,6 +46,9 @@ const linking: LinkingOptions<RootStackParamList> = {
           BackgroundSync: 'background-sync',
           GestureControls: 'gesture-controls',
           ContactsIntegration: 'contacts',
+          WidgetSupport: 'widget-support',
+          ThreeDTouchSupport: '3d-touch',
+          ShakeToRefresh: 'shake-to-refresh',
         },
       },
       Auth: {
@@ -101,6 +104,7 @@ function App(): React.JSX.Element {
             <OfflineCachingIndicator showCacheSize={true} />
             <RootNavigator />
           </NavigationContainer>
+          {/* Widget, 3D Touch, and Shake-to-Refresh are registered via MainNavigator */}
         </QueryClientProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>

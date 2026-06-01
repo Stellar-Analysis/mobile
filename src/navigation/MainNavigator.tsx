@@ -31,6 +31,9 @@ import { HandoffSupportComponent } from '@components/HandoffSupportComponent';
 import { GeofencingComponent } from '@components/GeofencingComponent';
 import { BackgroundSyncComponent } from '@components/BackgroundSyncComponent';
 import { ContactsIntegrationComponent } from '@components/ContactsIntegrationComponent';
+import { WidgetSupportComponent } from '@components/WidgetSupportComponent';
+import { TouchSupportComponent } from '@components/3DTouchSupportComponent';
+import { ShaketoRefreshComponent } from '@components/ShaketoRefreshComponent';
 
 export type CorridorsStackParamList = {
   CorridorsList: undefined;
@@ -73,6 +76,9 @@ export type MainTabParamList = {
   BackgroundSync: undefined;
   GestureControls: undefined;
   ContactsIntegration: undefined;
+  WidgetSupport: undefined;
+  ThreeDTouchSupport: undefined;
+  ShakeToRefresh: undefined;
   Settings: undefined;
 };
 
@@ -279,6 +285,19 @@ export function MainNavigator() {
         name="ContactsIntegration"
         component={ContactsIntegrationComponent}
         options={{ title: 'Contacts' }}
+        name="WidgetSupport"
+        component={WidgetSupportComponent}
+        options={{ title: 'Widgets' }}
+      />
+      <Tab.Screen
+        name="ThreeDTouchSupport"
+        component={TouchSupportComponent}
+        options={{ title: '3D Touch' }}
+      />
+      <Tab.Screen
+        name="ShakeToRefresh"
+        component={ShaketoRefreshComponent}
+        options={{ title: 'Shake to Refresh' }}
       />
       <Tab.Screen name="Settings" component={SettingsScreen} />
     </Tab.Navigator>
