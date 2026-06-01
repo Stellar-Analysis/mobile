@@ -45,6 +45,7 @@ const linking: LinkingOptions<RootStackParamList> = {
           Geofencing: 'geofencing',
           BackgroundSync: 'background-sync',
           GestureControls: 'gesture-controls',
+          CalendarIntegration: 'calendar',
         },
       },
       Auth: {
