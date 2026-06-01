@@ -30,6 +30,7 @@ import { ForceTouchComponent } from '@components/ForceTouchComponent';
 import { HandoffSupportComponent } from '@components/HandoffSupportComponent';
 import { GeofencingComponent } from '@components/GeofencingComponent';
 import { BackgroundSyncComponent } from '@components/BackgroundSyncComponent';
+import { MapsIntegrationComponent } from '@components/MapsIntegrationComponent';
 import { WidgetSupportComponent } from '@components/WidgetSupportComponent';
 import { TouchSupportComponent } from '@components/3DTouchSupportComponent';
 import { ShaketoRefreshComponent } from '@components/ShaketoRefreshComponent';
@@ -74,6 +75,7 @@ export type MainTabParamList = {
   Geofencing: undefined;
   BackgroundSync: undefined;
   GestureControls: undefined;
+  MapsIntegration: undefined;
   WidgetSupport: undefined;
   ThreeDTouchSupport: undefined;
   ShakeToRefresh: undefined;
@@ -280,6 +282,9 @@ export function MainNavigator() {
         options={{ title: 'Gesture Controls' }}
       />
       <Tab.Screen
+        name="MapsIntegration"
+        component={MapsIntegrationComponent}
+        options={{ title: 'Maps' }}
         name="WidgetSupport"
         component={WidgetSupportComponent}
         options={{ title: 'Widgets' }}
