@@ -46,6 +46,7 @@ const linking: LinkingOptions<RootStackParamList> = {
           BackgroundSync: 'background-sync',
           GestureControls: 'gesture-controls',
           PhotoGallery: 'photos',
+          CalendarIntegration: 'calendar',
         },
       },
       Auth: {
