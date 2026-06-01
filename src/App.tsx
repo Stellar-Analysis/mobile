@@ -50,6 +50,10 @@ const linking: LinkingOptions<RootStackParamList> = {
           WidgetSupport: 'widget-support',
           ThreeDTouchSupport: '3d-touch',
           ShakeToRefresh: 'shake-to-refresh',
+          AppClips: 'app-clips',
+          LiveActivities: 'live-activities',
+          WatchApp: 'watch-app',
+          WearOSApp: 'wear-os-app',
         },
       },
       Auth: {
