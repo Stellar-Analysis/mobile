@@ -35,6 +35,10 @@ import { MapsIntegrationComponent } from '@components/MapsIntegrationComponent';
 import { WidgetSupportComponent } from '@components/WidgetSupportComponent';
 import { TouchSupportComponent } from '@components/3DTouchSupportComponent';
 import { ShaketoRefreshComponent } from '@components/ShaketoRefreshComponent';
+import { AppClipsComponent } from '@components/AppClipsComponent';
+import { LiveActivitiesComponent } from '@components/LiveActivitiesComponent';
+import { WatchAppComponent } from '@components/WatchAppComponent';
+import { WearOSAppComponent } from '@components/WearOSAppComponent';
 
 export type CorridorsStackParamList = {
   CorridorsList: undefined;
@@ -81,6 +85,10 @@ export type MainTabParamList = {
   WidgetSupport: undefined;
   ThreeDTouchSupport: undefined;
   ShakeToRefresh: undefined;
+  AppClips: undefined;
+  LiveActivities: undefined;
+  WatchApp: undefined;
+  WearOSApp: undefined;
   Settings: undefined;
 };
 
@@ -304,6 +312,10 @@ export function MainNavigator() {
         component={ShaketoRefreshComponent}
         options={{ title: 'Shake to Refresh' }}
       />
+      <Tab.Screen name="AppClips" component={AppClipsComponent} options={{ title: 'App Clips' }} />
+      <Tab.Screen name="LiveActivities" component={LiveActivitiesComponent} options={{ title: 'Live Activities' }} />
+      <Tab.Screen name="WatchApp" component={WatchAppComponent} options={{ title: 'Watch App' }} />
+      <Tab.Screen name="WearOSApp" component={WearOSAppComponent} options={{ title: 'Wear OS' }} />
       <Tab.Screen name="Settings" component={SettingsScreen} />
     </Tab.Navigator>
   );
