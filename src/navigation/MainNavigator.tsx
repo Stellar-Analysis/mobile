@@ -31,6 +31,7 @@ import { HandoffSupportComponent } from '@components/HandoffSupportComponent';
 import { GeofencingComponent } from '@components/GeofencingComponent';
 import { BackgroundSyncComponent } from '@components/BackgroundSyncComponent';
 import { ContactsIntegrationComponent } from '@components/ContactsIntegrationComponent';
+import { MapsIntegrationComponent } from '@components/MapsIntegrationComponent';
 import { WidgetSupportComponent } from '@components/WidgetSupportComponent';
 import { TouchSupportComponent } from '@components/3DTouchSupportComponent';
 import { ShaketoRefreshComponent } from '@components/ShaketoRefreshComponent';
@@ -76,6 +77,7 @@ export type MainTabParamList = {
   BackgroundSync: undefined;
   GestureControls: undefined;
   ContactsIntegration: undefined;
+  MapsIntegration: undefined;
   WidgetSupport: undefined;
   ThreeDTouchSupport: undefined;
   ShakeToRefresh: undefined;
@@ -285,6 +287,9 @@ export function MainNavigator() {
         name="ContactsIntegration"
         component={ContactsIntegrationComponent}
         options={{ title: 'Contacts' }}
+        name="MapsIntegration"
+        component={MapsIntegrationComponent}
+        options={{ title: 'Maps' }}
         name="WidgetSupport"
         component={WidgetSupportComponent}
         options={{ title: 'Widgets' }}

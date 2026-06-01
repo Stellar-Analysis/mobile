@@ -46,6 +46,7 @@ const linking: LinkingOptions<RootStackParamList> = {
           BackgroundSync: 'background-sync',
           GestureControls: 'gesture-controls',
           ContactsIntegration: 'contacts',
+          MapsIntegration: 'maps',
           WidgetSupport: 'widget-support',
           ThreeDTouchSupport: '3d-touch',
           ShakeToRefresh: 'shake-to-refresh',
