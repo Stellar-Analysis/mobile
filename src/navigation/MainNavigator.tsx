@@ -22,6 +22,7 @@ import { BeaconSupportComponent } from '@components/BeaconSupportComponent';
 import { AirDropIntegrationComponent } from '@components/AirDropIntegrationComponent';
 import { ShortcutsSupportComponent } from '@components/ShortcutsSupportComponent';
 import { AppIntentsComponent } from '@components/AppIntentsComponent';
+import { GestureControlsComponent } from '@components/GestureControlsComponent';
 import { QuickActionsComponent } from '@components/QuickActionsComponent';
 import { ShareExtensionComponent } from '@components/ShareExtensionComponent';
 import { ActionExtensionComponent } from '@components/ActionExtensionComponent';
@@ -69,6 +70,7 @@ export type MainTabParamList = {
   HandoffSupport: undefined;
   Geofencing: undefined;
   BackgroundSync: undefined;
+  GestureControls: undefined;
   Settings: undefined;
 };
 
@@ -265,6 +267,11 @@ export function MainNavigator() {
         name="BackgroundSync"
         component={BackgroundSyncComponent}
         options={{ title: 'Background Sync' }}
+      />
+      <Tab.Screen
+        name="GestureControls"
+        component={GestureControlsComponent}
+        options={{ title: 'Gesture Controls' }}
       />
       <Tab.Screen name="Settings" component={SettingsScreen} />
     </Tab.Navigator>

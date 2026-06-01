@@ -44,6 +44,7 @@ const linking: LinkingOptions<RootStackParamList> = {
           HandoffSupport: 'handoff-support',
           Geofencing: 'geofencing',
           BackgroundSync: 'background-sync',
+          GestureControls: 'gesture-controls',
         },
       },
       Auth: {
