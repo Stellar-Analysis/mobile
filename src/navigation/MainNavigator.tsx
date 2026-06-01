@@ -30,6 +30,7 @@ import { ForceTouchComponent } from '@components/ForceTouchComponent';
 import { HandoffSupportComponent } from '@components/HandoffSupportComponent';
 import { GeofencingComponent } from '@components/GeofencingComponent';
 import { BackgroundSyncComponent } from '@components/BackgroundSyncComponent';
+import { MapsIntegrationComponent } from '@components/MapsIntegrationComponent';
 
 export type CorridorsStackParamList = {
   CorridorsList: undefined;
@@ -71,6 +72,7 @@ export type MainTabParamList = {
   Geofencing: undefined;
   BackgroundSync: undefined;
   GestureControls: undefined;
+  MapsIntegration: undefined;
   Settings: undefined;
 };
 
@@ -272,6 +274,11 @@ export function MainNavigator() {
         name="GestureControls"
         component={GestureControlsComponent}
         options={{ title: 'Gesture Controls' }}
+      />
+      <Tab.Screen
+        name="MapsIntegration"
+        component={MapsIntegrationComponent}
+        options={{ title: 'Maps' }}
       />
       <Tab.Screen name="Settings" component={SettingsScreen} />
     </Tab.Navigator>
