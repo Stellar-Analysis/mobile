@@ -18,6 +18,8 @@ import { IOSProjectSetup } from '@components/IOSProjectSetup';
 import { HapticPatternsComponent } from '@components/HapticPatternsComponent';
 import { PictureinPictureComponent } from '@components/PictureinPictureComponent';
 import { VRSupportComponent } from '@components/VRSupportComponent';
+import { NFCSupportComponent } from '@components/NFCSupportComponent';
+import { BluetoothSupportComponent } from '@components/BluetoothSupportComponent';
 import { BeaconSupportComponent } from '@components/BeaconSupportComponent';
 import { AirDropIntegrationComponent } from '@components/AirDropIntegrationComponent';
 import { ShortcutsSupportComponent } from '@components/ShortcutsSupportComponent';
@@ -39,6 +41,7 @@ import { AppClipsComponent } from '@components/AppClipsComponent';
 import { LiveActivitiesComponent } from '@components/LiveActivitiesComponent';
 import { WatchAppComponent } from '@components/WatchAppComponent';
 import { WearOSAppComponent } from '@components/WearOSAppComponent';
+import type { SearchableItem } from '@hooks/useSearchFunctionality';
 
 export type CorridorsStackParamList = {
   CorridorsList: undefined;
@@ -68,6 +71,8 @@ export type MainTabParamList = {
   HapticPatterns: undefined;
   PictureInPicture: undefined;
   VRSupport: undefined;
+  NFCSupport: undefined;
+  BluetoothSupport: undefined;
   BeaconSupport: undefined;
   AirDropIntegration: undefined;
   ShortcutsSupport: undefined;
@@ -143,7 +148,7 @@ const NetworkSwitchScreen = () => {
 
 // Wrapper component for Search Functionality
 const SearchFunctionalityScreen = () => {
-  const [searchData] = React.useState([
+  const [searchData] = React.useState<SearchableItem[]>([
     {
       id: '1',
       name: 'Stellar Development Foundation',
@@ -161,9 +166,11 @@ const SearchFunctionalityScreen = () => {
       renderItem={({ item }) => (
         <View>
           <Text style={{ fontSize: 14, fontWeight: '600', color: '#212121', marginBottom: 4 }}>
-            {item.name}
+            {(item as { name: string }).name}
           </Text>
-          <Text style={{ fontSize: 12, color: '#666666' }}>{item.description}</Text>
+          <Text style={{ fontSize: 12, color: '#666666' }}>
+            {(item as { description: string }).description}
+          </Text>
         </View>
       )}
       placeholder="Search Stellar resources..."
@@ -231,6 +238,12 @@ export function MainNavigator() {
         component={VRSupportComponent}
         options={{ title: 'VR Support' }}
       />
+      <Tab.Screen name="NFCSupport" component={NFCSupportComponent} options={{ title: 'NFC' }} />
+      <Tab.Screen
+        name="BluetoothSupport"
+        component={BluetoothSupportComponent}
+        options={{ title: 'Bluetooth' }}
+      />
       <Tab.Screen
         name="BeaconSupport"
         component={BeaconSupportComponent}
@@ -295,9 +308,13 @@ export function MainNavigator() {
         name="ContactsIntegration"
         component={ContactsIntegrationComponent}
         options={{ title: 'Contacts' }}
+      />
+      <Tab.Screen
         name="MapsIntegration"
         component={MapsIntegrationComponent}
         options={{ title: 'Maps' }}
+      />
+      <Tab.Screen
         name="WidgetSupport"
         component={WidgetSupportComponent}
         options={{ title: 'Widgets' }}
@@ -313,7 +330,11 @@ export function MainNavigator() {
         options={{ title: 'Shake to Refresh' }}
       />
       <Tab.Screen name="AppClips" component={AppClipsComponent} options={{ title: 'App Clips' }} />
-      <Tab.Screen name="LiveActivities" component={LiveActivitiesComponent} options={{ title: 'Live Activities' }} />
+      <Tab.Screen
+        name="LiveActivities"
+        component={LiveActivitiesComponent}
+        options={{ title: 'Live Activities' }}
+      />
       <Tab.Screen name="WatchApp" component={WatchAppComponent} options={{ title: 'Watch App' }} />
       <Tab.Screen name="WearOSApp" component={WearOSAppComponent} options={{ title: 'Wear OS' }} />
       <Tab.Screen name="Settings" component={SettingsScreen} />
