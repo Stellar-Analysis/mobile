@@ -41,7 +41,8 @@ import { AppClipsComponent } from '@components/AppClipsComponent';
 import { LiveActivitiesComponent } from '@components/LiveActivitiesComponent';
 import { WatchAppComponent } from '@components/WatchAppComponent';
 import { WearOSAppComponent } from '@components/WearOSAppComponent';
-import { CameraIntegrationComponent } from '@components/CameraIntegrationComponent';
+import { VideoPlayerComponent } from '@components/VideoPlayerComponent';
+import { AudioRecordingComponent } from '@components/AudioRecordingComponent';
 import type { SearchableItem } from '@hooks/useSearchFunctionality';
 
 export type CorridorsStackParamList = {
@@ -95,7 +96,8 @@ export type MainTabParamList = {
   LiveActivities: undefined;
   WatchApp: undefined;
   WearOSApp: undefined;
-  CameraIntegration: undefined;
+  VideoPlayer: undefined;
+  AudioRecording: undefined;
   Settings: undefined;
 };
 
@@ -339,11 +341,8 @@ export function MainNavigator() {
       />
       <Tab.Screen name="WatchApp" component={WatchAppComponent} options={{ title: 'Watch App' }} />
       <Tab.Screen name="WearOSApp" component={WearOSAppComponent} options={{ title: 'Wear OS' }} />
-      <Tab.Screen
-        name="CameraIntegration"
-        component={CameraIntegrationComponent}
-        options={{ title: 'Camera' }}
-      />
+      <Tab.Screen name="VideoPlayer" component={VideoPlayerComponent} options={{ title: 'Video Player' }} />
+      <Tab.Screen name="AudioRecording" component={AudioRecordingComponent} options={{ title: 'Audio Recording' }} />
       <Tab.Screen name="Settings" component={SettingsScreen} />
     </Tab.Navigator>
   );
