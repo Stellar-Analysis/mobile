@@ -56,6 +56,7 @@ const linking: LinkingOptions<RootStackParamList> = {
           LiveActivities: 'live-activities',
           WatchApp: 'watch-app',
           WearOSApp: 'wear-os-app',
+          CameraIntegration: 'camera',
         },
       },
       Auth: {
