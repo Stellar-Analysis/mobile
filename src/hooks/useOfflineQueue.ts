@@ -94,21 +94,27 @@ export async function processOfflineQueue(): Promise<OfflineQueueItem[]> {
     const remainingItems: OfflineQueueItem[] = [];
 
     for (const item of currentItems) {
+      if (item.status === 'failed') {
+        remainingItems.push(item);
+        continue;
+      }
+
       try {
         await executeQueueItem({ ...item, status: 'processing' });
       } catch (error) {
         const retryCount = item.retryCount + 1;
         const message = error instanceof Error ? error.message : 'Unable to sync queued request';
 
-        if (retryCount < (MAX_RETRY_COUNT ?? 3)) {
-          remainingItems.push({
-            ...item,
-            retryCount,
-            status: 'failed',
-            lastError: message,
-            updatedAt: new Date().toISOString(),
-          });
-        }
+        remainingItems.push({
+          ...item,
+          retryCount,
+          status: 'failed',
+          lastError:
+            retryCount >= (MAX_RETRY_COUNT ?? 3)
+              ? `${message}. Maximum retry count reached. Use retry to attempt sync again.`
+              : message,
+          updatedAt: new Date().toISOString(),
+        });
       }
     }
 

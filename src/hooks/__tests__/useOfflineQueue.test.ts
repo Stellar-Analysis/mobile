@@ -108,4 +108,54 @@ describe('processOfflineQueue', () => {
       lastError: 'Network unavailable',
     });
   });
+
+  it('does not automatically retry failed requests until they are reset', async () => {
+    const failedItem = {
+      id: '1',
+      method: 'POST' as const,
+      url: '/payments',
+      payload: { amount: 10 },
+      retryCount: 1,
+      status: 'failed' as const,
+      createdAt: '2026-01-01T00:00:00.000Z',
+      updatedAt: '2026-01-01T00:00:00.000Z',
+      lastError: 'Network unavailable',
+    };
+    mockedStorageUtils.getItem.mockReturnValue(JSON.stringify([failedItem]));
+
+    await expect(processOfflineQueue()).resolves.toEqual([failedItem]);
+
+    expect(mockedApiClient.post).not.toHaveBeenCalled();
+    expect(mockedStorageUtils.setItem).toHaveBeenCalledWith(
+      'offline-queue:v1',
+      JSON.stringify([failedItem])
+    );
+  });
+
+  it('keeps max retry failures in the queue for manual review', async () => {
+    mockedStorageUtils.getItem.mockReturnValue(
+      JSON.stringify([
+        {
+          id: '1',
+          method: 'DELETE',
+          url: '/payments/1',
+          retryCount: 4,
+          status: 'pending',
+          createdAt: '2026-01-01T00:00:00.000Z',
+          updatedAt: '2026-01-01T00:00:00.000Z',
+        },
+      ])
+    );
+    mockedApiClient.delete.mockRejectedValue(new Error('Server unavailable'));
+
+    const result = await processOfflineQueue();
+
+    expect(result).toHaveLength(1);
+    expect(result[0]).toMatchObject({
+      id: '1',
+      retryCount: 5,
+      status: 'failed',
+    });
+    expect(result[0].lastError).toContain('Maximum retry count reached');
+  });
 });
