@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 import { API_CONFIG } from '@config/constants';
 import { useAuthStore } from '@store/authStore';
 import { useAppStore } from '@store/appStore';
@@ -22,7 +22,7 @@ class ApiClient {
   private setupInterceptors() {
     // Request interceptor
     this.client.interceptors.request.use(
-      config => {
+      (config: any) => {
         const { tokens } = useAuthStore.getState();
         const { network } = useAppStore.getState();
 
@@ -34,14 +34,14 @@ class ApiClient {
 
         return config;
       },
-      error => Promise.reject(error)
+      (error: any) => Promise.reject(error)
     );
 
     // Response interceptor
     this.client.interceptors.response.use(
-      response => response,
-      async error => {
-        const originalRequest = error.config;
+      (response: AxiosResponse) => response,
+      async (error: AxiosError) => {
+        const originalRequest = error.config as any;
 
         if (error.response?.status === 401 && !originalRequest._retry) {
           originalRequest._retry = true;
