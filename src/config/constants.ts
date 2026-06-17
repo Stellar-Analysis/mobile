@@ -1,5 +1,27 @@
 import Config from 'react-native-config';
 
+// SEC-004: Strict runtime validation for mobile configuration
+const validateConfig = () => {
+  const isProduction = Config.APP_ENV === 'production';
+  const errors: string[] = [];
+
+  if (isProduction) {
+    if (!Config.API_BASE_URL || Config.API_BASE_URL.includes('localhost')) {
+      errors.push('API_BASE_URL must be a valid production URL');
+    }
+    if (Config.STELLAR_NETWORK !== 'mainnet') {
+      errors.push('STELLAR_NETWORK must be mainnet in production');
+    }
+  }
+
+  if (errors.length > 0) {
+    // Fail-fast to prevent misconfigured builds from running
+    throw new Error(`Mobile Configuration Error:\n- ${errors.join('\n- ')}`);
+  }
+};
+
+validateConfig();
+
 export const API_CONFIG = {
   BASE_URL: Config.API_BASE_URL || 'http://localhost:8080',
   TIMEOUT: parseInt(Config.API_TIMEOUT || '30000', 10),

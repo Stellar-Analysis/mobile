@@ -24,8 +24,11 @@ export async function saveToken(
   token: string,
   expiresAt?: number,
 ): Promise<void> {
+  // SEC-002: Use stricter access control for the keychain
   await Keychain.setGenericPassword(TOKEN_ACCOUNT, token, {
     service: KEYCHAIN_SERVICE,
+    accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
+    securityLevel: Keychain.SECURITY_LEVEL.SECURE_HARDWARE,
   });
 
   if (typeof expiresAt === 'number') {
@@ -41,10 +44,16 @@ export async function saveToken(
  * @returns The token, or `null` when none is stored.
  */
 export async function getToken(): Promise<string | null> {
-  const credentials = await Keychain.getGenericPassword({
-    service: KEYCHAIN_SERVICE,
-  });
-  return credentials ? credentials.password : null;
+  try {
+    const credentials = await Keychain.getGenericPassword({
+      service: KEYCHAIN_SERVICE,
+    });
+    return credentials ? credentials.password : null;
+  } catch (error) {
+    // SEC-003: Fail-closed if secure storage is unavailable or compromised
+    console.error('Secure storage access failed:', error);
+    return null;
+  }
 }
 
 /**
