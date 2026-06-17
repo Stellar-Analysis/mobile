@@ -3,6 +3,7 @@ import { API_CONFIG } from '@config/constants';
 import { useAuthStore } from '@store/authStore';
 import { useAppStore } from '@store/appStore';
 import { refreshAuthTokens } from './auth';
+import { logger } from './logger';
 
 class ApiClient {
   private client: AxiosInstance;
@@ -17,12 +18,16 @@ class ApiClient {
     });
 
     this.setupInterceptors();
+    logger.debug('API client initialized', { baseURL: API_CONFIG.BASE_URL });
   }
 
   private setupInterceptors() {
     // Request interceptor
     this.client.interceptors.request.use(
       (config: any) => {
+        const startTime = Date.now();
+        config.metadata = { startTime };
+
         const { tokens } = useAuthStore.getState();
         const { network } = useAppStore.getState();
 
@@ -32,27 +37,66 @@ class ApiClient {
 
         config.headers['X-Stellar-Network'] = network;
 
+        logger.network(
+          config.method?.toUpperCase() || 'UNKNOWN', 
+          config.url || 'unknown',
+          undefined,
+          undefined,
+          { network, hasAuth: !!tokens?.accessToken }
+        );
+
         return config;
       },
-      (error: any) => Promise.reject(error)
+      (error: any) => {
+        logger.error('API request interceptor error', error);
+        return Promise.reject(error);
+      }
     );
 
     // Response interceptor
     this.client.interceptors.response.use(
-      (response: AxiosResponse) => response,
+      (response: AxiosResponse) => {
+        const { config, status } = response;
+        const duration = config.metadata?.startTime ? 
+          Date.now() - config.metadata.startTime : undefined;
+
+        logger.network(
+          config.method?.toUpperCase() || 'UNKNOWN',
+          config.url || 'unknown',
+          status,
+          duration,
+          { responseSize: JSON.stringify(response.data).length }
+        );
+
+        return response;
+      },
       async (error: AxiosError) => {
         const originalRequest = error.config as any;
+        const duration = originalRequest?.metadata?.startTime ? 
+          Date.now() - originalRequest.metadata.startTime : undefined;
+
+        // Log the error
+        logger.network(
+          originalRequest?.method?.toUpperCase() || 'UNKNOWN',
+          originalRequest?.url || 'unknown',
+          error.response?.status,
+          duration,
+          { errorMessage: error.message }
+        );
 
         if (error.response?.status === 401 && !originalRequest._retry) {
           originalRequest._retry = true;
 
           try {
+            logger.debug('Attempting token refresh due to 401 response');
             const newTokens = await refreshAuthTokens();
             if (newTokens) {
               originalRequest.headers.Authorization = `Bearer ${newTokens.accessToken}`;
+              logger.debug('Retrying request with new tokens');
               return this.client(originalRequest);
             }
           } catch (refreshError) {
+            logger.error('Token refresh failed, logging out user', refreshError);
             useAuthStore.getState().logout();
             return Promise.reject(refreshError);
           }
