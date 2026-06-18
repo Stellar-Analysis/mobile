@@ -126,6 +126,30 @@ class ApiClient {
     const response = await this.client.delete<T>(url, config);
     return response.data;
   }
+
+  // Snapshot API methods for realtime fallback on mobile
+  async getAnalyticsSnapshot(type: 'corridor' | 'anchor' | 'all'): Promise<any> {
+    logger.debug(`Fetching analytics snapshot: ${type}`);
+    try {
+      return await this.get(`/api/rpc/snapshot/${type}`);
+    } catch (error) {
+      logger.error(`Failed to fetch analytics snapshot: ${type}`, error);
+      throw error;
+    }
+  }
+
+  async reconcileState(lastTimestamp?: string): Promise<any> {
+    logger.debug('Reconciling state with server', { lastTimestamp });
+    try {
+      return await this.post('/api/rpc/reconcile', {
+        last_known_timestamp: lastTimestamp,
+        data_types: ['corridor', 'anchor'],
+      });
+    } catch (error) {
+      logger.error('Failed to reconcile state', error);
+      throw error;
+    }
+  }
 }
 
 export const apiClient = new ApiClient();
