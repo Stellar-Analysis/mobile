@@ -1,6 +1,6 @@
 # Stellar Insights Mobile
 
-React Native mobile application for Stellar Insights payment analytics.
+React Native mobile application for Stellar Insights payment analytics
 
 ## Features
 
