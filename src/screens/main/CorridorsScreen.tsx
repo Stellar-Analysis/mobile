@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  FlatList,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 
@@ -34,12 +28,9 @@ export function CorridorsScreen() {
         renderItem={({ item }) => (
           <Pressable
             style={styles.listItem}
-            onPress={() =>
-              navigation.navigate('CorridorDetail', { corridorId: item.id })
-            }
+            onPress={() => navigation.navigate('CorridorDetail', { corridorId: item.id })}
             accessibilityRole="button"
-            accessibilityLabel={`Open corridor detail for ${item.label}`}
-          >
+            accessibilityLabel={`Open corridor detail for ${item.label}`}>
             <Text style={styles.listItemTitle}>{item.label}</Text>
             <Text style={styles.listItemSubtitle}>{item.id}</Text>
           </Pressable>

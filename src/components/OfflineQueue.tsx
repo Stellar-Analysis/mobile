@@ -1,10 +1,19 @@
 import React from 'react';
-import { ActivityIndicator, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { useOfflineQueue } from '@hooks/useOfflineQueue';
 import { useAppStore } from '@store/appStore';
 
 export const OfflineQueue: React.FC = () => {
-  const { items, isProcessing, error, clear, processQueue, retryFailed, remove } = useOfflineQueue();
+  const { items, isProcessing, error, clear, processQueue, retryFailed, remove } =
+    useOfflineQueue();
   const isOnline = useAppStore(state => state.isOnline);
   const failedCount = items.filter(item => item.status === 'failed').length;
 
@@ -12,22 +21,29 @@ export const OfflineQueue: React.FC = () => {
     <ScrollView
       style={styles.container}
       contentContainerStyle={styles.content}
-      accessibilityLabel="Offline queue screen"
-    >
+      accessibilityLabel="Offline queue screen">
       <View style={styles.header}>
         <Text style={styles.title}>Offline Queue</Text>
-        <Text style={styles.subtitle} accessibilityLabel={`Network status ${isOnline ? 'online' : 'offline'}`}>
+        <Text
+          style={styles.subtitle}
+          accessibilityLabel={`Network status ${isOnline ? 'online' : 'offline'}`}>
           {isOnline ? 'Online and ready to sync' : 'Offline mode active'}
         </Text>
       </View>
 
-      <View style={styles.summaryCard} accessible accessibilityLabel={`${items.length} queued offline requests`}>
+      <View
+        style={styles.summaryCard}
+        accessible
+        accessibilityLabel={`${items.length} queued offline requests`}>
         <Text style={styles.summaryValue}>{items.length}</Text>
         <Text style={styles.summaryLabel}>Queued requests</Text>
       </View>
 
       {error ? (
-        <View style={styles.errorCard} accessibilityRole="alert" accessibilityLabel={`Offline queue error ${error}`}>
+        <View
+          style={styles.errorCard}
+          accessibilityRole="alert"
+          accessibilityLabel={`Offline queue error ${error}`}>
           <Text style={styles.errorText}>{error}</Text>
         </View>
       ) : null}
@@ -38,9 +54,12 @@ export const OfflineQueue: React.FC = () => {
           onPress={processQueue}
           disabled={!isOnline || isProcessing}
           accessibilityRole="button"
-          accessibilityLabel="Sync offline queue"
-        >
-          {isProcessing ? <ActivityIndicator color="#fff" /> : <Text style={styles.actionText}>Sync now</Text>}
+          accessibilityLabel="Sync offline queue">
+          {isProcessing ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.actionText}>Sync now</Text>
+          )}
         </Pressable>
 
         <Pressable
@@ -48,8 +67,7 @@ export const OfflineQueue: React.FC = () => {
           onPress={retryFailed}
           disabled={failedCount === 0}
           accessibilityRole="button"
-          accessibilityLabel="Retry failed offline requests"
-        >
+          accessibilityLabel="Retry failed offline requests">
           <Text style={styles.secondaryText}>Retry failed</Text>
         </Pressable>
 
@@ -58,8 +76,7 @@ export const OfflineQueue: React.FC = () => {
           onPress={clear}
           disabled={items.length === 0}
           accessibilityRole="button"
-          accessibilityLabel="Clear offline queue"
-        >
+          accessibilityLabel="Clear offline queue">
           <Text style={styles.secondaryText}>Clear</Text>
         </Pressable>
       </View>
@@ -67,11 +84,17 @@ export const OfflineQueue: React.FC = () => {
       {items.length === 0 ? (
         <View style={styles.emptyCard} accessibilityLabel="No offline requests queued">
           <Text style={styles.emptyTitle}>All caught up</Text>
-          <Text style={styles.emptyText}>Requests made offline will appear here until they sync.</Text>
+          <Text style={styles.emptyText}>
+            Requests made offline will appear here until they sync.
+          </Text>
         </View>
       ) : (
         items.map(item => (
-          <View key={item.id} style={styles.queueItem} accessible accessibilityLabel={`${item.method} request to ${item.url} is ${item.status}`}>
+          <View
+            key={item.id}
+            style={styles.queueItem}
+            accessible
+            accessibilityLabel={`${item.method} request to ${item.url} is ${item.status}`}>
             <View style={styles.queueItemHeader}>
               <Text style={styles.method}>{item.method}</Text>
               <Text style={styles.status}>{item.status}</Text>
@@ -83,8 +106,7 @@ export const OfflineQueue: React.FC = () => {
               style={styles.removeButton}
               onPress={() => remove(item.id)}
               accessibilityRole="button"
-              accessibilityLabel={`Remove queued request ${item.id}`}
-            >
+              accessibilityLabel={`Remove queued request ${item.id}`}>
               <Text style={styles.removeText}>Remove</Text>
             </Pressable>
           </View>

@@ -1,11 +1,7 @@
 import { act, renderHook, waitFor } from '@testing-library/react-native';
 
 import { useSecureTokenStorage } from '@hooks/useSecureTokenStorage';
-import {
-  getToken,
-  removeToken,
-  saveToken,
-} from '@services/tokenStorage';
+import { getToken, removeToken, saveToken } from '@services/tokenStorage';
 
 jest.mock('@services/tokenStorage', () => ({
   getToken: jest.fn(),

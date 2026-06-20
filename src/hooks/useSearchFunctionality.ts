@@ -56,9 +56,15 @@ function calculateSimilarity(query: string, text: string): number {
   const q = query.toLowerCase();
   const t = text.toLowerCase();
 
-  if (q === t) return 1;
-  if (t.startsWith(q)) return 0.9;
-  if (t.includes(q)) return 0.7;
+  if (q === t) {
+    return 1;
+  }
+  if (t.startsWith(q)) {
+    return 0.9;
+  }
+  if (t.includes(q)) {
+    return 0.7;
+  }
 
   // Fuzzy matching
   let score = 0;
@@ -124,23 +130,35 @@ function performSearch<T extends SearchableItem>(
 
       switch (operator) {
         case 'equals':
-          if (fieldValue !== filter.value) passesFilters = false;
+          if (fieldValue !== filter.value) {
+            passesFilters = false;
+          }
           break;
         case 'contains':
-          if (!String(fieldValue).includes(String(filter.value))) passesFilters = false;
+          if (!String(fieldValue).includes(String(filter.value))) {
+            passesFilters = false;
+          }
           break;
         case 'startsWith':
-          if (!String(fieldValue).startsWith(String(filter.value))) passesFilters = false;
+          if (!String(fieldValue).startsWith(String(filter.value))) {
+            passesFilters = false;
+          }
           break;
         case 'greaterThan':
-          if (!(Number(fieldValue) > Number(filter.value))) passesFilters = false;
+          if (!(Number(fieldValue) > Number(filter.value))) {
+            passesFilters = false;
+          }
           break;
         case 'lessThan':
-          if (!(Number(fieldValue) < Number(filter.value))) passesFilters = false;
+          if (!(Number(fieldValue) < Number(filter.value))) {
+            passesFilters = false;
+          }
           break;
       }
 
-      if (!passesFilters) break;
+      if (!passesFilters) {
+        break;
+      }
     }
 
     if (passesFilters && totalScore > 0) {
@@ -362,23 +380,35 @@ export function useAdvancedSearch<T extends SearchableItem = SearchableItem>(
 
           switch (operator) {
             case 'equals':
-              if (fieldValue !== filter.value) passesFilters = false;
+              if (fieldValue !== filter.value) {
+                passesFilters = false;
+              }
               break;
             case 'contains':
-              if (!String(fieldValue).includes(String(filter.value))) passesFilters = false;
+              if (!String(fieldValue).includes(String(filter.value))) {
+                passesFilters = false;
+              }
               break;
             case 'startsWith':
-              if (!String(fieldValue).startsWith(String(filter.value))) passesFilters = false;
+              if (!String(fieldValue).startsWith(String(filter.value))) {
+                passesFilters = false;
+              }
               break;
             case 'greaterThan':
-              if (!(Number(fieldValue) > Number(filter.value))) passesFilters = false;
+              if (!(Number(fieldValue) > Number(filter.value))) {
+                passesFilters = false;
+              }
               break;
             case 'lessThan':
-              if (!(Number(fieldValue) < Number(filter.value))) passesFilters = false;
+              if (!(Number(fieldValue) < Number(filter.value))) {
+                passesFilters = false;
+              }
               break;
           }
 
-          if (!passesFilters) break;
+          if (!passesFilters) {
+            break;
+          }
         }
 
         if (passesFilters && totalScore > 0) {

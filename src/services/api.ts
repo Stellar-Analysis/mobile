@@ -38,7 +38,7 @@ class ApiClient {
         config.headers['X-Stellar-Network'] = network;
 
         logger.network(
-          config.method?.toUpperCase() || 'UNKNOWN', 
+          config.method?.toUpperCase() || 'UNKNOWN',
           config.url || 'unknown',
           undefined,
           undefined,
@@ -57,8 +57,9 @@ class ApiClient {
     this.client.interceptors.response.use(
       (response: AxiosResponse) => {
         const { config, status } = response;
-        const duration = config.metadata?.startTime ? 
-          Date.now() - config.metadata.startTime : undefined;
+        const duration = config.metadata?.startTime
+          ? Date.now() - config.metadata.startTime
+          : undefined;
 
         logger.network(
           config.method?.toUpperCase() || 'UNKNOWN',
@@ -72,8 +73,9 @@ class ApiClient {
       },
       async (error: AxiosError) => {
         const originalRequest = error.config as any;
-        const duration = originalRequest?.metadata?.startTime ? 
-          Date.now() - originalRequest.metadata.startTime : undefined;
+        const duration = originalRequest?.metadata?.startTime
+          ? Date.now() - originalRequest.metadata.startTime
+          : undefined;
 
         // Log the error
         logger.network(

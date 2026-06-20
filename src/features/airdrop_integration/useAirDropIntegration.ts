@@ -38,41 +38,48 @@ export function useAirDropIntegration(): UseAirDropIntegration {
       } catch {
         // Ignore storage failures.
       } finally {
-        if (active) setLoading(false);
+        if (active) {
+          setLoading(false);
+        }
       }
     }
 
     void loadHistory();
-    return () => { active = false; };
+    return () => {
+      active = false;
+    };
   }, []);
 
-  const shareContent = useCallback(async (title: string, message: string, url?: string) => {
-    setLoading(true);
-    setError(null);
+  const shareContent = useCallback(
+    async (title: string, message: string, url?: string) => {
+      setLoading(true);
+      setError(null);
 
-    try {
-      if (!supportsAirDrop()) {
-        throw new Error('Sharing is not supported on this platform.');
+      try {
+        if (!supportsAirDrop()) {
+          throw new Error('Sharing is not supported on this platform.');
+        }
+
+        const result = await Share.share({ title, message, url });
+
+        if (result.action === Share.sharedAction) {
+          const item: AirDropItem = {
+            id: Date.now().toString(),
+            title,
+            sharedAt: new Date().toISOString(),
+          };
+          const updated = [item, ...history].slice(0, 20);
+          setHistory(updated);
+          await AsyncStorage.setItem(AIRDROP_HISTORY_KEY, JSON.stringify(updated));
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to share content.');
+      } finally {
+        setLoading(false);
       }
-
-      const result = await Share.share({ title, message, url });
-
-      if (result.action === Share.sharedAction) {
-        const item: AirDropItem = {
-          id: Date.now().toString(),
-          title,
-          sharedAt: new Date().toISOString(),
-        };
-        const updated = [item, ...history].slice(0, 20);
-        setHistory(updated);
-        await AsyncStorage.setItem(AIRDROP_HISTORY_KEY, JSON.stringify(updated));
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to share content.');
-    } finally {
-      setLoading(false);
-    }
-  }, [history]);
+    },
+    [history]
+  );
 
   const clearHistory = useCallback(async () => {
     try {

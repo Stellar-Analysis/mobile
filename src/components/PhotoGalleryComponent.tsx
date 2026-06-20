@@ -38,8 +38,7 @@ export const PhotoGalleryComponent: React.FC = () => {
         accessible
         accessibilityRole="button"
         accessibilityLabel={`Photo ${item.filename}${isSelected ? ', selected' : ''}`}
-        accessibilityState={{ selected: isSelected }}
-      >
+        accessibilityState={{ selected: isSelected }}>
         <Image
           source={{ uri: item.uri }}
           style={styles.photoImage}
@@ -55,15 +54,10 @@ export const PhotoGalleryComponent: React.FC = () => {
   };
 
   return (
-    <ScrollView
-      contentContainerStyle={styles.container}
-      accessibilityLabel="Photo gallery screen"
-    >
+    <ScrollView contentContainerStyle={styles.container} accessibilityLabel="Photo gallery screen">
       <View style={styles.header}>
         <Text style={styles.title}>Photo Gallery</Text>
-        <Text style={styles.subtitle}>
-          Browse and select photos to upload or share.
-        </Text>
+        <Text style={styles.subtitle}>Browse and select photos to upload or share.</Text>
       </View>
 
       {isOffline ? (
@@ -88,7 +82,10 @@ export const PhotoGalleryComponent: React.FC = () => {
       ) : null}
 
       {loading && uploadProgress > 0 ? (
-        <View style={styles.progressContainer} accessibilityRole="progressbar" accessibilityLabel={`Upload progress ${uploadProgress} percent`}>
+        <View
+          style={styles.progressContainer}
+          accessibilityRole="progressbar"
+          accessibilityLabel={`Upload progress ${uploadProgress} percent`}>
           <Text style={styles.progressLabel}>Uploading… {uploadProgress}%</Text>
           <View style={styles.progressBar}>
             <View style={[styles.progressFill, { width: `${uploadProgress}%` }]} />
@@ -152,13 +149,11 @@ export const PhotoGalleryComponent: React.FC = () => {
           accessibilityLabel={`Photo grid with ${photos.length} photos`}
           contentContainerStyle={styles.grid}
         />
-      ) : (
-        permissionStatus === 'granted' && !loading ? (
-          <Text style={styles.emptyText} accessibilityRole="text">
-            No photos found. Tap "Load Photos" to browse your library.
-          </Text>
-        ) : null
-      )}
+      ) : permissionStatus === 'granted' && !loading ? (
+        <Text style={styles.emptyText} accessibilityRole="text">
+          No photos found. Tap "Load Photos" to browse your library.
+        </Text>
+      ) : null}
     </ScrollView>
   );
 };

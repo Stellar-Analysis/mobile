@@ -49,7 +49,9 @@ function readCache(): Map<string, CacheEntry> {
 
   try {
     const value = storageUtils.getItem(OFFLINE_CACHE_STORAGE_KEY);
-    if (!value) return cache;
+    if (!value) {
+      return cache;
+    }
 
     const entries: CacheEntry[] = JSON.parse(value);
     const now = Date.now();
@@ -105,12 +107,16 @@ export function useOfflineCache(config?: OfflineCacheConfig): UseOfflineCacheRes
 
   const getCachedData = React.useCallback(
     (key: QueryKey) => {
-      if (!isEnabled) return null;
+      if (!isEnabled) {
+        return null;
+      }
 
       const serializedKey = serializeKey(key);
       const entry = cache.get(serializedKey);
 
-      if (!entry) return null;
+      if (!entry) {
+        return null;
+      }
 
       // Check if expired
       if (entry.expiresAt <= Date.now()) {
@@ -128,7 +134,9 @@ export function useOfflineCache(config?: OfflineCacheConfig): UseOfflineCacheRes
 
   const setCachedData = React.useCallback(
     (key: QueryKey, data: unknown) => {
-      if (!isEnabled) return;
+      if (!isEnabled) {
+        return;
+      }
 
       const serializedKey = serializeKey(key);
       const now = Date.now();
@@ -152,7 +160,9 @@ export function useOfflineCache(config?: OfflineCacheConfig): UseOfflineCacheRes
         );
 
         for (const oldEntry of sortedEntries) {
-          if (cacheSize <= maxSize) break;
+          if (cacheSize <= maxSize) {
+            break;
+          }
           cacheSize -= JSON.stringify(oldEntry).length;
           newCache.delete(oldEntry.key);
         }
@@ -201,7 +211,9 @@ export function useOfflineCache(config?: OfflineCacheConfig): UseOfflineCacheRes
 
   // Auto-cache queries when online transitions to offline
   React.useEffect(() => {
-    if (!isEnabled) return;
+    if (!isEnabled) {
+      return;
+    }
 
     const unsubscribe = useAppStore.subscribe(
       state => state.isOnline,
@@ -257,7 +269,9 @@ export function useQueryWithOfflineCache<TData = unknown>(
 
   // Fall back to cached data when offline
   const cachedData = React.useMemo(() => {
-    if (isOnline || query.data) return null;
+    if (isOnline || query.data) {
+      return null;
+    }
     return getCachedData(queryKey);
   }, [isOnline, query.data, queryKey, getCachedData]);
 

@@ -26,10 +26,13 @@ describe('VoiceCommandsComponent', () => {
   it('should display listen button after initialization', async () => {
     const { getByA11yLabel } = render(<VoiceCommandsComponent />);
 
-    await waitFor(() => {
-      const listenButton = getByA11yLabel('Start listening for voice commands');
-      expect(listenButton).toBeDefined();
-    }, { timeout: 1000 });
+    await waitFor(
+      () => {
+        const listenButton = getByA11yLabel('Start listening for voice commands');
+        expect(listenButton).toBeDefined();
+      },
+      { timeout: 1000 }
+    );
   });
 
   it('should show available commands', async () => {

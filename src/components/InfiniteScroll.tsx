@@ -1,16 +1,31 @@
 import React from 'react';
-import { ActivityIndicator, FlatList, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import {
+  ActivityIndicator,
+  FlatList,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { InfiniteScrollItem, useInfiniteScroll } from '@hooks/useInfiniteScroll';
 
 export const InfiniteScroll: React.FC = () => {
-  const { items, isLoading, hasMore, error, platformThreshold, loadMore, refresh } = useInfiniteScroll();
+  const { items, isLoading, hasMore, error, platformThreshold, loadMore, refresh } =
+    useInfiniteScroll();
 
-  const renderItem = React.useCallback(({ item }: { item: InfiniteScrollItem }) => (
-    <View style={styles.card} accessible accessibilityLabel={`${item.title}. ${item.description}`}>
-      <Text style={styles.cardTitle}>{item.title}</Text>
-      <Text style={styles.cardDescription}>{item.description}</Text>
-    </View>
-  ), []);
+  const renderItem = React.useCallback(
+    ({ item }: { item: InfiniteScrollItem }) => (
+      <View
+        style={styles.card}
+        accessible
+        accessibilityLabel={`${item.title}. ${item.description}`}>
+        <Text style={styles.cardTitle}>{item.title}</Text>
+        <Text style={styles.cardDescription}>{item.description}</Text>
+      </View>
+    ),
+    []
+  );
 
   return (
     <View style={styles.container} accessibilityLabel="Infinite scroll screen">
@@ -20,7 +35,10 @@ export const InfiniteScroll: React.FC = () => {
       </View>
 
       {error ? (
-        <View style={styles.errorCard} accessibilityRole="alert" accessibilityLabel={`Infinite scroll error ${error}`}>
+        <View
+          style={styles.errorCard}
+          accessibilityRole="alert"
+          accessibilityLabel={`Infinite scroll error ${error}`}>
           <Text style={styles.errorText}>{error}</Text>
         </View>
       ) : null}
@@ -40,7 +58,11 @@ export const InfiniteScroll: React.FC = () => {
             {isLoading ? <ActivityIndicator accessibilityLabel="Loading more results" /> : null}
             {!hasMore ? <Text style={styles.footerText}>No more results</Text> : null}
             {hasMore && !isLoading ? (
-              <Pressable onPress={loadMore} style={styles.loadMoreButton} accessibilityRole="button" accessibilityLabel="Load more infinite scroll results">
+              <Pressable
+                onPress={loadMore}
+                style={styles.loadMoreButton}
+                accessibilityRole="button"
+                accessibilityLabel="Load more infinite scroll results">
                 <Text style={styles.loadMoreText}>Load more</Text>
               </Pressable>
             ) : null}

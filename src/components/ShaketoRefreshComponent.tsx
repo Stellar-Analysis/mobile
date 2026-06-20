@@ -14,11 +14,15 @@ export const ShaketoRefreshComponent: React.FC = () => {
     useShaketoRefresh(onRefresh);
 
   React.useEffect(() => {
-    if (error) Alert.alert('Shake Error', error, [{ text: 'OK' }], { cancelable: true });
+    if (error) {
+      Alert.alert('Shake Error', error, [{ text: 'OK' }], { cancelable: true });
+    }
   }, [error]);
 
   return (
-    <ScrollView contentContainerStyle={styles.container} accessibilityLabel="Shake to refresh screen">
+    <ScrollView
+      contentContainerStyle={styles.container}
+      accessibilityLabel="Shake to refresh screen">
       <View style={styles.header}>
         <Text style={styles.title}>Shake to Refresh</Text>
         <Text style={styles.subtitle}>Shake your device to trigger a data refresh.</Text>
@@ -26,11 +30,15 @@ export const ShaketoRefreshComponent: React.FC = () => {
 
       <View style={styles.body}>
         <Text style={styles.status} accessibilityRole="text">
-          {supported ? 'Shake to refresh is supported on this device.' : 'Not supported on this platform.'}
+          {supported
+            ? 'Shake to refresh is supported on this device.'
+            : 'Not supported on this platform.'}
         </Text>
 
         {isOffline && (
-          <Text style={styles.offlineText} accessibilityRole="text">Offline — refresh will sync when reconnected.</Text>
+          <Text style={styles.offlineText} accessibilityRole="text">
+            Offline — refresh will sync when reconnected.
+          </Text>
         )}
 
         {loading && (
@@ -40,10 +48,19 @@ export const ShaketoRefreshComponent: React.FC = () => {
           </View>
         )}
 
-        <View style={styles.statsCard} accessible accessibilityRole="summary" accessibilityLabel="Shake statistics">
-          <Text style={styles.statLabel}>Shake count: <Text style={styles.statValue}>{shakeCount}</Text></Text>
+        <View
+          style={styles.statsCard}
+          accessible
+          accessibilityRole="summary"
+          accessibilityLabel="Shake statistics">
           <Text style={styles.statLabel}>
-            Last shake: <Text style={styles.statValue}>{lastShakeAt ? new Date(lastShakeAt).toLocaleTimeString() : 'None'}</Text>
+            Shake count: <Text style={styles.statValue}>{shakeCount}</Text>
+          </Text>
+          <Text style={styles.statLabel}>
+            Last shake:{' '}
+            <Text style={styles.statValue}>
+              {lastShakeAt ? new Date(lastShakeAt).toLocaleTimeString() : 'None'}
+            </Text>
           </Text>
         </View>
 
@@ -61,10 +78,16 @@ export const ShaketoRefreshComponent: React.FC = () => {
         />
 
         {refreshLog.length > 0 && (
-          <View style={styles.logCard} accessible accessibilityRole="summary" accessibilityLabel="Refresh log">
+          <View
+            style={styles.logCard}
+            accessible
+            accessibilityRole="summary"
+            accessibilityLabel="Refresh log">
             <Text style={styles.logTitle}>Refresh Log</Text>
             {refreshLog.map((entry, i) => (
-              <Text key={i} style={styles.logEntry}>{entry}</Text>
+              <Text key={i} style={styles.logEntry}>
+                {entry}
+              </Text>
             ))}
           </View>
         )}
@@ -87,10 +110,22 @@ const styles = StyleSheet.create({
   offlineText: { fontSize: 13, color: '#92400e' },
   loaderRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   loadingText: { fontSize: 13, color: '#6B7280' },
-  statsCard: { padding: 16, borderRadius: 12, backgroundColor: '#ecfeff', borderWidth: 1, borderColor: '#a5f3fc' },
+  statsCard: {
+    padding: 16,
+    borderRadius: 12,
+    backgroundColor: '#ecfeff',
+    borderWidth: 1,
+    borderColor: '#a5f3fc',
+  },
   statLabel: { fontSize: 14, color: '#374151', marginBottom: 4 },
   statValue: { fontWeight: '700', color: '#0891b2' },
-  logCard: { padding: 16, borderRadius: 12, backgroundColor: '#f0f9ff', borderWidth: 1, borderColor: '#bae6fd' },
+  logCard: {
+    padding: 16,
+    borderRadius: 12,
+    backgroundColor: '#f0f9ff',
+    borderWidth: 1,
+    borderColor: '#bae6fd',
+  },
   logTitle: { fontSize: 15, fontWeight: '600', color: '#0f172a', marginBottom: 8 },
   logEntry: { fontSize: 13, color: '#475569', marginBottom: 2 },
   note: { fontSize: 12, color: '#6B7280', fontStyle: 'italic' },

@@ -16,22 +16,30 @@ describe('useShaketoRefresh', () => {
   it('calls onRefresh when triggerRefresh is invoked', async () => {
     const onRefresh = jest.fn().mockResolvedValue(undefined);
     const { result } = renderHook(() => useShaketoRefresh(onRefresh));
-    await act(async () => { await result.current.triggerRefresh(); });
+    await act(async () => {
+      await result.current.triggerRefresh();
+    });
     expect(onRefresh).toHaveBeenCalledTimes(1);
   });
 
   it('sets error when onRefresh throws', async () => {
     const onRefresh = jest.fn().mockRejectedValue(new Error('Network error'));
     const { result } = renderHook(() => useShaketoRefresh(onRefresh));
-    await act(async () => { await result.current.triggerRefresh(); });
+    await act(async () => {
+      await result.current.triggerRefresh();
+    });
     expect(result.current.error).toBe('Network error');
   });
 
   it('resets state on reset()', async () => {
     const onRefresh = jest.fn().mockRejectedValue(new Error('fail'));
     const { result } = renderHook(() => useShaketoRefresh(onRefresh));
-    await act(async () => { await result.current.triggerRefresh(); });
-    act(() => { result.current.reset(); });
+    await act(async () => {
+      await result.current.triggerRefresh();
+    });
+    act(() => {
+      result.current.reset();
+    });
     expect(result.current.error).toBeNull();
     expect(result.current.shakeCount).toBe(0);
   });

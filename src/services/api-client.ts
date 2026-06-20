@@ -16,7 +16,7 @@ export interface ResponseMetadata {
 }
 
 export interface SuccessResponse<T> {
-  status: "success";
+  status: 'success';
   code: number;
   data: T;
   metadata?: ResponseMetadata;
@@ -30,7 +30,7 @@ export interface ErrorDetail {
 }
 
 export interface ErrorResponse {
-  status: "error";
+  status: 'error';
   code: number;
   error: ErrorDetail;
 }
@@ -50,7 +50,7 @@ export interface CursorPageMeta {
 }
 
 export interface PaginatedResponse<T> {
-  status: "success";
+  status: 'success';
   code: number;
   data: T[];
   pagination: CursorPageMeta;
@@ -70,7 +70,7 @@ export class ApiError extends Error {
     public statusCode?: number
   ) {
     super(message);
-    this.name = "ApiError";
+    this.name = 'ApiError';
   }
 
   static fromErrorResponse(errorResponse: ErrorResponse): ApiError {
@@ -84,37 +84,31 @@ export class ApiError extends Error {
   }
 
   static fromNetworkError(error: Error, message: string): ApiError {
-    return new ApiError(
-      "NETWORK_ERROR",
-      message,
-      { originalError: error.message },
-      undefined,
-      0
-    );
+    return new ApiError('NETWORK_ERROR', message, { originalError: error.message }, undefined, 0);
   }
 
   get isNetworkError(): boolean {
-    return this.code === "NETWORK_ERROR";
+    return this.code === 'NETWORK_ERROR';
   }
 
   get isValidationError(): boolean {
-    return this.code === "VALIDATION_ERROR";
+    return this.code === 'VALIDATION_ERROR';
   }
 
   get isInvalidFields(): boolean {
-    return this.code === "INVALID_FIELDS";
+    return this.code === 'INVALID_FIELDS';
   }
 
   get isUnauthorized(): boolean {
-    return this.code === "UNAUTHORIZED";
+    return this.code === 'UNAUTHORIZED';
   }
 
   get isRateLimited(): boolean {
-    return this.code === "RATE_LIMITED";
+    return this.code === 'RATE_LIMITED';
   }
 
   get isServiceUnavailable(): boolean {
-    return this.code === "SERVICE_UNAVAILABLE";
+    return this.code === 'SERVICE_UNAVAILABLE';
   }
 
   get isClientError(): boolean {
@@ -187,7 +181,7 @@ export class MobileApiClient {
   private isOnline: boolean = true;
 
   constructor(config: ApiClientConfig) {
-    this.baseUrl = config.baseUrl.replace(/\/$/, "");
+    this.baseUrl = config.baseUrl.replace(/\/$/, '');
     this.apiKey = config.apiKey;
     this.timeout = config.timeout ?? 15000; // Shorter timeout for mobile
     this.retries = config.retries ?? 2; // Fewer retries for mobile
@@ -204,12 +198,12 @@ export class MobileApiClient {
    * Setup network change monitoring
    */
   private setupNetworkMonitoring(): void {
-    if (typeof window !== "undefined" && window.addEventListener) {
-      window.addEventListener("online", () => {
+    if (typeof window !== 'undefined' && window.addEventListener) {
+      window.addEventListener('online', () => {
         this.isOnline = true;
         this.onNetworkChange?.(true);
       });
-      window.addEventListener("offline", () => {
+      window.addEventListener('offline', () => {
         this.isOnline = false;
         this.onNetworkChange?.(false);
       });
@@ -221,7 +215,7 @@ export class MobileApiClient {
    */
   private async fetch<T>(
     endpoint: string,
-    method: string = "GET",
+    method: string = 'GET',
     body?: unknown,
     options: { timeout?: number; skipCache?: boolean } = {}
   ): Promise<ApiResponse<T>> {
@@ -229,7 +223,7 @@ export class MobileApiClient {
     const { timeout = this.timeout, skipCache = false } = options;
 
     // Try cache first for GET requests
-    if (method === "GET" && !skipCache && this.cacheConfig.enabled) {
+    if (method === 'GET' && !skipCache && this.cacheConfig.enabled) {
       const cached = this.getFromCache<T>(cacheKey);
       if (cached) {
         return cached;
@@ -243,8 +237,8 @@ export class MobileApiClient {
         return cachedOffline;
       }
       throw ApiError.fromNetworkError(
-        new Error("No internet connection"),
-        "Device is offline and no cached data available"
+        new Error('No internet connection'),
+        'Device is offline and no cached data available'
       );
     }
 
@@ -264,7 +258,7 @@ export class MobileApiClient {
           signal: controller.signal,
         };
 
-        if (body && method !== "GET" && method !== "HEAD") {
+        if (body && method !== 'GET' && method !== 'HEAD') {
           fetchOptions.body = JSON.stringify(body);
         }
 
@@ -283,7 +277,7 @@ export class MobileApiClient {
         const validatedResponse = this.validateResponse<T>(data);
 
         // Handle error responses
-        if (validatedResponse.status === "error") {
+        if (validatedResponse.status === 'error') {
           const error = ApiError.fromErrorResponse(validatedResponse);
           this.onError?.(error);
 
@@ -292,7 +286,7 @@ export class MobileApiClient {
         }
 
         // Cache successful GET responses
-        if (method === "GET" && this.cacheConfig.enabled) {
+        if (method === 'GET' && this.cacheConfig.enabled) {
           this.saveToCache(cacheKey, validatedResponse);
         }
 
@@ -301,62 +295,58 @@ export class MobileApiClient {
         lastError = error instanceof Error ? error : new Error(String(error));
 
         // Don't retry on client errors
-        if (
-          error instanceof ApiError &&
-          error.isClientError &&
-          !error.isRateLimited
-        ) {
+        if (error instanceof ApiError && error.isClientError && !error.isRateLimited) {
           throw error;
         }
 
         // Exponential backoff for retries
         if (attempt < this.retries) {
           const delay = Math.pow(2, attempt) * 500; // 500ms base
-          await new Promise((resolve) => setTimeout(resolve, delay));
+          await new Promise(resolve => setTimeout(resolve, delay));
         }
       }
     }
 
     // Try to return cached data as fallback for GET requests
-    if (method === "GET") {
+    if (method === 'GET') {
       const cachedFallback = this.getFromCache<T>(cacheKey);
       if (cachedFallback) {
         return cachedFallback;
       }
     }
 
-    throw lastError || new Error("Unknown error");
+    throw lastError || new Error('Unknown error');
   }
 
   /**
    * Validate response conforms to API contract
    */
   private validateResponse<T>(data: unknown): ApiResponse<T> {
-    if (typeof data !== "object" || data === null) {
-      throw new Error("Invalid response: not an object");
+    if (typeof data !== 'object' || data === null) {
+      throw new Error('Invalid response: not an object');
     }
 
     const response = data as Record<string, unknown>;
     const status = response.status;
 
-    if (status === "success") {
-      if (typeof response.code !== "number") {
-        throw new Error("Invalid response: missing or invalid code");
+    if (status === 'success') {
+      if (typeof response.code !== 'number') {
+        throw new Error('Invalid response: missing or invalid code');
       }
       if (response.data === undefined) {
-        throw new Error("Invalid response: missing data");
+        throw new Error('Invalid response: missing data');
       }
       return response as SuccessResponse<T>;
-    } else if (status === "error") {
-      if (typeof response.code !== "number") {
-        throw new Error("Invalid error response: missing code");
+    } else if (status === 'error') {
+      if (typeof response.code !== 'number') {
+        throw new Error('Invalid error response: missing code');
       }
-      if (typeof response.error !== "object" || response.error === null) {
-        throw new Error("Invalid error response: missing error object");
+      if (typeof response.error !== 'object' || response.error === null) {
+        throw new Error('Invalid error response: missing error object');
       }
       const error = response.error as Record<string, unknown>;
-      if (typeof error.code !== "string" || typeof error.message !== "string") {
-        throw new Error("Invalid error response: invalid error details");
+      if (typeof error.code !== 'string' || typeof error.message !== 'string') {
+        throw new Error('Invalid error response: invalid error details');
       }
       return response as ErrorResponse;
     } else {
@@ -369,8 +359,8 @@ export class MobileApiClient {
    */
   private buildHeaders(): Record<string, string> {
     const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-      Accept: "application/json",
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
     };
 
     if (this.apiKey) {
@@ -385,29 +375,29 @@ export class MobileApiClient {
    */
   private buildQueryString(options?: QueryOptions): string {
     if (!options || Object.keys(options).length === 0) {
-      return "";
+      return '';
     }
 
     const params = new URLSearchParams();
 
     if (options.fields && options.fields.length > 0) {
-      params.set("fields", options.fields.join(","));
+      params.set('fields', options.fields.join(','));
     }
     if (options.limit !== undefined) {
-      params.set("limit", String(options.limit));
+      params.set('limit', String(options.limit));
     }
     if (options.cursor) {
-      params.set("cursor", options.cursor);
+      params.set('cursor', options.cursor);
     }
 
     for (const [key, value] of Object.entries(options)) {
-      if (!["fields", "limit", "cursor"].includes(key) && value !== undefined) {
+      if (!['fields', 'limit', 'cursor'].includes(key) && value !== undefined) {
         params.set(key, String(value));
       }
     }
 
     const query = params.toString();
-    return query ? `?${query}` : "";
+    return query ? `?${query}` : '';
   }
 
   /**
@@ -461,33 +451,21 @@ export class MobileApiClient {
   /**
    * GET request
    */
-  async get<T>(
-    endpoint: string,
-    options?: QueryOptions
-  ): Promise<T> {
+  async get<T>(endpoint: string, options?: QueryOptions): Promise<T> {
     const query = this.buildQueryString(options);
-    const response = await this.fetch<T>(
-      `${endpoint}${query}`,
-      "GET"
-    );
+    const response = await this.fetch<T>(`${endpoint}${query}`, 'GET');
     return response.data;
   }
 
   /**
    * GET request with pagination
    */
-  async getPaginated<T>(
-    endpoint: string,
-    options?: QueryOptions
-  ): Promise<PaginatedResponse<T>> {
+  async getPaginated<T>(endpoint: string, options?: QueryOptions): Promise<PaginatedResponse<T>> {
     const query = this.buildQueryString(options);
-    const response = await this.fetch<T[]>(
-      `${endpoint}${query}`,
-      "GET"
-    );
+    const response = await this.fetch<T[]>(`${endpoint}${query}`, 'GET');
 
-    if (!("pagination" in response) || typeof response.pagination !== "object") {
-      throw new Error("Response does not contain pagination metadata");
+    if (!('pagination' in response) || typeof response.pagination !== 'object') {
+      throw new Error('Response does not contain pagination metadata');
     }
 
     return response as unknown as PaginatedResponse<T>;
@@ -497,7 +475,7 @@ export class MobileApiClient {
    * POST request
    */
   async post<T>(endpoint: string, body?: unknown): Promise<T> {
-    const response = await this.fetch<T>(endpoint, "POST", body);
+    const response = await this.fetch<T>(endpoint, 'POST', body);
     return response.data;
   }
 
@@ -505,7 +483,7 @@ export class MobileApiClient {
    * PUT request
    */
   async put<T>(endpoint: string, body?: unknown): Promise<T> {
-    const response = await this.fetch<T>(endpoint, "PUT", body);
+    const response = await this.fetch<T>(endpoint, 'PUT', body);
     return response.data;
   }
 
@@ -513,7 +491,7 @@ export class MobileApiClient {
    * PATCH request
    */
   async patch<T>(endpoint: string, body?: unknown): Promise<T> {
-    const response = await this.fetch<T>(endpoint, "PATCH", body);
+    const response = await this.fetch<T>(endpoint, 'PATCH', body);
     return response.data;
   }
 
@@ -521,7 +499,7 @@ export class MobileApiClient {
    * DELETE request
    */
   async delete<T = void>(endpoint: string): Promise<T> {
-    const response = await this.fetch<T>(endpoint, "DELETE");
+    const response = await this.fetch<T>(endpoint, 'DELETE');
     return response.data;
   }
 }
@@ -530,7 +508,7 @@ export class MobileApiClient {
  * React Native Hook - useMobileApi
  */
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from 'react';
 
 export interface UseMobileApiOptions<T> {
   enabled?: boolean;
@@ -549,7 +527,7 @@ export interface UseMobileApiResult<T> {
 export function useMobileApi<T>(
   client: MobileApiClient,
   endpoint: string,
-  options: QueryOptions = {},
+  options?: QueryOptions,
   hookOptions?: UseMobileApiOptions<T>
 ): UseMobileApiResult<T> {
   const [data, setData] = useState<T | null>(null);
@@ -576,7 +554,9 @@ export function useMobileApi<T>(
   }, [client, endpoint, options, hookOptions]);
 
   useEffect(() => {
-    if (hookOptions?.enabled === false) return;
+    if (hookOptions?.enabled === false) {
+      return;
+    }
     refetch();
   }, [refetch, hookOptions?.enabled]);
 
@@ -585,13 +565,13 @@ export function useMobileApi<T>(
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
 
-    if (typeof window !== "undefined") {
-      window.addEventListener("online", handleOnline);
-      window.addEventListener("offline", handleOffline);
+    if (typeof window !== 'undefined') {
+      window.addEventListener('online', handleOnline);
+      window.addEventListener('offline', handleOffline);
 
       return () => {
-        window.removeEventListener("online", handleOnline);
-        window.removeEventListener("offline", handleOffline);
+        window.removeEventListener('online', handleOnline);
+        window.removeEventListener('offline', handleOffline);
       };
     }
   }, []);
@@ -631,7 +611,7 @@ export function useMobilePaginatedApi<T>(
       setLoading(true);
       setError(null);
       const result = await client.getPaginated<T>(endpoint, { limit, cursor });
-      setData((prev) => (cursor ? [...prev, ...result.data] : result.data));
+      setData(prev => (cursor ? [...prev, ...result.data] : result.data));
       setPagination(result.pagination);
       hookOptions?.onPageChange?.(result.pagination);
     } catch (err) {
@@ -647,7 +627,9 @@ export function useMobilePaginatedApi<T>(
   }, [client, endpoint, limit, cursor, hookOptions]);
 
   useEffect(() => {
-    if (hookOptions?.enabled === false) return;
+    if (hookOptions?.enabled === false) {
+      return;
+    }
     loadMore();
   }, [loadMore, hookOptions?.enabled]);
 
@@ -656,13 +638,13 @@ export function useMobilePaginatedApi<T>(
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
 
-    if (typeof window !== "undefined") {
-      window.addEventListener("online", handleOnline);
-      window.addEventListener("offline", handleOffline);
+    if (typeof window !== 'undefined') {
+      window.addEventListener('online', handleOnline);
+      window.addEventListener('offline', handleOffline);
 
       return () => {
-        window.removeEventListener("online", handleOnline);
-        window.removeEventListener("offline", handleOffline);
+        window.removeEventListener('online', handleOnline);
+        window.removeEventListener('offline', handleOffline);
       };
     }
   }, []);

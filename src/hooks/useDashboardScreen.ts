@@ -35,11 +35,7 @@ export function normalizeDashboardResponse(raw: unknown): DashboardData {
   // Some backends wrap the payload in a `data` envelope.
   const payload = response?.data ?? response;
 
-  if (
-    payload &&
-    isStats(payload.stats) &&
-    Array.isArray(payload.corridor_performance)
-  ) {
+  if (payload && isStats(payload.stats) && Array.isArray(payload.corridor_performance)) {
     return {
       stats: payload.stats,
       corridor_performance: payload.corridor_performance,
@@ -111,9 +107,7 @@ async function fetchDashboard(): Promise<DashboardData> {
 
 export function useDashboardScreen(): UseDashboardScreenReturn {
   const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [corridorPerformance, setCorridorPerformance] = useState<
-    CorridorPerformance[]
-  >([]);
+  const [corridorPerformance, setCorridorPerformance] = useState<CorridorPerformance[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [warning, setWarning] = useState<string | null>(null);
@@ -134,10 +128,7 @@ export function useDashboardScreen(): UseDashboardScreenReturn {
     let offline = false;
     try {
       const networkState = await NetInfo.fetch();
-      offline = !(
-        networkState.isConnected &&
-        networkState.isInternetReachable !== false
-      );
+      offline = !(networkState.isConnected && networkState.isInternetReachable !== false);
     } catch {
       offline = true;
     }
@@ -155,9 +146,7 @@ export function useDashboardScreen(): UseDashboardScreenReturn {
 
         applyData(generateMockDashboard());
         setDataSource('mock');
-        setWarning(
-          'Offline — no saved data available. Showing sample dashboard.',
-        );
+        setWarning('Offline — no saved data available. Showing sample dashboard.');
         return;
       }
 

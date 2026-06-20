@@ -1,6 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Dimensions, ScaledSize } from 'react-native';
-import type { SplitMode, SplitScreenConfig, SplitScreenState } from '../features/split_screen/types';
+import type {
+  SplitMode,
+  SplitScreenConfig,
+  SplitScreenState,
+} from '../features/split_screen/types';
 
 const DEFAULT_CONFIG: SplitScreenConfig = {
   minPaneWidth: 320,
@@ -9,17 +13,35 @@ const DEFAULT_CONFIG: SplitScreenConfig = {
   resizable: false,
 };
 
-function detectMode(windowWidth: number, screenWidth: number, config: SplitScreenConfig): SplitMode {
-  if (windowWidth < config.minPaneWidth) return 'full';
+function detectMode(
+  windowWidth: number,
+  screenWidth: number,
+  config: SplitScreenConfig
+): SplitMode {
+  if (windowWidth < config.minPaneWidth) {
+    return 'full';
+  }
   const ratio = windowWidth / screenWidth;
-  if (ratio >= 0.95) return 'full';
-  if (ratio >= 0.60) return 'two-thirds';
-  if (ratio >= 0.45) return 'half';
-  if (ratio >= 0.30) return 'one-third';
+  if (ratio >= 0.95) {
+    return 'full';
+  }
+  if (ratio >= 0.6) {
+    return 'two-thirds';
+  }
+  if (ratio >= 0.45) {
+    return 'half';
+  }
+  if (ratio >= 0.3) {
+    return 'one-third';
+  }
   return 'slide-over';
 }
 
-function computeState(window: ScaledSize, screen: ScaledSize, config: SplitScreenConfig): SplitScreenState {
+function computeState(
+  window: ScaledSize,
+  screen: ScaledSize,
+  config: SplitScreenConfig
+): SplitScreenState {
   const mode = detectMode(window.width, screen.width, config);
   return {
     mode,
@@ -35,7 +57,7 @@ export function useSplitScreen(config: Partial<SplitScreenConfig> = {}) {
   const mergedConfig: SplitScreenConfig = { ...DEFAULT_CONFIG, ...config };
 
   const [state, setState] = useState<SplitScreenState>(() =>
-    computeState(Dimensions.get('window'), Dimensions.get('screen'), mergedConfig),
+    computeState(Dimensions.get('window'), Dimensions.get('screen'), mergedConfig)
   );
 
   useEffect(() => {
@@ -48,21 +70,31 @@ export function useSplitScreen(config: Partial<SplitScreenConfig> = {}) {
 
   const getPaneAFlex = useCallback((): number => {
     switch (state.mode) {
-      case 'two-thirds': return 2;
-      case 'half': return 1;
-      case 'one-third': return 1;
-      case 'slide-over': return 0;
-      default: return 1;
+      case 'two-thirds':
+        return 2;
+      case 'half':
+        return 1;
+      case 'one-third':
+        return 1;
+      case 'slide-over':
+        return 0;
+      default:
+        return 1;
     }
   }, [state.mode]);
 
   const getPaneBFlex = useCallback((): number => {
     switch (state.mode) {
-      case 'two-thirds': return 1;
-      case 'half': return 1;
-      case 'one-third': return 2;
-      case 'slide-over': return 3;
-      default: return 0;
+      case 'two-thirds':
+        return 1;
+      case 'half':
+        return 1;
+      case 'one-third':
+        return 2;
+      case 'slide-over':
+        return 3;
+      default:
+        return 0;
     }
   }, [state.mode]);
 

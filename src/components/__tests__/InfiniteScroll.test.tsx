@@ -36,7 +36,9 @@ describe('InfiniteScroll', () => {
 
   it('loads more from the footer action', () => {
     const tree = renderer.create(<InfiniteScroll />);
-    const button = tree.root.findByProps({ accessibilityLabel: 'Load more infinite scroll results' });
+    const button = tree.root.findByProps({
+      accessibilityLabel: 'Load more infinite scroll results',
+    });
 
     act(() => {
       button.props.onPress();

@@ -131,36 +131,33 @@ export function useNFCSupport() {
     }
 
     setState(current => ({ ...current, isScanning: true }));
-    scanTimerRef.current = setTimeout(
-      async () => {
-        try {
-          const result = createResult(mode, stateRef.current.isOffline);
-          const cachedResults = [result, ...stateRef.current.cachedResults].slice(
-            0,
-            MAX_CACHED_RESULTS
-          );
+    scanTimerRef.current = setTimeout(async () => {
+      try {
+        const result = createResult(mode, stateRef.current.isOffline);
+        const cachedResults = [result, ...stateRef.current.cachedResults].slice(
+          0,
+          MAX_CACHED_RESULTS
+        );
 
-          await writeCachedResults(cachedResults);
-          Vibration.vibrate(35);
-          setState(current => ({
-            ...current,
-            cachedResults,
-            lastResult: result,
-            isLoading: false,
-            isScanning: false,
-            error: null,
-          }));
-        } catch (error) {
-          setState(current => ({
-            ...current,
-            isLoading: false,
-            isScanning: false,
-            error: error instanceof Error ? error.message : 'NFC session failed.',
-          }));
-        }
-      },
-      Platform.select({ ios: 1000, android: 800, default: 900 })
-    );
+        await writeCachedResults(cachedResults);
+        Vibration.vibrate(35);
+        setState(current => ({
+          ...current,
+          cachedResults,
+          lastResult: result,
+          isLoading: false,
+          isScanning: false,
+          error: null,
+        }));
+      } catch (error) {
+        setState(current => ({
+          ...current,
+          isLoading: false,
+          isScanning: false,
+          error: error instanceof Error ? error.message : 'NFC session failed.',
+        }));
+      }
+    }, Platform.select({ ios: 1000, android: 800, default: 900 }));
   }, []);
 
   const clearCachedResults = useCallback(async () => {

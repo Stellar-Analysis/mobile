@@ -100,9 +100,7 @@ describe('Anchors List', () => {
   });
 
   it('shows loading state with accessibility label', () => {
-    mockUseAnchorsList.mockReturnValue(
-      mockHookReturn({ anchors: [], total: 0, loading: true }),
-    );
+    mockUseAnchorsList.mockReturnValue(mockHookReturn({ anchors: [], total: 0, loading: true }));
 
     const { getByLabelText } = render(<AnchorsList />);
 
@@ -115,7 +113,7 @@ describe('Anchors List', () => {
         anchors: [],
         total: 0,
         error: 'Failed to load anchors',
-      }),
+      })
     );
 
     const { getByLabelText } = render(<AnchorsList />);
@@ -131,16 +129,14 @@ describe('Anchors List', () => {
       mockHookReturn({
         dataSource: 'mock',
         warning: 'Live data unavailable. Showing sample anchors.',
-      }),
+      })
     );
 
     const { getByText } = render(<AnchorsList />);
 
     expect(getByText('Live data unavailable. Showing sample anchors.')).toBeTruthy();
     expect(
-      getByText(
-        'Anchor metrics shown are for preview only and may not reflect live performance.',
-      ),
+      getByText('Anchor metrics shown are for preview only and may not reflect live performance.')
     ).toBeTruthy();
   });
 
@@ -151,7 +147,7 @@ describe('Anchors List', () => {
         dataSource: 'cache',
         isFromCache: true,
         warning: 'Offline — showing saved anchors.',
-      }),
+      })
     );
 
     const { getByText } = render(<AnchorsList />);
@@ -160,9 +156,7 @@ describe('Anchors List', () => {
   });
 
   it('shows empty state when no anchors are available', () => {
-    mockUseAnchorsList.mockReturnValue(
-      mockHookReturn({ anchors: [], total: 0 }),
-    );
+    mockUseAnchorsList.mockReturnValue(mockHookReturn({ anchors: [], total: 0 }));
 
     const { getByLabelText } = render(<AnchorsList />);
 
@@ -173,14 +167,10 @@ describe('Anchors List', () => {
     const onAnchorPress = jest.fn();
     mockUseAnchorsList.mockReturnValue(mockHookReturn());
 
-    const { getByLabelText } = render(
-      <AnchorsList onAnchorPress={onAnchorPress} />,
-    );
+    const { getByLabelText } = render(<AnchorsList onAnchorPress={onAnchorPress} />);
 
     fireEvent.press(
-      getByLabelText(
-        'MoneyGram Access, Healthy, reliability 99.2 percent, uptime 99.2 percent',
-      ),
+      getByLabelText('MoneyGram Access, Healthy, reliability 99.2 percent, uptime 99.2 percent')
     );
 
     expect(onAnchorPress).toHaveBeenCalledWith('anchor-1');
@@ -192,9 +182,7 @@ describe('Anchors List', () => {
     const { getByLabelText } = render(<AnchorsList />);
 
     fireEvent.press(
-      getByLabelText(
-        'MoneyGram Access, Healthy, reliability 99.2 percent, uptime 99.2 percent',
-      ),
+      getByLabelText('MoneyGram Access, Healthy, reliability 99.2 percent, uptime 99.2 percent')
     );
 
     expect(mockNavigate).toHaveBeenCalledWith('AnchorDetail', {
@@ -213,9 +201,7 @@ describe('Anchors List', () => {
   });
 
   it('renders status badges for healthy, degraded, critical, and unknown anchors', () => {
-    mockUseAnchorsList.mockReturnValue(
-      mockHookReturn({ anchors: SAMPLE_ANCHORS, total: 4 }),
-    );
+    mockUseAnchorsList.mockReturnValue(mockHookReturn({ anchors: SAMPLE_ANCHORS, total: 4 }));
 
     const { getByText } = render(<AnchorsList />);
 
@@ -236,7 +222,7 @@ describe('Anchors List', () => {
           },
         ],
         total: 1,
-      }),
+      })
     );
 
     const { getByText } = render(<AnchorsList />);
@@ -256,7 +242,7 @@ describe('Anchors List', () => {
           },
         ],
         total: 1,
-      }),
+      })
     );
 
     const { getByText } = render(<AnchorsList />);

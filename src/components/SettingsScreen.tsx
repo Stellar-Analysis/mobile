@@ -17,33 +17,52 @@ export const SettingsScreen: React.FC = () => {
   } = useSettingsScreen();
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content} accessibilityLabel="Settings screen">
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.content}
+      accessibilityLabel="Settings screen">
       <View style={styles.header}>
         <Text style={styles.title}>Settings Screen</Text>
         <Text style={styles.subtitle}>{platformLabel} preferences and account controls</Text>
       </View>
 
       {!isOnline ? (
-        <View style={styles.offlineBanner} accessibilityRole="alert" accessibilityLabel="Settings offline mode active">
-          <Text style={styles.offlineText}>Offline mode active. Changes are saved locally where possible.</Text>
+        <View
+          style={styles.offlineBanner}
+          accessibilityRole="alert"
+          accessibilityLabel="Settings offline mode active">
+          <Text style={styles.offlineText}>
+            Offline mode active. Changes are saved locally where possible.
+          </Text>
         </View>
       ) : null}
 
       {pendingMessage ? (
-        <Pressable style={styles.messageCard} onPress={clearMessage} accessibilityRole="button" accessibilityLabel={`Dismiss message ${pendingMessage}`}>
+        <Pressable
+          style={styles.messageCard}
+          onPress={clearMessage}
+          accessibilityRole="button"
+          accessibilityLabel={`Dismiss message ${pendingMessage}`}>
           <Text style={styles.messageText}>{pendingMessage}</Text>
         </Pressable>
       ) : null}
 
       {error ? (
-        <View style={styles.errorCard} accessibilityRole="alert" accessibilityLabel={`Settings error ${error}`}>
+        <View
+          style={styles.errorCard}
+          accessibilityRole="alert"
+          accessibilityLabel={`Settings error ${error}`}>
           <Text style={styles.errorText}>{error}</Text>
         </View>
       ) : null}
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Appearance</Text>
-        <Pressable style={styles.option} onPress={toggleTheme} accessibilityRole="button" accessibilityLabel={`Toggle theme. Current theme is ${theme}`}>
+        <Pressable
+          style={styles.option}
+          onPress={toggleTheme}
+          accessibilityRole="button"
+          accessibilityLabel={`Toggle theme. Current theme is ${theme}`}>
           <View>
             <Text style={styles.optionLabel}>Theme</Text>
             <Text style={styles.optionDescription}>Use a platform-friendly {theme} interface</Text>
@@ -54,14 +73,21 @@ export const SettingsScreen: React.FC = () => {
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Network</Text>
-        <Pressable style={styles.option} onPress={toggleNetwork} accessibilityRole="button" accessibilityLabel={`Toggle Stellar network. Current network is ${network}`}>
+        <Pressable
+          style={styles.option}
+          onPress={toggleNetwork}
+          accessibilityRole="button"
+          accessibilityLabel={`Toggle Stellar network. Current network is ${network}`}>
           <View>
             <Text style={styles.optionLabel}>Current Network</Text>
             <Text style={styles.optionDescription}>Switch between testnet and mainnet</Text>
           </View>
           <Text style={styles.optionValue}>{network}</Text>
         </Pressable>
-        <View style={styles.option} accessible accessibilityLabel={`Sync status ${isSyncing ? 'syncing' : 'idle'}`}>
+        <View
+          style={styles.option}
+          accessible
+          accessibilityLabel={`Sync status ${isSyncing ? 'syncing' : 'idle'}`}>
           <View>
             <Text style={styles.optionLabel}>Sync Status</Text>
             <Text style={styles.optionDescription}>Offline queue and cached data</Text>
@@ -72,7 +98,10 @@ export const SettingsScreen: React.FC = () => {
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Support</Text>
-        <View style={styles.option} accessible accessibilityLabel={`Device platform ${platformLabel}`}>
+        <View
+          style={styles.option}
+          accessible
+          accessibilityLabel={`Device platform ${platformLabel}`}>
           <View>
             <Text style={styles.optionLabel}>Platform</Text>
             <Text style={styles.optionDescription}>Optimized for iOS 14+ and Android 8+</Text>

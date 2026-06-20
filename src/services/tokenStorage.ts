@@ -23,10 +23,7 @@ const EXPIRY_KEY = '@stellar-insights/token-expiry';
  * @param token - The auth token to store.
  * @param expiresAt - Optional expiry as a Unix epoch in milliseconds.
  */
-export async function saveToken(
-  token: string,
-  expiresAt?: number,
-): Promise<void> {
+export async function saveToken(token: string, expiresAt?: number): Promise<void> {
   // SEC-002: Use stricter access control for the keychain
   await Keychain.setGenericPassword(TOKEN_ACCOUNT, token, {
     service: KEYCHAIN_SERVICE,

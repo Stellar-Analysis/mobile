@@ -31,7 +31,11 @@ export const useBarcodeScanner = (): BarcodeScannerState => {
   const [result, setResult] = useState<BarcodeResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const scanningTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const [permissionsGranted, setPermissionsGranted] = useMMKVStorage(BARCODE_PERMISSIONS_KEY, storage, false);
+  const [permissionsGranted, setPermissionsGranted] = useMMKVStorage(
+    BARCODE_PERMISSIONS_KEY,
+    storage,
+    false
+  );
 
   const hasPermission = useCallback(async (): Promise<boolean> => {
     try {

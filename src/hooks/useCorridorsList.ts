@@ -152,12 +152,9 @@ function applyFallbackResult(
   setWarning: (warning: string) => void,
   dataSource: Extract<CorridorDataSource, 'cache' | 'mock'>,
   warning: string,
-  cachedData?: CorridorsListData | null,
+  cachedData?: CorridorsListData | null
 ): void {
-  const data =
-    dataSource === 'cache' && cachedData
-      ? cachedData
-      : generateMockCorridorsList();
+  const data = dataSource === 'cache' && cachedData ? cachedData : generateMockCorridorsList();
 
   setCorridors(data.corridors);
   setTotal(data.total);
@@ -183,10 +180,7 @@ export function useCorridorsList(): UseCorridorsListReturn {
     let offline = false;
     try {
       const networkState = await NetInfo.fetch();
-      offline = !(
-        networkState.isConnected &&
-        networkState.isInternetReachable !== false
-      );
+      offline = !(networkState.isConnected && networkState.isInternetReachable !== false);
     } catch {
       offline = true;
     }
@@ -209,7 +203,7 @@ export function useCorridorsList(): UseCorridorsListReturn {
           setDataSource,
           setWarning,
           'mock',
-          'Offline — no saved data available. Showing sample corridors.',
+          'Offline — no saved data available. Showing sample corridors.'
         );
         return;
       }
@@ -231,7 +225,7 @@ export function useCorridorsList(): UseCorridorsListReturn {
             setWarning,
             'cache',
             'Live data unavailable. Showing saved corridors.',
-            cached,
+            cached
           );
           return;
         }
@@ -242,7 +236,7 @@ export function useCorridorsList(): UseCorridorsListReturn {
           setDataSource,
           setWarning,
           'mock',
-          'Live data unavailable. Showing sample corridors.',
+          'Live data unavailable. Showing sample corridors.'
         );
       }
     } catch {

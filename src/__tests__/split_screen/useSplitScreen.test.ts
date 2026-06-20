@@ -3,7 +3,7 @@ import { Dimensions } from 'react-native';
 import { useSplitScreen } from '../../hooks/useSplitScreen';
 
 function mockDims(windowWidth: number, screenWidth: number) {
-  jest.spyOn(Dimensions, 'get').mockImplementation((dim) => {
+  jest.spyOn(Dimensions, 'get').mockImplementation(dim => {
     const base = { height: 1024, scale: 2, fontScale: 1 };
     return dim === 'window' ? { ...base, width: windowWidth } : { ...base, width: screenWidth };
   });

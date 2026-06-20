@@ -71,7 +71,7 @@ describe('Dashboard Screen', () => {
 
   it('shows loading state with accessibility label', () => {
     mockUseDashboardScreen.mockReturnValue(
-      mockHookReturn({ stats: null, corridorPerformance: [], loading: true }),
+      mockHookReturn({ stats: null, corridorPerformance: [], loading: true })
     );
 
     const { getByLabelText } = render(<DashboardScreen />);
@@ -85,7 +85,7 @@ describe('Dashboard Screen', () => {
         stats: null,
         corridorPerformance: [],
         error: 'Failed to load dashboard',
-      }),
+      })
     );
 
     const { getByLabelText } = render(<DashboardScreen />);
@@ -101,18 +101,16 @@ describe('Dashboard Screen', () => {
       mockHookReturn({
         dataSource: 'mock',
         warning: 'Live data unavailable. Showing sample dashboard.',
-      }),
+      })
     );
 
     const { getByText } = render(<DashboardScreen />);
 
-    expect(
-      getByText('Live data unavailable. Showing sample dashboard.'),
-    ).toBeTruthy();
+    expect(getByText('Live data unavailable. Showing sample dashboard.')).toBeTruthy();
     expect(
       getByText(
-        'Dashboard metrics shown are for preview only and may not reflect live performance.',
-      ),
+        'Dashboard metrics shown are for preview only and may not reflect live performance.'
+      )
     ).toBeTruthy();
   });
 
@@ -123,7 +121,7 @@ describe('Dashboard Screen', () => {
         dataSource: 'cache',
         isFromCache: true,
         warning: 'Offline — showing saved dashboard.',
-      }),
+      })
     );
 
     const { getByText } = render(<DashboardScreen />);
@@ -135,9 +133,7 @@ describe('Dashboard Screen', () => {
     mockUseDashboardScreen.mockReturnValue(mockHookReturn());
     const onCorridorPress = jest.fn();
 
-    const { getByText } = render(
-      <DashboardScreen onCorridorPress={onCorridorPress} />,
-    );
+    const { getByText } = render(<DashboardScreen onCorridorPress={onCorridorPress} />);
 
     fireEvent.press(getByText('USDC→PHP'));
     expect(onCorridorPress).toHaveBeenCalledWith('USDC→PHP');
@@ -160,7 +156,7 @@ describe('Dashboard Screen', () => {
           // Critical health (<75).
           { corridor: 'EURC→NGN', success_rate: 70.0, volume: 2100, health: 60 },
         ],
-      }),
+      })
     );
 
     const { getByText, getByLabelText } = render(<DashboardScreen />);
@@ -173,9 +169,7 @@ describe('Dashboard Screen', () => {
   });
 
   it('shows an empty state when no corridor data is available', () => {
-    mockUseDashboardScreen.mockReturnValue(
-      mockHookReturn({ corridorPerformance: [] }),
-    );
+    mockUseDashboardScreen.mockReturnValue(mockHookReturn({ corridorPerformance: [] }));
 
     const { getByText } = render(<DashboardScreen />);
 

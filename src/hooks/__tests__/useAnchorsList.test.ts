@@ -89,7 +89,7 @@ describe('useAnchorsList', () => {
 
     expect(result.current.dataSource).toBe('mock');
     expect(result.current.warning).toBe(
-      'Offline — no saved data available. Showing sample anchors.',
+      'Offline — no saved data available. Showing sample anchors.'
     );
   });
 
@@ -147,9 +147,7 @@ describe('useAnchorsList', () => {
       isConnected: false,
       isInternetReachable: false,
     });
-    (AsyncStorage.getItem as jest.Mock).mockRejectedValueOnce(
-      new Error('Storage read failed'),
-    );
+    (AsyncStorage.getItem as jest.Mock).mockRejectedValueOnce(new Error('Storage read failed'));
 
     const { result } = renderHook(() => useAnchorsList());
 
@@ -194,7 +192,7 @@ describe('normalizeAnchorsResponse', () => {
       normalizeAnchorsResponse({
         data: mockData.anchors,
         pagination: { total: mockData.total },
-      }),
+      })
     ).toEqual(mockData);
   });
 

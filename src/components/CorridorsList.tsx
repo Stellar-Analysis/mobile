@@ -85,8 +85,11 @@ const CorridorCard: React.FC<CorridorCardProps> = ({ corridor, onPress }) => {
       style={({ pressed }) => [styles.card, pressed && onPress && styles.cardPressed]}
       onPress={onPress ? () => onPress(corridor.id) : undefined}
       accessibilityRole={onPress ? 'button' : 'text'}
-      accessibilityLabel={`${corridor.source_asset} to ${corridor.destination_asset}, ${healthStyles.label}, success rate ${corridor.success_rate.toFixed(1)} percent, health score ${corridor.health_score.toFixed(0)}`}
-    >
+      accessibilityLabel={`${corridor.source_asset} to ${corridor.destination_asset}, ${
+        healthStyles.label
+      }, success rate ${corridor.success_rate.toFixed(
+        1
+      )} percent, health score ${corridor.health_score.toFixed(0)}`}>
       <View style={styles.cardHeader}>
         <View style={styles.cardTitleBlock}>
           <Text style={styles.cardTitle}>
@@ -95,9 +98,7 @@ const CorridorCard: React.FC<CorridorCardProps> = ({ corridor, onPress }) => {
           <Text style={styles.cardSubtitle}>{corridor.id}</Text>
         </View>
         <View style={[styles.statusBadge, healthStyles.badge]}>
-          <Text style={[styles.statusBadgeText, healthStyles.text]}>
-            {healthStyles.label}
-          </Text>
+          <Text style={[styles.statusBadgeText, healthStyles.text]}>{healthStyles.label}</Text>
         </View>
       </View>
 
@@ -112,16 +113,13 @@ const CorridorCard: React.FC<CorridorCardProps> = ({ corridor, onPress }) => {
         </View>
         <View style={styles.metricBlock}>
           <Text style={styles.metricLabel}>Liquidity</Text>
-          <Text style={styles.metricValue}>
-            {formatMillions(corridor.liquidity_depth_usd)}
-          </Text>
+          <Text style={styles.metricValue}>{formatMillions(corridor.liquidity_depth_usd)}</Text>
         </View>
       </View>
 
       <Text style={styles.cardMeta}>
-        {corridor.successful_payments.toLocaleString()} /{' '}
-        {corridor.total_attempts.toLocaleString()} payments · Avg latency{' '}
-        {corridor.average_latency_ms.toFixed(0)} ms
+        {corridor.successful_payments.toLocaleString()} / {corridor.total_attempts.toLocaleString()}{' '}
+        payments · Avg latency {corridor.average_latency_ms.toFixed(0)} ms
       </Text>
     </Pressable>
   );
@@ -129,15 +127,7 @@ const CorridorCard: React.FC<CorridorCardProps> = ({ corridor, onPress }) => {
 
 export const CorridorsList: React.FC<CorridorsListProps> = ({ onCorridorPress }) => {
   const navigation = useNavigation<CorridorsListNavigationProp>();
-  const {
-    corridors,
-    total,
-    loading,
-    error,
-    warning,
-    dataSource,
-    refetch,
-  } = useCorridorsList();
+  const { corridors, total, loading, error, warning, dataSource, refetch } = useCorridorsList();
 
   const handleCorridorPress = (corridorId: string) => {
     if (onCorridorPress) {
@@ -154,12 +144,8 @@ export const CorridorsList: React.FC<CorridorsListProps> = ({ onCorridorPress })
           style={styles.centerContent}
           accessible
           accessibilityRole="progressbar"
-          accessibilityLabel="Loading corridors list"
-        >
-          <ActivityIndicator
-            size="large"
-            color={Platform.OS === 'ios' ? '#007AFF' : '#1976D2'}
-          />
+          accessibilityLabel="Loading corridors list">
+          <ActivityIndicator size="large" color={Platform.OS === 'ios' ? '#007AFF' : '#1976D2'} />
           <Text style={styles.loadingText}>Loading corridors...</Text>
         </View>
       </SafeAreaView>
@@ -174,8 +160,7 @@ export const CorridorsList: React.FC<CorridorsListProps> = ({ onCorridorPress })
             style={styles.errorBanner}
             accessible
             accessibilityRole="alert"
-            accessibilityLabel={error}
-          >
+            accessibilityLabel={error}>
             <Text style={styles.errorText}>{error}</Text>
             <Pressable
               onPress={() => {
@@ -183,8 +168,7 @@ export const CorridorsList: React.FC<CorridorsListProps> = ({ onCorridorPress })
               }}
               style={styles.retryButton}
               accessibilityRole="button"
-              accessibilityLabel="Retry loading corridors list"
-            >
+              accessibilityLabel="Retry loading corridors list">
               <Text style={styles.retryButtonText}>Retry</Text>
             </Pressable>
           </View>
@@ -218,8 +202,7 @@ export const CorridorsList: React.FC<CorridorsListProps> = ({ onCorridorPress })
               style={styles.header}
               accessible
               accessibilityRole="header"
-              accessibilityLabel={`Corridors list, ${total} total corridors`}
-            >
+              accessibilityLabel={`Corridors list, ${total} total corridors`}>
               <Text style={styles.title}>Corridors List</Text>
               <Text style={styles.subtitle}>
                 {total} corridor{total === 1 ? '' : 's'}
@@ -231,29 +214,25 @@ export const CorridorsList: React.FC<CorridorsListProps> = ({ onCorridorPress })
                 style={feedbackBanner.container}
                 accessible
                 accessibilityRole="text"
-                accessibilityLabel={warning}
-              >
+                accessibilityLabel={warning}>
                 <Text style={feedbackBanner.text}>{warning}</Text>
                 {dataSource === 'mock' ? (
                   <Text style={feedbackBanner.text}>
-                    Corridor metrics shown are for preview only and may not reflect
-                    live performance.
+                    Corridor metrics shown are for preview only and may not reflect live
+                    performance.
                   </Text>
                 ) : null}
               </View>
             ) : null}
           </>
         }
-        renderItem={({ item }) => (
-          <CorridorCard corridor={item} onPress={handleCorridorPress} />
-        )}
+        renderItem={({ item }) => <CorridorCard corridor={item} onPress={handleCorridorPress} />}
         ListEmptyComponent={
           <View
             style={styles.empty}
             accessible
             accessibilityRole="text"
-            accessibilityLabel="No corridors available"
-          >
+            accessibilityLabel="No corridors available">
             <Text style={styles.emptyText}>No corridors available</Text>
           </View>
         }

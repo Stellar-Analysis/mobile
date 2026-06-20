@@ -28,7 +28,11 @@ export const useFaceRecognition = (): FaceRecognitionState => {
   const [error, setError] = useState<string | null>(null);
   const [confidenceScore, setConfidenceScore] = useState(0);
   const scanningTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const [permissionsGranted, setPermissionsGranted] = useMMKVStorage(FACE_PERMISSIONS_KEY, storage, false);
+  const [permissionsGranted, setPermissionsGranted] = useMMKVStorage(
+    FACE_PERMISSIONS_KEY,
+    storage,
+    false
+  );
 
   const isCameraAvailable = useCallback(async (): Promise<boolean> => {
     try {

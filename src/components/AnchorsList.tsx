@@ -20,10 +20,7 @@ export interface AnchorsListProps {
   onAnchorPress?: (anchorId: string) => void;
 }
 
-type AnchorsListNavigationProp = NativeStackNavigationProp<
-  AnchorsStackParamList,
-  'AnchorsList'
->;
+type AnchorsListNavigationProp = NativeStackNavigationProp<AnchorsStackParamList, 'AnchorsList'>;
 
 function truncateAddress(address: string): string {
   if (address.length <= 16) {
@@ -112,17 +109,18 @@ const AnchorCard: React.FC<AnchorCardProps> = ({ anchor, onPress }) => {
       style={({ pressed }) => [styles.card, pressed && onPress && styles.cardPressed]}
       onPress={onPress ? () => onPress(anchor.id) : undefined}
       accessibilityRole={onPress ? 'button' : 'text'}
-      accessibilityLabel={`${anchor.name}, ${statusStyles.label}, reliability ${anchor.reliability_score.toFixed(1)} percent, uptime ${uptime.toFixed(1)} percent`}
-    >
+      accessibilityLabel={`${anchor.name}, ${
+        statusStyles.label
+      }, reliability ${anchor.reliability_score.toFixed(1)} percent, uptime ${uptime.toFixed(
+        1
+      )} percent`}>
       <View style={styles.cardHeader}>
         <View style={styles.cardTitleBlock}>
           <Text style={styles.cardTitle}>{anchor.name}</Text>
           <Text style={styles.cardSubtitle}>{truncateAddress(anchor.stellar_account)}</Text>
         </View>
         <View style={[styles.statusBadge, statusStyles.badge]}>
-          <Text style={[styles.statusBadgeText, statusStyles.text]}>
-            {statusStyles.label}
-          </Text>
+          <Text style={[styles.statusBadgeText, statusStyles.text]}>{statusStyles.label}</Text>
         </View>
       </View>
 
@@ -142,9 +140,8 @@ const AnchorCard: React.FC<AnchorCardProps> = ({ anchor, onPress }) => {
       </View>
 
       <Text style={styles.cardMeta}>
-        {formatNumber(anchor.successful_transactions)} /{' '}
-        {formatNumber(anchor.total_transactions)} transactions · Failure rate{' '}
-        {anchor.failure_rate.toFixed(1)}%
+        {formatNumber(anchor.successful_transactions)} / {formatNumber(anchor.total_transactions)}{' '}
+        transactions · Failure rate {anchor.failure_rate.toFixed(1)}%
       </Text>
     </Pressable>
   );
@@ -152,15 +149,7 @@ const AnchorCard: React.FC<AnchorCardProps> = ({ anchor, onPress }) => {
 
 export const AnchorsList: React.FC<AnchorsListProps> = ({ onAnchorPress }) => {
   const navigation = useNavigation<AnchorsListNavigationProp>();
-  const {
-    anchors,
-    total,
-    loading,
-    error,
-    warning,
-    dataSource,
-    refetch,
-  } = useAnchorsList();
+  const { anchors, total, loading, error, warning, dataSource, refetch } = useAnchorsList();
 
   const handleAnchorPress = (anchorId: string) => {
     if (onAnchorPress) {
@@ -177,12 +166,8 @@ export const AnchorsList: React.FC<AnchorsListProps> = ({ onAnchorPress }) => {
           style={styles.centerContent}
           accessible
           accessibilityRole="progressbar"
-          accessibilityLabel="Loading anchors list"
-        >
-          <ActivityIndicator
-            size="large"
-            color={Platform.OS === 'ios' ? '#007AFF' : '#1976D2'}
-          />
+          accessibilityLabel="Loading anchors list">
+          <ActivityIndicator size="large" color={Platform.OS === 'ios' ? '#007AFF' : '#1976D2'} />
           <Text style={styles.loadingText}>Loading anchors...</Text>
         </View>
       </SafeAreaView>
@@ -197,8 +182,7 @@ export const AnchorsList: React.FC<AnchorsListProps> = ({ onAnchorPress }) => {
             style={styles.errorBanner}
             accessible
             accessibilityRole="alert"
-            accessibilityLabel={error}
-          >
+            accessibilityLabel={error}>
             <Text style={styles.errorText}>{error}</Text>
             <Pressable
               onPress={() => {
@@ -206,8 +190,7 @@ export const AnchorsList: React.FC<AnchorsListProps> = ({ onAnchorPress }) => {
               }}
               style={styles.retryButton}
               accessibilityRole="button"
-              accessibilityLabel="Retry loading anchors list"
-            >
+              accessibilityLabel="Retry loading anchors list">
               <Text style={styles.retryButtonText}>Retry</Text>
             </Pressable>
           </View>
@@ -241,10 +224,11 @@ export const AnchorsList: React.FC<AnchorsListProps> = ({ onAnchorPress }) => {
               style={styles.header}
               accessible
               accessibilityRole="header"
-              accessibilityLabel={`Anchors list, ${total} total anchors`}
-            >
+              accessibilityLabel={`Anchors list, ${total} total anchors`}>
               <Text style={styles.title}>Anchors List</Text>
-              <Text style={styles.subtitle}>{total} anchor{total === 1 ? '' : 's'}</Text>
+              <Text style={styles.subtitle}>
+                {total} anchor{total === 1 ? '' : 's'}
+              </Text>
             </View>
 
             {warning && feedbackBanner ? (
@@ -252,29 +236,24 @@ export const AnchorsList: React.FC<AnchorsListProps> = ({ onAnchorPress }) => {
                 style={feedbackBanner.container}
                 accessible
                 accessibilityRole="text"
-                accessibilityLabel={warning}
-              >
+                accessibilityLabel={warning}>
                 <Text style={feedbackBanner.text}>{warning}</Text>
                 {dataSource === 'mock' ? (
                   <Text style={feedbackBanner.text}>
-                    Anchor metrics shown are for preview only and may not reflect live
-                    performance.
+                    Anchor metrics shown are for preview only and may not reflect live performance.
                   </Text>
                 ) : null}
               </View>
             ) : null}
           </>
         }
-        renderItem={({ item }) => (
-          <AnchorCard anchor={item} onPress={handleAnchorPress} />
-        )}
+        renderItem={({ item }) => <AnchorCard anchor={item} onPress={handleAnchorPress} />}
         ListEmptyComponent={
           <View
             style={styles.empty}
             accessible
             accessibilityRole="text"
-            accessibilityLabel="No anchors available"
-          >
+            accessibilityLabel="No anchors available">
             <Text style={styles.emptyText}>No anchors available</Text>
           </View>
         }

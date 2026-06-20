@@ -2,10 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useCallback, useEffect, useState } from 'react';
 import { Platform } from 'react-native';
 import NetInfo from '@react-native-community/netinfo';
-import {
-  SharedItemRecord,
-  SUPPORTED_MIME_TYPES,
-} from '@features/share_extension';
+import { SharedItemRecord, SUPPORTED_MIME_TYPES } from '@features/share_extension';
 
 const SHARE_EXTENSION_CACHE_KEY = 'share-extension-items';
 const SHARE_QUEUE_KEY = 'share-extension-offline-queue';
@@ -18,7 +15,12 @@ export interface UseShareExtension {
   error: string | null;
   isOffline: boolean;
   sharedItems: SharedItemRecord[];
-  receiveShare: (title: string, content: string, mimeType?: string, sourceApp?: string) => Promise<void>;
+  receiveShare: (
+    title: string,
+    content: string,
+    mimeType?: string,
+    sourceApp?: string
+  ) => Promise<void>;
   clearShares: () => Promise<void>;
   syncOfflineQueue: () => Promise<void>;
 }
@@ -70,49 +72,47 @@ export function useShareExtension(): UseShareExtension {
     };
   }, []);
 
-  const receiveShare = useCallback(async (
-    title: string,
-    content: string,
-    mimeType = 'text/plain',
-    sourceApp = 'Unknown',
-  ) => {
-    setLoading(true);
-    setError(null);
+  const receiveShare = useCallback(
+    async (title: string, content: string, mimeType = 'text/plain', sourceApp = 'Unknown') => {
+      setLoading(true);
+      setError(null);
 
-    try {
-      if (!supportsShareExtension()) {
-        throw new Error('Share extension is not supported on this platform.');
+      try {
+        if (!supportsShareExtension()) {
+          throw new Error('Share extension is not supported on this platform.');
+        }
+
+        if (!SUPPORTED_MIME_TYPES.includes(mimeType)) {
+          throw new Error(`Unsupported content type: ${mimeType}`);
+        }
+
+        const item: SharedItemRecord = {
+          id: Date.now().toString(),
+          title,
+          content,
+          mimeType,
+          sourceApp,
+          receivedAt: new Date().toISOString(),
+        };
+
+        const updated = [item, ...sharedItems];
+        setSharedItems(updated);
+
+        if (isOffline) {
+          const queueRaw = await AsyncStorage.getItem(SHARE_QUEUE_KEY);
+          const queue = queueRaw ? (JSON.parse(queueRaw) as SharedItemRecord[]) : [];
+          await AsyncStorage.setItem(SHARE_QUEUE_KEY, JSON.stringify([item, ...queue]));
+        }
+
+        await saveCachedShares(updated);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to receive shared content.');
+      } finally {
+        setLoading(false);
       }
-
-      if (!SUPPORTED_MIME_TYPES.includes(mimeType)) {
-        throw new Error(`Unsupported content type: ${mimeType}`);
-      }
-
-      const item: SharedItemRecord = {
-        id: Date.now().toString(),
-        title,
-        content,
-        mimeType,
-        sourceApp,
-        receivedAt: new Date().toISOString(),
-      };
-
-      const updated = [item, ...sharedItems];
-      setSharedItems(updated);
-
-      if (isOffline) {
-        const queueRaw = await AsyncStorage.getItem(SHARE_QUEUE_KEY);
-        const queue = queueRaw ? (JSON.parse(queueRaw) as SharedItemRecord[]) : [];
-        await AsyncStorage.setItem(SHARE_QUEUE_KEY, JSON.stringify([item, ...queue]));
-      }
-
-      await saveCachedShares(updated);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to receive shared content.');
-    } finally {
-      setLoading(false);
-    }
-  }, [sharedItems, isOffline]);
+    },
+    [sharedItems, isOffline]
+  );
 
   const clearShares = useCallback(async () => {
     try {
@@ -124,19 +124,23 @@ export function useShareExtension(): UseShareExtension {
   }, []);
 
   const syncOfflineQueue = useCallback(async () => {
-    if (isOffline) return;
+    if (isOffline) {
+      return;
+    }
 
     setLoading(true);
     setError(null);
 
     try {
       const queueRaw = await AsyncStorage.getItem(SHARE_QUEUE_KEY);
-      if (!queueRaw) return;
+      if (!queueRaw) {
+        return;
+      }
 
       const queue = JSON.parse(queueRaw) as SharedItemRecord[];
       const merged = [...queue, ...sharedItems];
       const unique = merged.filter(
-        (item, index, arr) => arr.findIndex(i => i.id === item.id) === index,
+        (item, index, arr) => arr.findIndex(i => i.id === item.id) === index
       );
       setSharedItems(unique);
       await saveCachedShares(unique);

@@ -139,9 +139,7 @@ export function getLoginErrorMessage(error: unknown): string {
  * @param options - Optional success callback.
  * @returns State and handlers for rendering a login screen.
  */
-export function useLoginScreen(
-  options: UseLoginScreenOptions = {},
-): UseLoginScreenReturn {
+export function useLoginScreen(options: UseLoginScreenOptions = {}): UseLoginScreenReturn {
   const { onLoginSuccess } = options;
 
   const [identifier, setIdentifierState] = useState('');
@@ -194,18 +192,16 @@ export function useLoginScreen(
 
   const isValid = useMemo(
     () => !validateIdentifier(identifier) && !validatePassword(password),
-    [identifier, password],
+    [identifier, password]
   );
 
   const handleBiometricLogin = useCallback(async () => {
     setFormError(null);
 
-    const succeeded = await biometrics.authenticate(
-      `Sign in with ${biometricLabel}`,
-    );
+    const succeeded = await biometrics.authenticate(`Sign in with ${biometricLabel}`);
     if (!succeeded) {
       setFormError(
-        `${biometricLabel} sign-in didn’t complete. Enter your credentials to continue.`,
+        `${biometricLabel} sign-in didn’t complete. Enter your credentials to continue.`
       );
       return;
     }
@@ -213,7 +209,7 @@ export function useLoginScreen(
     const token = await getToken();
     if (!token) {
       setFormError(
-        'Your saved sign-in is no longer available. Enter your credentials to continue.',
+        'Your saved sign-in is no longer available. Enter your credentials to continue.'
       );
       return;
     }
@@ -249,10 +245,7 @@ export function useLoginScreen(
 
       // Persist the token securely; storage failure must not block sign-in.
       try {
-        await saveToken(
-          response.tokens.accessToken,
-          response.tokens.expiresAt,
-        );
+        await saveToken(response.tokens.accessToken, response.tokens.expiresAt);
       } catch {
         // Non-fatal: the user is authenticated for this session regardless.
       }

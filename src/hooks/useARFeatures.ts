@@ -30,16 +30,19 @@ export function useARFeatures(config: Partial<ARFeaturesConfig> = {}) {
 
   useEffect(() => {
     // ARKit: iOS 11+, ARCore: Android 7.0+ (API 24)
-    const supported = Platform.select({
-      ios: parseFloat(Platform.Version as string) >= 11,
-      android: parseInt(Platform.Version as string, 10) >= 24,
-      default: false,
-    }) ?? false;
+    const supported =
+      Platform.select({
+        ios: parseFloat(Platform.Version as string) >= 11,
+        android: parseInt(Platform.Version as string, 10) >= 24,
+        default: false,
+      }) ?? false;
     setState(s => ({ ...s, isSupported: !!supported }));
   }, []);
 
   useEffect(() => {
-    return () => { markerTimers.current.forEach(t => clearTimeout(t)); };
+    return () => {
+      markerTimers.current.forEach(t => clearTimeout(t));
+    };
   }, []);
 
   const requestPermission = useCallback(async (): Promise<ARPermissionStatus> => {
@@ -58,18 +61,26 @@ export function useARFeatures(config: Partial<ARFeaturesConfig> = {}) {
   }, []);
 
   const startSession = useCallback(async () => {
-    if (state.isSessionActive) return;
+    if (state.isSessionActive) {
+      return;
+    }
     let permission = state.permissionStatus;
     if (permission !== 'granted') {
       permission = await requestPermission();
     }
-    if (permission !== 'granted') return;
+    if (permission !== 'granted') {
+      return;
+    }
     setState(s => ({ ...s, isLoading: true, error: null }));
     try {
       // Wire to ViroReact ViroARSceneNavigator or expo-camera
       setState(s => ({ ...s, isSessionActive: true, isLoading: false }));
     } catch (err: any) {
-      setState(s => ({ ...s, error: err?.message ?? 'Failed to start AR session', isLoading: false }));
+      setState(s => ({
+        ...s,
+        error: err?.message ?? 'Failed to start AR session',
+        isLoading: false,
+      }));
     }
   }, [state.isSessionActive, state.permissionStatus, requestPermission]);
 
@@ -79,32 +90,42 @@ export function useARFeatures(config: Partial<ARFeaturesConfig> = {}) {
     setState(s => ({ ...s, isSessionActive: false, markers: [] }));
   }, []);
 
-  const addMarker = useCallback((marker: ARMarker) => {
-    setState(s => {
-      if (s.markers.length >= mergedConfig.maxMarkers) return s;
-      const exists = s.markers.find(m => m.id === marker.id);
-      if (exists) return s;
-      return { ...s, markers: [...s.markers, marker] };
-    });
+  const addMarker = useCallback(
+    (marker: ARMarker) => {
+      setState(s => {
+        if (s.markers.length >= mergedConfig.maxMarkers) {
+          return s;
+        }
+        const exists = s.markers.find(m => m.id === marker.id);
+        if (exists) {
+          return s;
+        }
+        return { ...s, markers: [...s.markers, marker] };
+      });
 
-    // Schedule TTL removal
-    const timer = setTimeout(() => {
-      setState(s => ({ ...s, markers: s.markers.filter(m => m.id !== marker.id) }));
-      markerTimers.current.delete(marker.id);
-    }, mergedConfig.markerTTL);
-    markerTimers.current.set(marker.id, timer);
-  }, [mergedConfig.maxMarkers, mergedConfig.markerTTL]);
+      // Schedule TTL removal
+      const timer = setTimeout(() => {
+        setState(s => ({ ...s, markers: s.markers.filter(m => m.id !== marker.id) }));
+        markerTimers.current.delete(marker.id);
+      }, mergedConfig.markerTTL);
+      markerTimers.current.set(marker.id, timer);
+    },
+    [mergedConfig.maxMarkers, mergedConfig.markerTTL]
+  );
 
   const removeMarker = useCallback((id: string) => {
     const timer = markerTimers.current.get(id);
-    if (timer) { clearTimeout(timer); markerTimers.current.delete(id); }
+    if (timer) {
+      clearTimeout(timer);
+      markerTimers.current.delete(id);
+    }
     setState(s => ({ ...s, markers: s.markers.filter(m => m.id !== id) }));
   }, []);
 
   const updateMarker = useCallback((id: string, updates: Partial<ARMarker>) => {
     setState(s => ({
       ...s,
-      markers: s.markers.map(m => m.id === id ? { ...m, ...updates } : m),
+      markers: s.markers.map(m => (m.id === id ? { ...m, ...updates } : m)),
     }));
   }, []);
 

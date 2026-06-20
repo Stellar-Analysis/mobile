@@ -40,42 +40,49 @@ export function useAppIntents(): UseAppIntents {
       } catch {
         // Ignore storage failures.
       } finally {
-        if (active) setLoading(false);
+        if (active) {
+          setLoading(false);
+        }
       }
     }
 
     void loadIntents();
-    return () => { active = false; };
+    return () => {
+      active = false;
+    };
   }, []);
 
-  const executeIntent = useCallback(async (name: string, parameters: Record<string, string> = {}) => {
-    setLoading(true);
-    setError(null);
+  const executeIntent = useCallback(
+    async (name: string, parameters: Record<string, string> = {}) => {
+      setLoading(true);
+      setError(null);
 
-    try {
-      if (!supportsIntents()) {
-        throw new Error('App Intents are not supported on this platform.');
+      try {
+        if (!supportsIntents()) {
+          throw new Error('App Intents are not supported on this platform.');
+        }
+
+        // Simulate intent execution
+        await new Promise<void>(resolve => setTimeout(resolve, 500));
+
+        const intent: AppIntent = {
+          id: Date.now().toString(),
+          name,
+          parameters,
+          executedAt: new Date().toISOString(),
+          status: 'success',
+        };
+        const updated = [intent, ...intents].slice(0, 20);
+        setIntents(updated);
+        await AsyncStorage.setItem(APP_INTENTS_STORAGE_KEY, JSON.stringify(updated));
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to execute intent.');
+      } finally {
+        setLoading(false);
       }
-
-      // Simulate intent execution
-      await new Promise<void>(resolve => setTimeout(resolve, 500));
-
-      const intent: AppIntent = {
-        id: Date.now().toString(),
-        name,
-        parameters,
-        executedAt: new Date().toISOString(),
-        status: 'success',
-      };
-      const updated = [intent, ...intents].slice(0, 20);
-      setIntents(updated);
-      await AsyncStorage.setItem(APP_INTENTS_STORAGE_KEY, JSON.stringify(updated));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to execute intent.');
-    } finally {
-      setLoading(false);
-    }
-  }, [intents]);
+    },
+    [intents]
+  );
 
   const clearIntents = useCallback(async () => {
     try {

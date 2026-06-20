@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-  ActivityIndicator,
-  Button,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Button, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useQuickActions } from '@hooks/useQuickActions';
 
 export const QuickActionsComponent: React.FC = () => {
@@ -53,7 +46,11 @@ export const QuickActionsComponent: React.FC = () => {
           accessibilityLabel="Refresh quick actions"
         />
 
-        <View style={styles.listCard} accessible accessibilityRole="summary" accessibilityLabel="Quick actions list">
+        <View
+          style={styles.listCard}
+          accessible
+          accessibilityRole="summary"
+          accessibilityLabel="Quick actions list">
           <Text style={styles.listTitle}>Pinned Shortcuts</Text>
           {actions.length === 0 ? (
             <Text style={styles.emptyText}>No quick actions configured.</Text>
@@ -64,8 +61,7 @@ export const QuickActionsComponent: React.FC = () => {
                 style={styles.actionRow}
                 accessible
                 accessibilityRole="button"
-                accessibilityLabel={`${action.title}, route ${action.route}`}
-              >
+                accessibilityLabel={`${action.title}, route ${action.route}`}>
                 <View style={styles.actionInfo}>
                   <Text style={styles.actionTitle}>{action.title}</Text>
                   <Text style={styles.actionMeta}>Route: {action.route}</Text>
@@ -96,10 +92,24 @@ const styles = StyleSheet.create({
   errorText: { fontSize: 13, color: '#b91c1c', marginTop: 8 },
   loaderRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginVertical: 12 },
   loadingText: { color: '#2563eb' },
-  listCard: { marginTop: 8, padding: 16, borderRadius: 12, backgroundColor: '#eff6ff', borderWidth: 1, borderColor: '#bfdbfe' },
+  listCard: {
+    marginTop: 8,
+    padding: 16,
+    borderRadius: 12,
+    backgroundColor: '#eff6ff',
+    borderWidth: 1,
+    borderColor: '#bfdbfe',
+  },
   listTitle: { fontSize: 15, fontWeight: '600', color: '#0f172a', marginBottom: 8 },
   emptyText: { fontSize: 14, color: '#475569' },
-  actionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#dbeafe' },
+  actionRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#dbeafe',
+  },
   actionInfo: { flex: 1 },
   actionTitle: { fontSize: 14, fontWeight: '600', color: '#111827' },
   actionMeta: { fontSize: 12, color: '#64748b', marginTop: 2 },

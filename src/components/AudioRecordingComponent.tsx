@@ -44,13 +44,19 @@ export const AudioRecordingComponent = () => {
   useEffect(() => {
     const initialize = async () => {
       const ok = await hasPermission();
-      if (!ok) await requestPermission();
+      if (!ok) {
+        await requestPermission();
+      }
     };
     initialize().catch(() => {});
 
     return () => {
-      if (isRecording) stopRecording().catch(() => {});
-      if (isPlaying) stopPlayback();
+      if (isRecording) {
+        stopRecording().catch(() => {});
+      }
+      if (isPlaying) {
+        stopPlayback();
+      }
     };
   }, []);
 
@@ -72,9 +78,16 @@ export const AudioRecordingComponent = () => {
       </View>
 
       {error && (
-        <View style={styles.errorContainer} accessible accessibilityRole="alert" accessibilityLabel={`Error: ${error}`}>
+        <View
+          style={styles.errorContainer}
+          accessible
+          accessibilityRole="alert"
+          accessibilityLabel={`Error: ${error}`}>
           <Text style={styles.errorText}>{error}</Text>
-          <TouchableOpacity onPress={clearError} accessibilityRole="button" accessibilityLabel="Dismiss error">
+          <TouchableOpacity
+            onPress={clearError}
+            accessibilityRole="button"
+            accessibilityLabel="Dismiss error">
             <Text style={styles.dismissText}>Dismiss</Text>
           </TouchableOpacity>
         </View>
@@ -83,11 +96,17 @@ export const AudioRecordingComponent = () => {
       <View style={styles.recorderCard}>
         <View style={styles.statusRow}>
           <View style={[styles.statusDot, isRecording && !isPaused && styles.statusDotActive]} />
-          <Text style={styles.statusText} accessibilityLabel={`Recording status: ${isRecording ? (isPaused ? 'Paused' : 'Recording') : 'Idle'}`}>
+          <Text
+            style={styles.statusText}
+            accessibilityLabel={`Recording status: ${
+              isRecording ? (isPaused ? 'Paused' : 'Recording') : 'Idle'
+            }`}>
             {isRecording ? (isPaused ? 'Paused' : 'Recording...') : 'Ready to record'}
           </Text>
           {isRecording && (
-            <Text style={styles.durationText} accessibilityLabel={`Duration: ${formatDuration(recordingDuration)}`}>
+            <Text
+              style={styles.durationText}
+              accessibilityLabel={`Duration: ${formatDuration(recordingDuration)}`}>
               {formatDuration(recordingDuration)}
             </Text>
           )}
@@ -101,8 +120,7 @@ export const AudioRecordingComponent = () => {
               accessible
               accessibilityRole="button"
               accessibilityLabel="Start recording"
-              accessibilityHint="Tap to begin audio recording"
-            >
+              accessibilityHint="Tap to begin audio recording">
               <Text style={styles.recordButtonText}>Record</Text>
             </TouchableOpacity>
           )}
@@ -113,8 +131,7 @@ export const AudioRecordingComponent = () => {
               onPress={pauseRecording}
               accessible
               accessibilityRole="button"
-              accessibilityLabel="Pause recording"
-            >
+              accessibilityLabel="Pause recording">
               <Text style={styles.controlButtonText}>Pause</Text>
             </TouchableOpacity>
           )}
@@ -125,8 +142,7 @@ export const AudioRecordingComponent = () => {
               onPress={resumeRecording}
               accessible
               accessibilityRole="button"
-              accessibilityLabel="Resume recording"
-            >
+              accessibilityLabel="Resume recording">
               <Text style={styles.controlButtonText}>Resume</Text>
             </TouchableOpacity>
           )}
@@ -137,8 +153,7 @@ export const AudioRecordingComponent = () => {
               onPress={() => stopRecording().catch(() => {})}
               accessible
               accessibilityRole="button"
-              accessibilityLabel="Stop and save recording"
-            >
+              accessibilityLabel="Stop and save recording">
               <Text style={styles.controlButtonText}>Stop & Save</Text>
             </TouchableOpacity>
           )}
@@ -152,11 +167,16 @@ export const AudioRecordingComponent = () => {
           </Text>
           <FlatList
             data={recordings}
-            keyExtractor={(item) => item.id}
+            keyExtractor={item => item.id}
             renderItem={({ item }) => {
               const isCurrentlyPlaying = isPlaying && currentRecording?.id === item.id;
               return (
-                <View style={styles.recordingItem} accessible accessibilityLabel={`Recording from ${formatTimestamp(item.timestamp)}, duration ${formatDuration(item.duration)}`}>
+                <View
+                  style={styles.recordingItem}
+                  accessible
+                  accessibilityLabel={`Recording from ${formatTimestamp(
+                    item.timestamp
+                  )}, duration ${formatDuration(item.duration)}`}>
                   <View style={styles.recordingInfo}>
                     <Text style={styles.recordingTime}>{formatTimestamp(item.timestamp)}</Text>
                     <Text style={styles.recordingDuration}>{formatDuration(item.duration)}</Text>
@@ -164,11 +184,10 @@ export const AudioRecordingComponent = () => {
                   <View style={styles.recordingActions}>
                     <TouchableOpacity
                       style={[styles.playButton, isCurrentlyPlaying && styles.playButtonActive]}
-                      onPress={() => isCurrentlyPlaying ? stopPlayback() : playRecording(item)}
+                      onPress={() => (isCurrentlyPlaying ? stopPlayback() : playRecording(item))}
                       accessible
                       accessibilityRole="button"
-                      accessibilityLabel={isCurrentlyPlaying ? 'Stop playback' : 'Play recording'}
-                    >
+                      accessibilityLabel={isCurrentlyPlaying ? 'Stop playback' : 'Play recording'}>
                       <Text style={styles.playButtonText}>
                         {isCurrentlyPlaying ? 'Stop' : 'Play'}
                       </Text>
@@ -178,8 +197,7 @@ export const AudioRecordingComponent = () => {
                       onPress={() => deleteRecording(item.id)}
                       accessible
                       accessibilityRole="button"
-                      accessibilityLabel="Delete recording"
-                    >
+                      accessibilityLabel="Delete recording">
                       <Text style={styles.deleteButtonText}>Delete</Text>
                     </TouchableOpacity>
                   </View>

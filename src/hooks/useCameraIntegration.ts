@@ -83,44 +83,60 @@ export const useCameraIntegration = (): CameraIntegrationState => {
     }
   }, [setPermissionsGranted]);
 
-  const startCamera = useCallback(async (cameraMode?: CameraMode): Promise<void> => {
-    try {
-      setError(null);
-      if (cameraMode) setMode(cameraMode);
-
-      const permission = await hasPermission();
-      if (!permission) {
-        const granted = await requestPermission();
-        if (!granted) {
-          throw new Error('Camera permission denied');
+  const startCamera = useCallback(
+    async (cameraMode?: CameraMode): Promise<void> => {
+      try {
+        setError(null);
+        if (cameraMode) {
+          setMode(cameraMode);
         }
-      }
 
-      setIsActive(true);
+        const permission = await hasPermission();
+        if (!permission) {
+          const granted = await requestPermission();
+          if (!granted) {
+            throw new Error('Camera permission denied');
+          }
+        }
 
-      // QR mode: auto-simulate a scan after a short delay
-      const activeMode = cameraMode ?? mode;
-      if (activeMode === 'qr') {
-        if (scanTimeoutRef.current) clearTimeout(scanTimeoutRef.current);
-        scanTimeoutRef.current = setTimeout(() => {
-          const mockQRData = [
-            { data: 'stellar:GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5', type: 'QR' },
-            { data: 'stellar:GDQOE23CFSUMSVQK4Y5JHPPYK73VYCNHZHA7ENKCV37P6SUEO6XQBKPP', type: 'QR' },
-            { data: 'web+stellar:pay?destination=GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGQKPG3EQ7AQVNKAW6AT2BW&amount=100', type: 'QR' },
-          ];
-          const mock = mockQRData[Math.floor(Math.random() * mockQRData.length)];
-          const result: QRScanResult = { ...mock, timestamp: Date.now() };
-          setQrResult(result);
-          setIsActive(false);
-          cacheResult('qr', result);
-        }, 2500);
+        setIsActive(true);
+
+        // QR mode: auto-simulate a scan after a short delay
+        const activeMode = cameraMode ?? mode;
+        if (activeMode === 'qr') {
+          if (scanTimeoutRef.current) {
+            clearTimeout(scanTimeoutRef.current);
+          }
+          scanTimeoutRef.current = setTimeout(() => {
+            const mockQRData = [
+              {
+                data: 'stellar:GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5',
+                type: 'QR',
+              },
+              {
+                data: 'stellar:GDQOE23CFSUMSVQK4Y5JHPPYK73VYCNHZHA7ENKCV37P6SUEO6XQBKPP',
+                type: 'QR',
+              },
+              {
+                data: 'web+stellar:pay?destination=GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGQKPG3EQ7AQVNKAW6AT2BW&amount=100',
+                type: 'QR',
+              },
+            ];
+            const mock = mockQRData[Math.floor(Math.random() * mockQRData.length)];
+            const result: QRScanResult = { ...mock, timestamp: Date.now() };
+            setQrResult(result);
+            setIsActive(false);
+            cacheResult('qr', result);
+          }, 2500);
+        }
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Failed to start camera';
+        setError(msg);
+        setIsActive(false);
       }
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Failed to start camera';
-      setError(msg);
-      setIsActive(false);
-    }
-  }, [hasPermission, requestPermission, mode]);
+    },
+    [hasPermission, requestPermission, mode]
+  );
 
   const capturePhoto = useCallback(async (): Promise<void> => {
     try {
@@ -176,7 +192,9 @@ function cacheResult(type: string, data: unknown) {
     const raw = storage.getString(CAMERA_CACHE_KEY);
     const cached: unknown[] = raw ? JSON.parse(raw) : [];
     cached.push({ type, data });
-    if (cached.length > 50) cached.shift();
+    if (cached.length > 50) {
+      cached.shift();
+    }
     storage.set(CAMERA_CACHE_KEY, JSON.stringify(cached));
   } catch {
     log.warn('Failed to cache camera result');

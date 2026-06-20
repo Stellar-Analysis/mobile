@@ -8,7 +8,9 @@ jest.mock('@hooks/useNetworkStatusIndicator', () => ({
   useNetworkStatusIndicator: jest.fn(),
 }));
 
-const mockedUseNetworkStatusIndicator = useNetworkStatusIndicator as jest.MockedFunction<typeof useNetworkStatusIndicator>;
+const mockedUseNetworkStatusIndicator = useNetworkStatusIndicator as jest.MockedFunction<
+  typeof useNetworkStatusIndicator
+>;
 
 describe('NetworkStatusIndicator', () => {
   beforeEach(() => {

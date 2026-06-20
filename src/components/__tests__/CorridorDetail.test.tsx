@@ -102,9 +102,7 @@ describe('Corridor Detail', () => {
   });
 
   it('shows loading state with accessibility label', () => {
-    mockUseCorridorDetail.mockReturnValue(
-      mockHookReturn({ data: null, loading: true }),
-    );
+    mockUseCorridorDetail.mockReturnValue(mockHookReturn({ data: null, loading: true }));
 
     const { getByLabelText } = render(<CorridorDetail corridorId="USDC-PHP" />);
 
@@ -116,7 +114,7 @@ describe('Corridor Detail', () => {
       mockHookReturn({
         data: null,
         error: 'Failed to load corridor data',
-      }),
+      })
     );
 
     const { getByLabelText } = render(<CorridorDetail corridorId="USDC-PHP" />);
@@ -132,16 +130,14 @@ describe('Corridor Detail', () => {
       mockHookReturn({
         dataSource: 'mock',
         warning: 'Live data unavailable. Showing sample data.',
-      }),
+      })
     );
 
     const { getByText } = render(<CorridorDetail corridorId="USDC-PHP" />);
 
     expect(getByText('Live data unavailable. Showing sample data.')).toBeTruthy();
     expect(
-      getByText(
-        'Metrics shown are for preview only and may not reflect live corridor performance.',
-      ),
+      getByText('Metrics shown are for preview only and may not reflect live corridor performance.')
     ).toBeTruthy();
   });
 
@@ -152,7 +148,7 @@ describe('Corridor Detail', () => {
         dataSource: 'cache',
         isFromCache: true,
         warning: 'Offline — showing saved corridor data.',
-      }),
+      })
     );
 
     const { getByText } = render(<CorridorDetail corridorId="USDC-PHP" />);
@@ -184,7 +180,7 @@ describe('Corridor Detail', () => {
         corridorId="USDC-PHP"
         onGoBack={onGoBack}
         onNavigateToCorridor={onNavigateToCorridor}
-      />,
+      />
     );
 
     fireEvent.press(getByLabelText('Go back to corridors list'));
@@ -196,9 +192,7 @@ describe('Corridor Detail', () => {
   });
 
   it('shows default error message when data is unavailable', () => {
-    mockUseCorridorDetail.mockReturnValue(
-      mockHookReturn({ data: null, error: null }),
-    );
+    mockUseCorridorDetail.mockReturnValue(mockHookReturn({ data: null, error: null }));
 
     const { getByText } = render(<CorridorDetail corridorId="USDC-PHP" />);
     expect(getByText('Failed to load corridor data')).toBeTruthy();
@@ -209,9 +203,7 @@ describe('Corridor Detail', () => {
     warningData.corridor.health_score = 80;
     mockUseCorridorDetail.mockReturnValue(mockHookReturn({ data: warningData }));
 
-    const { getByText, rerender } = render(
-      <CorridorDetail corridorId="USDC-PHP" />,
-    );
+    const { getByText, rerender } = render(<CorridorDetail corridorId="USDC-PHP" />);
     expect(getByText('80.0')).toBeTruthy();
 
     const criticalData = createMockCorridorData('USDC-PHP');

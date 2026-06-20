@@ -1,6 +1,4 @@
-import ReactNativeBiometrics, {
-  BiometryTypes,
-} from 'react-native-biometrics';
+import ReactNativeBiometrics, { BiometryTypes } from 'react-native-biometrics';
 
 /** Normalised biometric capability of the device. */
 export type BiometricType = 'FaceID' | 'TouchID' | 'Fingerprint' | 'None';

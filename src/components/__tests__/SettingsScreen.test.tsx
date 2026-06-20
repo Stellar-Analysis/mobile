@@ -45,7 +45,9 @@ describe('SettingsScreen', () => {
 
   it('toggles theme from the theme action', () => {
     const tree = renderer.create(<SettingsScreen />);
-    const themeButton = tree.root.findByProps({ accessibilityLabel: 'Toggle theme. Current theme is light' });
+    const themeButton = tree.root.findByProps({
+      accessibilityLabel: 'Toggle theme. Current theme is light',
+    });
 
     act(() => {
       themeButton.props.onPress();

@@ -34,10 +34,7 @@ export function useBiometricAuthentication(): UseBiometricAuthenticationReturn {
     let active = true;
     void (async () => {
       try {
-        const [available, type] = await Promise.all([
-          isBiometricAvailable(),
-          getBiometricType(),
-        ]);
+        const [available, type] = await Promise.all([isBiometricAvailable(), getBiometricType()]);
         if (!active) {
           return;
         }

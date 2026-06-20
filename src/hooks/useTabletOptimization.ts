@@ -1,6 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Dimensions, ScaledSize } from 'react-native';
-import type { TabletConfig, TabletLayout, TabletState } from '../features/tablet_optimization/types';
+import type {
+  TabletConfig,
+  TabletLayout,
+  TabletState,
+} from '../features/tablet_optimization/types';
 
 const DEFAULT_CONFIG: TabletConfig = {
   layout: 'single',
@@ -23,7 +27,7 @@ function computeState(dims: ScaledSize, config: TabletConfig): TabletState {
 export function useTabletOptimization(config: Partial<TabletConfig> = {}) {
   const mergedConfig: TabletConfig = { ...DEFAULT_CONFIG, ...config };
   const [state, setState] = useState<TabletState>(() =>
-    computeState(Dimensions.get('window'), mergedConfig),
+    computeState(Dimensions.get('window'), mergedConfig)
   );
 
   useEffect(() => {
@@ -35,7 +39,9 @@ export function useTabletOptimization(config: Partial<TabletConfig> = {}) {
   }, [mergedConfig.breakpoint, mergedConfig.sidebarWidth]);
 
   const getColumnCount = useCallback((): number => {
-    if (!state.isTablet) return 1;
+    if (!state.isTablet) {
+      return 1;
+    }
     return state.isLandscape ? 3 : 2;
   }, [state.isTablet, state.isLandscape]);
 

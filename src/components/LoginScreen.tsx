@@ -59,8 +59,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
             style={styles.errorBanner}
             accessible
             accessibilityRole="alert"
-            accessibilityLabel={formError}
-          >
+            accessibilityLabel={formError}>
             <Text style={styles.errorBannerText}>{formError}</Text>
           </View>
         ) : null}
@@ -85,8 +84,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
             <Text
               style={styles.fieldError}
               accessibilityRole="alert"
-              accessibilityLabel={fieldErrors.identifier}
-            >
+              accessibilityLabel={fieldErrors.identifier}>
               {fieldErrors.identifier}
             </Text>
           ) : null}
@@ -118,19 +116,15 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
               style={styles.toggleButton}
               accessibilityRole="button"
               accessibilityLabel={showPassword ? 'Hide password' : 'Show password'}
-              accessibilityHint="Toggles whether the password is visible"
-            >
-              <Text style={styles.toggleButtonText}>
-                {showPassword ? 'Hide' : 'Show'}
-              </Text>
+              accessibilityHint="Toggles whether the password is visible">
+              <Text style={styles.toggleButtonText}>{showPassword ? 'Hide' : 'Show'}</Text>
             </Pressable>
           </View>
           {fieldErrors.password ? (
             <Text
               style={styles.fieldError}
               accessibilityRole="alert"
-              accessibilityLabel={fieldErrors.password}
-            >
+              accessibilityLabel={fieldErrors.password}>
               {fieldErrors.password}
             </Text>
           ) : null}
@@ -149,8 +143,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
           accessibilityRole="button"
           accessibilityState={{ disabled: loading, busy: loading }}
           accessibilityLabel="Sign in"
-          accessibilityHint="Submits your credentials to sign in"
-        >
+          accessibilityHint="Submits your credentials to sign in">
           {loading ? (
             <ActivityIndicator color="#FFFFFF" />
           ) : (
@@ -170,11 +163,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
             ]}
             accessibilityRole="button"
             accessibilityLabel={`Sign in with ${biometricLabel}`}
-            accessibilityHint={`Uses ${biometricLabel} to sign in with your saved account`}
-          >
-            <Text style={styles.biometricButtonText}>
-              Sign in with {biometricLabel}
-            </Text>
+            accessibilityHint={`Uses ${biometricLabel} to sign in with your saved account`}>
+            <Text style={styles.biometricButtonText}>Sign in with {biometricLabel}</Text>
           </Pressable>
         ) : null}
       </View>

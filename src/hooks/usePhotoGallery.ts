@@ -50,7 +50,8 @@ async function requestCameraRollPermission(): Promise<boolean> {
 }
 
 export function usePhotoGallery(): UsePhotoGallery {
-  const [permissionStatus, setPermissionStatus] = useState<GalleryState['permissionStatus']>('not_requested');
+  const [permissionStatus, setPermissionStatus] =
+    useState<GalleryState['permissionStatus']>('not_requested');
   const [photos, setPhotos] = useState<PhotoAsset[]>([]);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [uploadProgress, setUploadProgress] = useState(0);

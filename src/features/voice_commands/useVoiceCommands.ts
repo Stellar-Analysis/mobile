@@ -40,13 +40,19 @@ export const useVoiceCommands = (): VoiceCommandsState => {
   const [error, setError] = useState<string | null>(null);
   const [commandResult, setCommandResult] = useState<string | null>(null);
   const listeningTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const [permissionsGranted, setPermissionsGranted] = useMMKVStorage(VOICE_PERMISSIONS_KEY, storage, false);
+  const [permissionsGranted, setPermissionsGranted] = useMMKVStorage(
+    VOICE_PERMISSIONS_KEY,
+    storage,
+    false
+  );
 
   const hasPermission = useCallback(async (): Promise<boolean> => {
     try {
       if (Platform.OS === 'android') {
         const { PermissionsAndroid } = require('react-native');
-        const recordAudio = await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.RECORD_AUDIO);
+        const recordAudio = await PermissionsAndroid.check(
+          PermissionsAndroid.PERMISSIONS.RECORD_AUDIO
+        );
         return recordAudio;
       }
       // iOS handles permissions at system level
@@ -61,13 +67,16 @@ export const useVoiceCommands = (): VoiceCommandsState => {
     try {
       if (Platform.OS === 'android') {
         const { PermissionsAndroid } = require('react-native');
-        const result = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.RECORD_AUDIO, {
-          title: 'Microphone Permission',
-          message: 'Voice Commands needs access to your microphone',
-          buttonNeutral: 'Ask Me Later',
-          buttonNegative: 'Cancel',
-          buttonPositive: 'OK',
-        });
+        const result = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+          {
+            title: 'Microphone Permission',
+            message: 'Voice Commands needs access to your microphone',
+            buttonNeutral: 'Ask Me Later',
+            buttonNegative: 'Cancel',
+            buttonPositive: 'OK',
+          }
+        );
         const granted = result === PermissionsAndroid.RESULTS.GRANTED;
         setPermissionsGranted(granted);
         return granted;

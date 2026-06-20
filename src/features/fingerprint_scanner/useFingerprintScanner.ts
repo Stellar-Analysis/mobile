@@ -26,7 +26,11 @@ export const useFingerprintScanner = (): FingerprintScannerState => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const scanningTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const [permissionsGranted, setPermissionsGranted] = useMMKVStorage(FINGERPRINT_PERMISSIONS_KEY, storage, false);
+  const [permissionsGranted, setPermissionsGranted] = useMMKVStorage(
+    FINGERPRINT_PERMISSIONS_KEY,
+    storage,
+    false
+  );
 
   const isBiometricAvailable = useCallback(async (): Promise<boolean> => {
     try {

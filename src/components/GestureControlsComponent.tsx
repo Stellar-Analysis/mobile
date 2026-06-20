@@ -3,12 +3,17 @@ import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-nat
 import { useGestureControls, getGestureLabel } from '@features/gesture_controls/useGestureControls';
 
 export const GestureControlsComponent: React.FC = () => {
-  const { panHandlers, lastGesture, gestureCount, isOffline, loading, error } = useGestureControls();
+  const { panHandlers, lastGesture, gestureCount, isOffline, loading, error } =
+    useGestureControls();
 
   return (
-    <ScrollView contentContainerStyle={styles.container} accessibilityLabel="Gesture controls screen">
+    <ScrollView
+      contentContainerStyle={styles.container}
+      accessibilityLabel="Gesture controls screen">
       <Text style={styles.title}>Gesture Controls</Text>
-      <Text style={styles.subtitle}>Swipe, double tap, or long press to interact with the experience.</Text>
+      <Text style={styles.subtitle}>
+        Swipe, double tap, or long press to interact with the experience.
+      </Text>
 
       <View style={styles.statusRow}>
         <Text style={styles.status} accessibilityRole="text">
@@ -24,8 +29,7 @@ export const GestureControlsComponent: React.FC = () => {
         accessible
         accessibilityLabel="Gesture interaction area"
         accessibilityHint="Swipe left or right, double tap, or long press inside this area."
-        {...panHandlers}
-      >
+        {...panHandlers}>
         <Text style={styles.areaText} accessibilityRole="text">
           {loading ? 'Processing…' : 'Use gestures here'}
         </Text>
@@ -37,7 +41,11 @@ export const GestureControlsComponent: React.FC = () => {
         </Text>
       ) : null}
 
-      <Text style={styles.lastGesture} accessibilityLabel={lastGesture ? `Last gesture ${getGestureLabel(lastGesture)}` : 'No gesture recorded yet'}>
+      <Text
+        style={styles.lastGesture}
+        accessibilityLabel={
+          lastGesture ? `Last gesture ${getGestureLabel(lastGesture)}` : 'No gesture recorded yet'
+        }>
         {lastGesture ? `Last gesture: ${getGestureLabel(lastGesture)}` : 'No gesture recorded yet.'}
       </Text>
 
@@ -46,7 +54,8 @@ export const GestureControlsComponent: React.FC = () => {
       </Text>
 
       <Text style={styles.note} accessibilityRole="text">
-        Gesture controls are intentionally designed to work offline and provide a responsive mobile interaction layer.
+        Gesture controls are intentionally designed to work offline and provide a responsive mobile
+        interaction layer.
       </Text>
     </ScrollView>
   );

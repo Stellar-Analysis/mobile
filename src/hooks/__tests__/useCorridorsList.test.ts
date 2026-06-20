@@ -104,7 +104,7 @@ describe('useCorridorsList', () => {
 
     expect(result.current.dataSource).toBe('mock');
     expect(result.current.warning).toBe(
-      'Offline — no saved data available. Showing sample corridors.',
+      'Offline — no saved data available. Showing sample corridors.'
     );
   });
 
@@ -162,9 +162,7 @@ describe('useCorridorsList', () => {
       isConnected: false,
       isInternetReachable: false,
     });
-    (AsyncStorage.getItem as jest.Mock).mockRejectedValueOnce(
-      new Error('Storage read failed'),
-    );
+    (AsyncStorage.getItem as jest.Mock).mockRejectedValueOnce(new Error('Storage read failed'));
 
     const { result } = renderHook(() => useCorridorsList());
 
@@ -214,7 +212,7 @@ describe('normalizeCorridorsResponse', () => {
       normalizeCorridorsResponse({
         data: mockData.corridors,
         pagination: { total: mockData.total },
-      }),
+      })
     ).toEqual(mockData);
   });
 

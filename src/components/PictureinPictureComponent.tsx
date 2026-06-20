@@ -11,11 +11,20 @@ import {
 import { usePictureinPicture } from '@features/picture_in_picture/usePictureinPicture';
 
 export const PictureinPictureComponent: React.FC = () => {
-  const { loading, error, isOffline, isSupported, isActive, enterPictureInPicture, exitPictureInPicture } =
-    usePictureinPicture();
+  const {
+    loading,
+    error,
+    isOffline,
+    isSupported,
+    isActive,
+    enterPictureInPicture,
+    exitPictureInPicture,
+  } = usePictureinPicture();
 
   return (
-    <ScrollView contentContainerStyle={styles.container} accessibilityLabel="Picture in Picture feature screen">
+    <ScrollView
+      contentContainerStyle={styles.container}
+      accessibilityLabel="Picture in Picture feature screen">
       <View style={styles.header}>
         <Text style={styles.title}>Picture in Picture</Text>
         <Text style={styles.subtitle}>Enable video multitasking while users browse the app.</Text>
@@ -28,7 +37,9 @@ export const PictureinPictureComponent: React.FC = () => {
             : 'Picture in picture is not currently supported on this device.'}
         </Text>
         {isOffline ? (
-          <Text style={styles.offlineText}>Offline mode active — video controls still work locally.</Text>
+          <Text style={styles.offlineText}>
+            Offline mode active — video controls still work locally.
+          </Text>
         ) : null}
 
         {error ? (
@@ -49,11 +60,17 @@ export const PictureinPictureComponent: React.FC = () => {
             title={isActive ? 'Exit PiP Mode' : 'Enter PiP Mode'}
             onPress={isActive ? exitPictureInPicture : enterPictureInPicture}
             disabled={!isSupported || loading}
-            accessibilityLabel={isActive ? 'Exit picture in picture mode' : 'Enter picture in picture mode'}
+            accessibilityLabel={
+              isActive ? 'Exit picture in picture mode' : 'Enter picture in picture mode'
+            }
           />
         </View>
 
-        <View style={styles.detailsCard} accessible accessibilityRole="text" accessibilityLabel="Picture in picture details">
+        <View
+          style={styles.detailsCard}
+          accessible
+          accessibilityRole="text"
+          accessibilityLabel="Picture in picture details">
           <Text style={styles.detailLabel}>Status</Text>
           <Text style={styles.detailValue}>{isActive ? 'Active' : 'Inactive'}</Text>
         </View>

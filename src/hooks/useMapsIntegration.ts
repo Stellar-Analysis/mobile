@@ -39,7 +39,7 @@ async function requestLocationPermission(): Promise<boolean> {
         message: 'This app needs access to your location to show maps.',
         buttonPositive: 'OK',
         buttonNegative: 'Cancel',
-      },
+      }
     );
     return granted === PermissionsAndroid.RESULTS.GRANTED;
   }
@@ -48,7 +48,8 @@ async function requestLocationPermission(): Promise<boolean> {
 }
 
 export function useMapsIntegration(): UseMapsIntegration {
-  const [permissionStatus, setPermissionStatus] = useState<MapsState['permissionStatus']>('not_requested');
+  const [permissionStatus, setPermissionStatus] =
+    useState<MapsState['permissionStatus']>('not_requested');
   const [currentLocation, setCurrentLocation] = useState<MapLocation | null>(null);
   const [markers, setMarkers] = useState<MapLocation[]>([]);
   const [loading, setLoading] = useState(false);
@@ -120,7 +121,7 @@ export function useMapsIntegration(): UseMapsIntegration {
             resolve();
           },
           err => reject(new Error(err.message)),
-          { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 },
+          { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
         );
       });
     } catch (err) {

@@ -28,7 +28,9 @@ export function use3DTouchSupport(): Use3DTouchSupport {
     setLoading(true);
     setError(null);
     try {
-      if (Platform.OS !== 'ios') throw new Error('3D Touch is only available on supported iOS devices.');
+      if (Platform.OS !== 'ios') {
+        throw new Error('3D Touch is only available on supported iOS devices.');
+      }
       const force = Math.min(evt.nativeEvent.force ?? 0, 1);
       setLastForce(force);
     } catch (err) {

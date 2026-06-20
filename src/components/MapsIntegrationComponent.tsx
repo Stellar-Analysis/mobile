@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-  ActivityIndicator,
-  Button,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Button, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useMapsIntegration } from '@hooks/useMapsIntegration';
 
 export const MapsIntegrationComponent: React.FC = () => {
@@ -25,8 +18,7 @@ export const MapsIntegrationComponent: React.FC = () => {
   return (
     <ScrollView
       contentContainerStyle={styles.container}
-      accessibilityLabel="Maps integration screen"
-    >
+      accessibilityLabel="Maps integration screen">
       <View style={styles.header}>
         <Text style={styles.title}>Maps</Text>
         <Text style={styles.subtitle}>
@@ -36,9 +28,7 @@ export const MapsIntegrationComponent: React.FC = () => {
 
       {isOffline ? (
         <View style={styles.offlineBanner} accessibilityRole="alert">
-          <Text style={styles.offlineText}>
-            Offline — showing last known location.
-          </Text>
+          <Text style={styles.offlineText}>Offline — showing last known location.</Text>
         </View>
       ) : null}
 
@@ -118,8 +108,9 @@ export const MapsIntegrationComponent: React.FC = () => {
               style={styles.markerRow}
               accessible
               accessibilityRole="text"
-              accessibilityLabel={`Marker ${i + 1}: ${m.title ?? 'unnamed'} at ${m.latitude.toFixed(4)}, ${m.longitude.toFixed(4)}`}
-            >
+              accessibilityLabel={`Marker ${i + 1}: ${m.title ?? 'unnamed'} at ${m.latitude.toFixed(
+                4
+              )}, ${m.longitude.toFixed(4)}`}>
               <Text style={styles.markerTitle}>{m.title ?? `Marker ${i + 1}`}</Text>
               <Text style={styles.markerCoords}>
                 {m.latitude.toFixed(5)}, {m.longitude.toFixed(5)}
@@ -134,8 +125,7 @@ export const MapsIntegrationComponent: React.FC = () => {
         <Text
           style={styles.statusValue}
           accessibilityRole="text"
-          accessibilityLabel={`Location permission status: ${permissionStatus}`}
-        >
+          accessibilityLabel={`Location permission status: ${permissionStatus}`}>
           {permissionStatus}
         </Text>
       </View>

@@ -56,7 +56,9 @@ describe('useContactsIntegration', () => {
     const AsyncStorage = require('@react-native-async-storage/async-storage');
     AsyncStorage.getItem.mockResolvedValueOnce(JSON.stringify(MOCK_CONTACTS));
     const { result } = renderHook(() => useContactsIntegration());
-    await act(async () => { await Promise.resolve(); });
+    await act(async () => {
+      await Promise.resolve();
+    });
 
     act(() => {
       result.current.setSearchQuery('Alice');
@@ -69,7 +71,9 @@ describe('useContactsIntegration', () => {
     const AsyncStorage = require('@react-native-async-storage/async-storage');
     AsyncStorage.getItem.mockResolvedValueOnce(JSON.stringify(MOCK_CONTACTS));
     const { result } = renderHook(() => useContactsIntegration());
-    await act(async () => { await Promise.resolve(); });
+    await act(async () => {
+      await Promise.resolve();
+    });
 
     act(() => {
       result.current.setSearchQuery('Alice');
@@ -126,7 +130,9 @@ describe('useContactsIntegration', () => {
     const NetInfo = require('@react-native-community/netinfo');
     NetInfo.fetch.mockResolvedValueOnce({ isConnected: false, isInternetReachable: false });
     const { result } = renderHook(() => useContactsIntegration());
-    await act(async () => { await Promise.resolve(); });
+    await act(async () => {
+      await Promise.resolve();
+    });
     expect(result.current.isOffline).toBe(true);
   });
 });

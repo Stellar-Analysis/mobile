@@ -25,19 +25,32 @@ export const SplitScreenComponent: React.FC<SplitScreenComponentProps> = ({
   const showSecondary = effectiveMode !== 'full' && !!secondaryContent;
 
   return (
-    <View style={[styles.container, style]} accessibilityRole="main" accessibilityLabel={showSecondary ? 'Split screen layout' : 'Single pane layout'}>
-      <View style={[styles.pane, { flex: split.getPaneAFlex() }]} accessibilityRole="region" accessibilityLabel="Primary content pane">
+    <View
+      style={[styles.container, style]}
+      accessibilityRole="main"
+      accessibilityLabel={showSecondary ? 'Split screen layout' : 'Single pane layout'}>
+      <View
+        style={[styles.pane, { flex: split.getPaneAFlex() }]}
+        accessibilityRole="region"
+        accessibilityLabel="Primary content pane">
         {primaryContent}
       </View>
       {showSecondary && (
-        <View style={[styles.divider, { backgroundColor: dividerColor }]} accessibilityElementsHidden importantForAccessibility="no" />
+        <View
+          style={[styles.divider, { backgroundColor: dividerColor }]}
+          accessibilityElementsHidden
+          importantForAccessibility="no"
+        />
       )}
       {showSecondary && (
         <View
-          style={[styles.pane, { flex: split.getPaneBFlex() }, effectiveMode === 'slide-over' && styles.slideOver]}
+          style={[
+            styles.pane,
+            { flex: split.getPaneBFlex() },
+            effectiveMode === 'slide-over' && styles.slideOver,
+          ]}
           accessibilityRole="region"
-          accessibilityLabel="Secondary content pane"
-        >
+          accessibilityLabel="Secondary content pane">
           {secondaryContent}
         </View>
       )}
@@ -61,7 +74,12 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     ...Platform.select({
-      ios: { shadowColor: '#000', shadowOffset: { width: -2, height: 0 }, shadowOpacity: 0.15, shadowRadius: 8 },
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: -2, height: 0 },
+        shadowOpacity: 0.15,
+        shadowRadius: 8,
+      },
       android: { elevation: 8 },
     }),
   },

@@ -70,7 +70,9 @@ describe('OfflineQueue', () => {
     });
 
     const tree = renderer.create(<OfflineQueue />);
-    const removeButton = tree.root.findByProps({ accessibilityLabel: 'Remove queued request queued-request' });
+    const removeButton = tree.root.findByProps({
+      accessibilityLabel: 'Remove queued request queued-request',
+    });
 
     act(() => {
       removeButton.props.onPress();

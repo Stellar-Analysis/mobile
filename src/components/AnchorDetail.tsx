@@ -24,10 +24,7 @@ import {
 import { AnchorsStackParamList } from '@navigation/MainNavigator';
 
 type AnchorDetailRouteProp = RouteProp<AnchorsStackParamList, 'AnchorDetail'>;
-type AnchorDetailNavigationProp = NativeStackNavigationProp<
-  AnchorsStackParamList,
-  'AnchorDetail'
->;
+type AnchorDetailNavigationProp = NativeStackNavigationProp<AnchorsStackParamList, 'AnchorDetail'>;
 
 function truncateAddress(address: string): string {
   if (address.length <= 16) {
@@ -105,10 +102,7 @@ function getFeedbackBannerStyle(dataSource: AnchorDataSource | null) {
   };
 }
 
-function calculateUptime(
-  successful: number,
-  total: number,
-): number {
+function calculateUptime(successful: number, total: number): number {
   if (total <= 0) {
     return 0;
   }
@@ -122,18 +116,12 @@ interface MetricCardProps {
   accessibilityLabel: string;
 }
 
-const MetricCard: React.FC<MetricCardProps> = ({
-  label,
-  value,
-  subtitle,
-  accessibilityLabel,
-}) => (
+const MetricCard: React.FC<MetricCardProps> = ({ label, value, subtitle, accessibilityLabel }) => (
   <View
     style={styles.metricCard}
     accessible
     accessibilityRole="summary"
-    accessibilityLabel={accessibilityLabel}
-  >
+    accessibilityLabel={accessibilityLabel}>
     <Text style={styles.metricLabel}>{label}</Text>
     <Text style={styles.metricValue}>{value}</Text>
     {subtitle ? <Text style={styles.metricSubtitle}>{subtitle}</Text> : null}
@@ -149,8 +137,9 @@ const IssuedAssetCard: React.FC<IssuedAssetCardProps> = ({ asset }) => (
     style={styles.assetCard}
     accessible
     accessibilityRole="text"
-    accessibilityLabel={`${asset.asset_code} asset, success rate ${asset.success_rate.toFixed(1)} percent, volume ${formatVolume(asset.volume_24h_usd)}`}
-  >
+    accessibilityLabel={`${asset.asset_code} asset, success rate ${asset.success_rate.toFixed(
+      1
+    )} percent, volume ${formatVolume(asset.volume_24h_usd)}`}>
     <View style={styles.assetHeader}>
       <Text style={styles.assetTitle}>{asset.asset_code}</Text>
       <Text style={styles.assetSuccess}>{asset.success_rate.toFixed(1)}%</Text>
@@ -173,12 +162,9 @@ const FailedCorridorCard: React.FC<FailedCorridorCardProps> = ({ corridor, onPre
     style={({ pressed }) => [styles.relatedCard, pressed && styles.relatedCardPressed]}
     onPress={() => onPress(corridor.corridor_id)}
     accessibilityRole="button"
-    accessibilityLabel={`Open failed corridor ${corridor.corridor_id}`}
-  >
+    accessibilityLabel={`Open failed corridor ${corridor.corridor_id}`}>
     <Text style={styles.relatedTitle}>{corridor.corridor_id}</Text>
-    <Text style={styles.relatedMeta}>
-      {new Date(corridor.timestamp).toLocaleString()}
-    </Text>
+    <Text style={styles.relatedMeta}>{new Date(corridor.timestamp).toLocaleString()}</Text>
   </Pressable>
 );
 
@@ -191,8 +177,7 @@ export const AnchorDetail: React.FC<AnchorDetailProps> = ({
   const route = useRoute<AnchorDetailRouteProp>();
   const anchorId = anchorIdProp ?? route.params?.anchorId ?? '';
 
-  const { data, loading, error, warning, dataSource, refetch } =
-    useAnchorDetail({ anchorId });
+  const { data, loading, error, warning, dataSource, refetch } = useAnchorDetail({ anchorId });
 
   const handleGoBack = () => {
     if (onGoBack) {
@@ -223,12 +208,8 @@ export const AnchorDetail: React.FC<AnchorDetailProps> = ({
           style={styles.centerContent}
           accessible
           accessibilityRole="progressbar"
-          accessibilityLabel="Loading anchor detail"
-        >
-          <ActivityIndicator
-            size="large"
-            color={Platform.OS === 'ios' ? '#007AFF' : '#1976D2'}
-          />
+          accessibilityLabel="Loading anchor detail">
+          <ActivityIndicator size="large" color={Platform.OS === 'ios' ? '#007AFF' : '#1976D2'} />
           <Text style={styles.loadingText}>Loading anchor detail...</Text>
         </View>
       </SafeAreaView>
@@ -243,27 +224,22 @@ export const AnchorDetail: React.FC<AnchorDetailProps> = ({
             onPress={handleGoBack}
             style={styles.backButton}
             accessibilityRole="button"
-            accessibilityLabel="Go back to anchors list"
-          >
+            accessibilityLabel="Go back to anchors list">
             <Text style={styles.backButtonText}>Back to Anchors</Text>
           </Pressable>
           <View
             style={styles.errorBanner}
             accessible
             accessibilityRole="alert"
-            accessibilityLabel={error ?? 'Failed to load anchor data'}
-          >
-            <Text style={styles.errorText}>
-              {error ?? 'Failed to load anchor data'}
-            </Text>
+            accessibilityLabel={error ?? 'Failed to load anchor data'}>
+            <Text style={styles.errorText}>{error ?? 'Failed to load anchor data'}</Text>
             <Pressable
               onPress={() => {
                 void refetch();
               }}
               style={styles.retryButton}
               accessibilityRole="button"
-              accessibilityLabel="Retry loading anchor detail"
-            >
+              accessibilityLabel="Retry loading anchor detail">
               <Text style={styles.retryButtonText}>Retry</Text>
             </Pressable>
           </View>
@@ -273,10 +249,7 @@ export const AnchorDetail: React.FC<AnchorDetailProps> = ({
   }
 
   const { anchor } = data;
-  const uptime = calculateUptime(
-    anchor.successful_transactions,
-    anchor.total_transactions,
-  );
+  const uptime = calculateUptime(anchor.successful_transactions, anchor.total_transactions);
   const reliabilityColor = getReliabilityColor(anchor.reliability_score);
   const statusStyles = getStatusStyles(anchor.status);
   const feedbackBanner = warning ? getFeedbackBannerStyle(dataSource) : null;
@@ -294,14 +267,12 @@ export const AnchorDetail: React.FC<AnchorDetailProps> = ({
             tintColor={Platform.OS === 'ios' ? '#007AFF' : undefined}
             colors={Platform.OS === 'android' ? ['#1976D2'] : undefined}
           />
-        }
-      >
+        }>
         <Pressable
           onPress={handleGoBack}
           style={styles.backButton}
           accessibilityRole="button"
-          accessibilityLabel="Go back to anchors list"
-        >
+          accessibilityLabel="Go back to anchors list">
           <Text style={styles.backButtonText}>Back to Anchors</Text>
         </Pressable>
 
@@ -310,13 +281,11 @@ export const AnchorDetail: React.FC<AnchorDetailProps> = ({
             style={feedbackBanner.container}
             accessible
             accessibilityRole="text"
-            accessibilityLabel={warning}
-          >
+            accessibilityLabel={warning}>
             <Text style={feedbackBanner.text}>{warning}</Text>
             {dataSource === 'mock' ? (
               <Text style={feedbackBanner.text}>
-                Metrics shown are for preview only and may not reflect live anchor
-                performance.
+                Metrics shown are for preview only and may not reflect live anchor performance.
               </Text>
             ) : null}
           </View>
@@ -326,8 +295,7 @@ export const AnchorDetail: React.FC<AnchorDetailProps> = ({
           style={styles.header}
           accessible
           accessibilityRole="header"
-          accessibilityLabel={`Anchor detail for ${anchor.name}`}
-        >
+          accessibilityLabel={`Anchor detail for ${anchor.name}`}>
           <View style={styles.headerTextBlock}>
             <Text style={styles.title}>{anchor.name}</Text>
             <Text style={styles.subtitle}>{truncateAddress(anchor.stellar_account)}</Text>
@@ -341,9 +309,7 @@ export const AnchorDetail: React.FC<AnchorDetailProps> = ({
         </View>
 
         <View style={[styles.statusBadge, statusStyles.badge]}>
-          <Text style={[styles.statusBadgeText, statusStyles.text]}>
-            {statusStyles.label}
-          </Text>
+          <Text style={[styles.statusBadgeText, statusStyles.text]}>{statusStyles.label}</Text>
         </View>
 
         <View style={styles.metricsGrid}>
@@ -378,8 +344,7 @@ export const AnchorDetail: React.FC<AnchorDetailProps> = ({
             <Text
               style={styles.sectionTitle}
               accessibilityRole="header"
-              accessibilityLabel="Issued assets"
-            >
+              accessibilityLabel="Issued assets">
               Issued Assets
             </Text>
             {data.issued_assets.map(asset => (
@@ -393,8 +358,7 @@ export const AnchorDetail: React.FC<AnchorDetailProps> = ({
             <Text
               style={styles.sectionTitle}
               accessibilityRole="header"
-              accessibilityLabel="Top failure reasons"
-            >
+              accessibilityLabel="Top failure reasons">
               Top Failure Reasons
             </Text>
             {data.top_failure_reasons.map((item: FailureReason) => (
@@ -402,8 +366,7 @@ export const AnchorDetail: React.FC<AnchorDetailProps> = ({
                 key={item.reason}
                 style={styles.reasonRow}
                 accessible
-                accessibilityLabel={`${item.reason}, ${item.count} occurrences`}
-              >
+                accessibilityLabel={`${item.reason}, ${item.count} occurrences`}>
                 <Text style={styles.reasonText}>{item.reason}</Text>
                 <Text style={styles.reasonCount}>{item.count}</Text>
               </View>
@@ -416,8 +379,7 @@ export const AnchorDetail: React.FC<AnchorDetailProps> = ({
             <Text
               style={styles.sectionTitle}
               accessibilityRole="header"
-              accessibilityLabel="Recent failed corridors"
-            >
+              accessibilityLabel="Recent failed corridors">
               Recent Failed Corridors
             </Text>
             {data.recent_failed_corridors.map(corridor => (

@@ -182,7 +182,9 @@ export function useOfflineQueue(): UseOfflineQueueResult {
 
   const retryFailed = React.useCallback(async () => {
     const items = readQueue().map(item =>
-      item.status === 'failed' ? { ...item, status: 'pending' as const, updatedAt: new Date().toISOString() } : item
+      item.status === 'failed'
+        ? { ...item, status: 'pending' as const, updatedAt: new Date().toISOString() }
+        : item
     );
 
     writeQueue(items);

@@ -1,10 +1,5 @@
 import React from 'react';
-import {
-  render,
-  fireEvent,
-  waitFor,
-  act,
-} from '@testing-library/react-native';
+import { render, fireEvent, waitFor, act } from '@testing-library/react-native';
 
 import { LoginScreen } from '@components/LoginScreen';
 import {
@@ -66,7 +61,7 @@ function makeAxiosError(status?: number) {
 function fillForm(
   api: ReturnType<typeof render>,
   identifier = 'user@example.com',
-  password = 'password123',
+  password = 'password123'
 ) {
   fireEvent.changeText(api.getByLabelText('Email or username'), identifier);
   fireEvent.changeText(api.getByLabelText('Password'), password);
@@ -187,7 +182,7 @@ describe('LoginScreen', () => {
     mockPost.mockReturnValue(
       new Promise(resolve => {
         resolveRequest = resolve;
-      }),
+      })
     );
 
     const screen = render(<LoginScreen />);
@@ -195,9 +190,7 @@ describe('LoginScreen', () => {
     fireEvent.press(screen.getByLabelText('Sign in'));
 
     await waitFor(() => {
-      expect(screen.getByLabelText('Sign in').props.accessibilityState.busy).toBe(
-        true,
-      );
+      expect(screen.getByLabelText('Sign in').props.accessibilityState.busy).toBe(true);
     });
 
     await act(async () => {
@@ -213,9 +206,7 @@ describe('LoginScreen', () => {
     fireEvent.press(screen.getByLabelText('Sign in'));
 
     await waitFor(() => {
-      expect(
-        screen.getByText('Incorrect email/username or password.'),
-      ).toBeTruthy();
+      expect(screen.getByText('Incorrect email/username or password.')).toBeTruthy();
     });
     expect(useAuthStore.getState().isAuthenticated).toBe(false);
   });
@@ -229,9 +220,7 @@ describe('LoginScreen', () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText(
-          'Unable to connect. Check your internet connection and try again.',
-        ),
+        screen.getByText('Unable to connect. Check your internet connection and try again.')
       ).toBeTruthy();
     });
   });
@@ -255,9 +244,7 @@ describe('LoginScreen', () => {
     fireEvent.press(button);
 
     await waitFor(() => expect(onLoginSuccess).toHaveBeenCalledTimes(1));
-    expect(mockBiometricAuthenticate).toHaveBeenCalledWith(
-      'Sign in with Face ID',
-    );
+    expect(mockBiometricAuthenticate).toHaveBeenCalledWith('Sign in with Face ID');
     expect(useAuthStore.getState().isAuthenticated).toBe(true);
   });
 
@@ -273,9 +260,7 @@ describe('LoginScreen', () => {
     fireEvent.press(button);
 
     await waitFor(() => {
-      expect(
-        screen.getByText(/Touch ID sign-in didn’t complete/),
-      ).toBeTruthy();
+      expect(screen.getByText(/Touch ID sign-in didn’t complete/)).toBeTruthy();
     });
     expect(useAuthStore.getState().isAuthenticated).toBe(false);
   });
@@ -308,9 +293,7 @@ describe('LoginScreen', () => {
     fireEvent.press(button);
 
     await waitFor(() => {
-      expect(
-        screen.getByText(/Your saved sign-in is no longer available/),
-      ).toBeTruthy();
+      expect(screen.getByText(/Your saved sign-in is no longer available/)).toBeTruthy();
     });
     expect(useAuthStore.getState().isAuthenticated).toBe(false);
   });

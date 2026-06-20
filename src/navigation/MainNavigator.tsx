@@ -341,8 +341,16 @@ export function MainNavigator() {
       />
       <Tab.Screen name="WatchApp" component={WatchAppComponent} options={{ title: 'Watch App' }} />
       <Tab.Screen name="WearOSApp" component={WearOSAppComponent} options={{ title: 'Wear OS' }} />
-      <Tab.Screen name="VideoPlayer" component={VideoPlayerComponent} options={{ title: 'Video Player' }} />
-      <Tab.Screen name="AudioRecording" component={AudioRecordingComponent} options={{ title: 'Audio Recording' }} />
+      <Tab.Screen
+        name="VideoPlayer"
+        component={VideoPlayerComponent}
+        options={{ title: 'Video Player' }}
+      />
+      <Tab.Screen
+        name="AudioRecording"
+        component={AudioRecordingComponent}
+        options={{ title: 'Audio Recording' }}
+      />
       <Tab.Screen name="Settings" component={SettingsScreen} />
     </Tab.Navigator>
   );

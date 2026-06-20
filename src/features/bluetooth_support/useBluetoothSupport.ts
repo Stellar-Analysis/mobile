@@ -143,30 +143,27 @@ export function useBluetoothSupport() {
     }
 
     setState(current => ({ ...current, isScanning: true }));
-    scanTimerRef.current = setTimeout(
-      async () => {
-        try {
-          const devices = discoveredDevices();
-          await writeCachedDevices(devices);
-          Vibration.vibrate([0, 25, 20, 25]);
-          setState(current => ({
-            ...current,
-            devices,
-            isLoading: false,
-            isScanning: false,
-            error: null,
-          }));
-        } catch (error) {
-          setState(current => ({
-            ...current,
-            isLoading: false,
-            isScanning: false,
-            error: error instanceof Error ? error.message : 'Bluetooth scan failed.',
-          }));
-        }
-      },
-      Platform.select({ ios: 1200, android: 900, default: 1000 })
-    );
+    scanTimerRef.current = setTimeout(async () => {
+      try {
+        const devices = discoveredDevices();
+        await writeCachedDevices(devices);
+        Vibration.vibrate([0, 25, 20, 25]);
+        setState(current => ({
+          ...current,
+          devices,
+          isLoading: false,
+          isScanning: false,
+          error: null,
+        }));
+      } catch (error) {
+        setState(current => ({
+          ...current,
+          isLoading: false,
+          isScanning: false,
+          error: error instanceof Error ? error.message : 'Bluetooth scan failed.',
+        }));
+      }
+    }, Platform.select({ ios: 1200, android: 900, default: 1000 }));
   }, []);
 
   const pairDevice = useCallback(async (deviceId: string) => {

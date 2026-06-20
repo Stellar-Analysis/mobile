@@ -13,11 +13,14 @@ export const NetworkStatusIndicator: React.FC = () => {
     <View
       style={[styles.container, styles[status], { marginTop: platformOffset }]}
       accessibilityRole="alert"
-      accessibilityLabel={`Network Status Indicator ${message}`}
-    >
+      accessibilityLabel={`Network Status Indicator ${message}`}>
       <Text style={styles.title}>Network Status Indicator</Text>
       <Text style={styles.message}>{message}</Text>
-      <Pressable onPress={dismiss} accessibilityRole="button" accessibilityLabel="Dismiss network status indicator" style={styles.dismissButton}>
+      <Pressable
+        onPress={dismiss}
+        accessibilityRole="button"
+        accessibilityLabel="Dismiss network status indicator"
+        style={styles.dismissButton}>
         <Text style={styles.dismissText}>Dismiss</Text>
       </Pressable>
     </View>

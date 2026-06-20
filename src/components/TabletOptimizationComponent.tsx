@@ -23,24 +23,37 @@ export const TabletOptimizationComponent: React.FC<TabletOptimizationComponentPr
 
   if (!isTablet) {
     return (
-      <View style={[styles.singleColumn, style]} accessibilityRole="main" accessible accessibilityLabel="Main content">
+      <View
+        style={[styles.singleColumn, style]}
+        accessibilityRole="main"
+        accessible
+        accessibilityLabel="Main content">
         {children}
       </View>
     );
   }
 
   return (
-    <View style={[styles.tabletContainer, style]} accessibilityRole="main" accessible accessibilityLabel="Tablet layout">
+    <View
+      style={[styles.tabletContainer, style]}
+      accessibilityRole="main"
+      accessible
+      accessibilityLabel="Tablet layout">
       {sidebar && (
-        <View style={[styles.sidebar, { width: tablet.getSidebarWidth() }]} accessibilityRole="complementary" accessibilityLabel="Sidebar">
+        <View
+          style={[styles.sidebar, { width: tablet.getSidebarWidth() }]}
+          accessibilityRole="complementary"
+          accessibilityLabel="Sidebar">
           {sidebar}
         </View>
       )}
       <View
-        style={[styles.content, tablet.config.contentMaxWidth ? { maxWidth: tablet.config.contentMaxWidth } : undefined]}
+        style={[
+          styles.content,
+          tablet.config.contentMaxWidth ? { maxWidth: tablet.config.contentMaxWidth } : undefined,
+        ]}
         accessibilityRole="region"
-        accessibilityLabel="Content area"
-      >
+        accessibilityLabel="Content area">
         {children}
       </View>
     </View>

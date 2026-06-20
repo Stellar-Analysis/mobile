@@ -2,10 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useCallback, useEffect, useState } from 'react';
 import { Platform } from 'react-native';
 import NetInfo from '@react-native-community/netinfo';
-import {
-  ActionExtensionRecord,
-  AVAILABLE_ACTIONS,
-} from '@features/action_extension';
+import { ActionExtensionRecord, AVAILABLE_ACTIONS } from '@features/action_extension';
 
 const ACTION_EXTENSION_CACHE_KEY = 'action-extension-log';
 const ACTION_OFFLINE_QUEUE_KEY = 'action-extension-offline-queue';
@@ -71,45 +68,48 @@ export function useActionExtension(): UseActionExtension {
     };
   }, []);
 
-  const executeAction = useCallback(async (actionType: string, payload = '') => {
-    setLoading(true);
-    setError(null);
+  const executeAction = useCallback(
+    async (actionType: string, payload = '') => {
+      setLoading(true);
+      setError(null);
 
-    try {
-      if (!supportsActionExtension()) {
-        throw new Error('Action extension is not supported on this platform.');
+      try {
+        if (!supportsActionExtension()) {
+          throw new Error('Action extension is not supported on this platform.');
+        }
+
+        const known = AVAILABLE_ACTIONS.some(a => a.type === actionType);
+        if (!known) {
+          throw new Error(`Unknown action type: ${actionType}`);
+        }
+
+        await new Promise<void>(resolve => setTimeout(resolve, 400));
+
+        const record: ActionExtensionRecord = {
+          id: Date.now().toString(),
+          actionType,
+          payload,
+          status: isOffline ? 'pending' : 'completed',
+          executedAt: new Date().toISOString(),
+        };
+
+        const updated = [record, ...actions];
+        setActions(updated);
+        await saveCachedActions(updated);
+
+        if (isOffline) {
+          const queueRaw = await AsyncStorage.getItem(ACTION_OFFLINE_QUEUE_KEY);
+          const queue = queueRaw ? (JSON.parse(queueRaw) as ActionExtensionRecord[]) : [];
+          await AsyncStorage.setItem(ACTION_OFFLINE_QUEUE_KEY, JSON.stringify([record, ...queue]));
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to execute action.');
+      } finally {
+        setLoading(false);
       }
-
-      const known = AVAILABLE_ACTIONS.some(a => a.type === actionType);
-      if (!known) {
-        throw new Error(`Unknown action type: ${actionType}`);
-      }
-
-      await new Promise<void>(resolve => setTimeout(resolve, 400));
-
-      const record: ActionExtensionRecord = {
-        id: Date.now().toString(),
-        actionType,
-        payload,
-        status: isOffline ? 'pending' : 'completed',
-        executedAt: new Date().toISOString(),
-      };
-
-      const updated = [record, ...actions];
-      setActions(updated);
-      await saveCachedActions(updated);
-
-      if (isOffline) {
-        const queueRaw = await AsyncStorage.getItem(ACTION_OFFLINE_QUEUE_KEY);
-        const queue = queueRaw ? (JSON.parse(queueRaw) as ActionExtensionRecord[]) : [];
-        await AsyncStorage.setItem(ACTION_OFFLINE_QUEUE_KEY, JSON.stringify([record, ...queue]));
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to execute action.');
-    } finally {
-      setLoading(false);
-    }
-  }, [actions, isOffline]);
+    },
+    [actions, isOffline]
+  );
 
   const clearActions = useCallback(async () => {
     try {
@@ -121,14 +121,18 @@ export function useActionExtension(): UseActionExtension {
   }, []);
 
   const syncOfflineQueue = useCallback(async () => {
-    if (isOffline) return;
+    if (isOffline) {
+      return;
+    }
 
     setLoading(true);
     setError(null);
 
     try {
       const queueRaw = await AsyncStorage.getItem(ACTION_OFFLINE_QUEUE_KEY);
-      if (!queueRaw) return;
+      if (!queueRaw) {
+        return;
+      }
 
       const queue = JSON.parse(queueRaw) as ActionExtensionRecord[];
       const completed = queue.map(item => ({ ...item, status: 'completed' as const }));

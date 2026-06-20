@@ -123,7 +123,9 @@ describe('useCalendarIntegration', () => {
     const NetInfo = require('@react-native-community/netinfo');
     NetInfo.fetch.mockResolvedValueOnce({ isConnected: false, isInternetReachable: false });
     const { result } = renderHook(() => useCalendarIntegration());
-    await act(async () => { await Promise.resolve(); });
+    await act(async () => {
+      await Promise.resolve();
+    });
     expect(result.current.isOffline).toBe(true);
   });
 });

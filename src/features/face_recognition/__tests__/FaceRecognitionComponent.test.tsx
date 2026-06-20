@@ -26,10 +26,13 @@ describe('FaceRecognitionComponent', () => {
   it('should display scan button after initialization', async () => {
     const { getByA11yLabel } = render(<FaceRecognitionComponent />);
 
-    await waitFor(() => {
-      const scanButton = getByA11yLabel('Start face recognition');
-      expect(scanButton).toBeDefined();
-    }, { timeout: 1000 });
+    await waitFor(
+      () => {
+        const scanButton = getByA11yLabel('Start face recognition');
+        expect(scanButton).toBeDefined();
+      },
+      { timeout: 1000 }
+    );
   });
 
   it('should handle scan button press', async () => {
