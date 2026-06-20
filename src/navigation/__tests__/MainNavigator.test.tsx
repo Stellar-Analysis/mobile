@@ -7,10 +7,7 @@ import { NavigationContainer } from '@react-navigation/native';
 
 import { MainNavigator } from '@navigation/MainNavigator';
 
-const mainNavigatorSource = fs.readFileSync(
-  path.join(__dirname, '../MainNavigator.tsx'),
-  'utf8',
-);
+const mainNavigatorSource = fs.readFileSync(path.join(__dirname, '../MainNavigator.tsx'), 'utf8');
 
 const TAB_ROUTE_NAMES = [
   'Dashboard',
@@ -149,12 +146,8 @@ function createTabInitialState(activeTab: (typeof TAB_ROUTE_NAMES)[number]) {
 
 describe('MainNavigator', () => {
   it('declares native stack navigators for corridors and anchors', () => {
-    expect(mainNavigatorSource).toMatch(
-      /const CorridorsStack = createNativeStackNavigator/,
-    );
-    expect(mainNavigatorSource).toMatch(
-      /const AnchorsStack = createNativeStackNavigator/,
-    );
+    expect(mainNavigatorSource).toMatch(/const CorridorsStack = createNativeStackNavigator/);
+    expect(mainNavigatorSource).toMatch(/const AnchorsStack = createNativeStackNavigator/);
   });
 
   it('renders the default tab navigator without throwing', () => {
@@ -162,7 +155,7 @@ describe('MainNavigator', () => {
       render(
         <NavigationContainer>
           <MainNavigator />
-        </NavigationContainer>,
+        </NavigationContainer>
       );
     }).not.toThrow();
   });
@@ -171,7 +164,7 @@ describe('MainNavigator', () => {
     const { getByText } = render(
       <NavigationContainer initialState={createTabInitialState('Anchors')}>
         <MainNavigator />
-      </NavigationContainer>,
+      </NavigationContainer>
     );
 
     expect(getByText('Anchors List')).toBeTruthy();
@@ -181,7 +174,7 @@ describe('MainNavigator', () => {
     const { getByText } = render(
       <NavigationContainer initialState={createTabInitialState('Corridors')}>
         <MainNavigator />
-      </NavigationContainer>,
+      </NavigationContainer>
     );
 
     expect(getByText('Corridors List')).toBeTruthy();

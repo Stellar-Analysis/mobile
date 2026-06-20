@@ -25,37 +25,58 @@ export function useWearOSApp(): UseWearOSApp {
     async function load() {
       try {
         const stored = await AsyncStorage.getItem(STORAGE_KEY);
-        if (active && stored) setMessages(JSON.parse(stored));
-      } catch { /* best-effort */ } finally {
-        if (active) setLoading(false);
+        if (active && stored) {
+          setMessages(JSON.parse(stored));
+        }
+      } catch {
+        /* best-effort */
+      } finally {
+        if (active) {
+          setLoading(false);
+        }
       }
     }
     void load();
-    return () => { active = false; };
+    return () => {
+      active = false;
+    };
   }, []);
 
-  const sendMessage = useCallback(async (type: string, payload: Record<string, string>) => {
-    setLoading(true);
-    setError(null);
-    try {
-      if (!isSupported()) throw new Error('Wear OS App is only supported on Android.');
-      await new Promise<void>(resolve => setTimeout(resolve, 400));
-      const msg: WearOSMessage = { id: Date.now().toString(), type, payload, sentAt: new Date().toISOString(), status: 'sent' };
-      const updated = [msg, ...messages].slice(0, 20);
-      setMessages(updated);
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to send Wear OS message.');
-    } finally {
-      setLoading(false);
-    }
-  }, [messages]);
+  const sendMessage = useCallback(
+    async (type: string, payload: Record<string, string>) => {
+      setLoading(true);
+      setError(null);
+      try {
+        if (!isSupported()) {
+          throw new Error('Wear OS App is only supported on Android.');
+        }
+        await new Promise<void>(resolve => setTimeout(resolve, 400));
+        const msg: WearOSMessage = {
+          id: Date.now().toString(),
+          type,
+          payload,
+          sentAt: new Date().toISOString(),
+          status: 'sent',
+        };
+        const updated = [msg, ...messages].slice(0, 20);
+        setMessages(updated);
+        await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to send Wear OS message.');
+      } finally {
+        setLoading(false);
+      }
+    },
+    [messages]
+  );
 
   const clearMessages = useCallback(async () => {
     try {
       await AsyncStorage.removeItem(STORAGE_KEY);
       setMessages([]);
-    } catch { /* best-effort */ }
+    } catch {
+      /* best-effort */
+    }
   }, []);
 
   return { isSupported: isSupported(), loading, error, messages, sendMessage, clearMessages };

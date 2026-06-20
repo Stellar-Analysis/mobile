@@ -1,9 +1,4 @@
-export type SplitMode =
-  | 'full'
-  | 'half'
-  | 'one-third'
-  | 'two-thirds'
-  | 'slide-over';
+export type SplitMode = 'full' | 'half' | 'one-third' | 'two-thirds' | 'slide-over';
 
 export type SplitOrientation = 'horizontal' | 'vertical';
 

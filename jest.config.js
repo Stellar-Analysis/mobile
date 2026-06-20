@@ -17,10 +17,7 @@ module.exports = {
     '^@config/(.*)$': '<rootDir>/src/config/$1',
     '^@navigation/(.*)$': '<rootDir>/src/navigation/$1',
   },
-  collectCoverageFrom: [
-    'src/components/AnchorDetail.tsx',
-    'src/hooks/useAnchorDetail.ts',
-  ],
+  collectCoverageFrom: ['src/components/AnchorDetail.tsx', 'src/hooks/useAnchorDetail.ts'],
   coverageThreshold: {
     global: {
       branches: 80,

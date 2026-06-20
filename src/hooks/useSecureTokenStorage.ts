@@ -42,18 +42,15 @@ export function useSecureTokenStorage(): UseSecureTokenStorageReturn {
     }
   }, []);
 
-  const saveToken = useCallback(
-    async (value: string, expiresAt?: number) => {
-      setError(null);
-      try {
-        await saveStoredToken(value, expiresAt);
-        setToken(value);
-      } catch {
-        setError('Failed to save secure storage');
-      }
-    },
-    [],
-  );
+  const saveToken = useCallback(async (value: string, expiresAt?: number) => {
+    setError(null);
+    try {
+      await saveStoredToken(value, expiresAt);
+      setToken(value);
+    } catch {
+      setError('Failed to save secure storage');
+    }
+  }, []);
 
   const removeToken = useCallback(async () => {
     setError(null);

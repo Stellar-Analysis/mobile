@@ -26,10 +26,13 @@ describe('FingerprintScannerComponent', () => {
   it('should display scan button after initialization', async () => {
     const { getByA11yLabel } = render(<FingerprintScannerComponent />);
 
-    await waitFor(() => {
-      const scanButton = getByA11yLabel('Start fingerprint scan');
-      expect(scanButton).toBeDefined();
-    }, { timeout: 1000 });
+    await waitFor(
+      () => {
+        const scanButton = getByA11yLabel('Start fingerprint scan');
+        expect(scanButton).toBeDefined();
+      },
+      { timeout: 1000 }
+    );
   });
 
   it('should handle scan button press', async () => {

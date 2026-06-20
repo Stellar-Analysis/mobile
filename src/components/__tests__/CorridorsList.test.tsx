@@ -129,7 +129,7 @@ describe('Corridors List', () => {
 
   it('shows loading state with accessibility label', () => {
     mockUseCorridorsList.mockReturnValue(
-      mockHookReturn({ corridors: [], total: 0, loading: true }),
+      mockHookReturn({ corridors: [], total: 0, loading: true })
     );
 
     const { getByLabelText } = render(<CorridorsList />);
@@ -143,7 +143,7 @@ describe('Corridors List', () => {
         corridors: [],
         total: 0,
         error: 'Failed to load corridors',
-      }),
+      })
     );
 
     const { getByLabelText } = render(<CorridorsList />);
@@ -159,16 +159,14 @@ describe('Corridors List', () => {
       mockHookReturn({
         dataSource: 'mock',
         warning: 'Live data unavailable. Showing sample corridors.',
-      }),
+      })
     );
 
     const { getByText } = render(<CorridorsList />);
 
     expect(getByText('Live data unavailable. Showing sample corridors.')).toBeTruthy();
     expect(
-      getByText(
-        'Corridor metrics shown are for preview only and may not reflect live performance.',
-      ),
+      getByText('Corridor metrics shown are for preview only and may not reflect live performance.')
     ).toBeTruthy();
   });
 
@@ -179,7 +177,7 @@ describe('Corridors List', () => {
         dataSource: 'cache',
         isFromCache: true,
         warning: 'Offline — showing saved corridors.',
-      }),
+      })
     );
 
     const { getByText } = render(<CorridorsList />);
@@ -188,9 +186,7 @@ describe('Corridors List', () => {
   });
 
   it('shows empty state when no corridors are available', () => {
-    mockUseCorridorsList.mockReturnValue(
-      mockHookReturn({ corridors: [], total: 0 }),
-    );
+    mockUseCorridorsList.mockReturnValue(mockHookReturn({ corridors: [], total: 0 }));
 
     const { getByLabelText } = render(<CorridorsList />);
 
@@ -201,14 +197,10 @@ describe('Corridors List', () => {
     const onCorridorPress = jest.fn();
     mockUseCorridorsList.mockReturnValue(mockHookReturn());
 
-    const { getByLabelText } = render(
-      <CorridorsList onCorridorPress={onCorridorPress} />,
-    );
+    const { getByLabelText } = render(<CorridorsList onCorridorPress={onCorridorPress} />);
 
     fireEvent.press(
-      getByLabelText(
-        'USDC to PHP, Healthy, success rate 92.5 percent, health score 94',
-      ),
+      getByLabelText('USDC to PHP, Healthy, success rate 92.5 percent, health score 94')
     );
 
     expect(onCorridorPress).toHaveBeenCalledWith('USDC-PHP');
@@ -220,9 +212,7 @@ describe('Corridors List', () => {
     const { getByLabelText } = render(<CorridorsList />);
 
     fireEvent.press(
-      getByLabelText(
-        'USDC to PHP, Healthy, success rate 92.5 percent, health score 94',
-      ),
+      getByLabelText('USDC to PHP, Healthy, success rate 92.5 percent, health score 94')
     );
 
     expect(mockNavigate).toHaveBeenCalledWith('CorridorDetail', {
@@ -242,7 +232,7 @@ describe('Corridors List', () => {
 
   it('renders health badges for healthy, fair, and critical corridors', () => {
     mockUseCorridorsList.mockReturnValue(
-      mockHookReturn({ corridors: SAMPLE_CORRIDORS.slice(0, 3), total: 3 }),
+      mockHookReturn({ corridors: SAMPLE_CORRIDORS.slice(0, 3), total: 3 })
     );
 
     const { getByText } = render(<CorridorsList />);
@@ -257,7 +247,7 @@ describe('Corridors List', () => {
       mockHookReturn({
         corridors: [{ ...SAMPLE_CORRIDORS[3], liquidity_depth_usd: 750 }],
         total: 1,
-      }),
+      })
     );
 
     const { getByText } = render(<CorridorsList />);
@@ -270,7 +260,7 @@ describe('Corridors List', () => {
       mockHookReturn({
         corridors: [SAMPLE_CORRIDORS[0], { ...SAMPLE_CORRIDORS[3], liquidity_depth_usd: 1500 }],
         total: 2,
-      }),
+      })
     );
 
     const { getByText } = render(<CorridorsList />);

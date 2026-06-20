@@ -91,9 +91,7 @@ describe('Anchor Detail', () => {
   });
 
   it('shows loading state with accessibility label', () => {
-    mockUseAnchorDetail.mockReturnValue(
-      mockHookReturn({ data: null, loading: true }),
-    );
+    mockUseAnchorDetail.mockReturnValue(mockHookReturn({ data: null, loading: true }));
 
     const { getByLabelText } = render(<AnchorDetail anchorId="anchor-1" />);
 
@@ -105,7 +103,7 @@ describe('Anchor Detail', () => {
       mockHookReturn({
         data: null,
         error: 'Failed to load anchor data',
-      }),
+      })
     );
 
     const { getByLabelText } = render(<AnchorDetail anchorId="anchor-1" />);
@@ -121,16 +119,14 @@ describe('Anchor Detail', () => {
       mockHookReturn({
         dataSource: 'mock',
         warning: 'Live data unavailable. Showing sample data.',
-      }),
+      })
     );
 
     const { getByText } = render(<AnchorDetail anchorId="anchor-1" />);
 
     expect(getByText('Live data unavailable. Showing sample data.')).toBeTruthy();
     expect(
-      getByText(
-        'Metrics shown are for preview only and may not reflect live anchor performance.',
-      ),
+      getByText('Metrics shown are for preview only and may not reflect live anchor performance.')
     ).toBeTruthy();
   });
 
@@ -141,7 +137,7 @@ describe('Anchor Detail', () => {
         dataSource: 'cache',
         isFromCache: true,
         warning: 'Offline — showing saved anchor data.',
-      }),
+      })
     );
 
     const { getByText } = render(<AnchorDetail anchorId="anchor-1" />);
@@ -174,7 +170,7 @@ describe('Anchor Detail', () => {
         anchorId="anchor-1"
         onGoBack={onGoBack}
         onNavigateToCorridor={onNavigateToCorridor}
-      />,
+      />
     );
 
     fireEvent.press(getByLabelText('Go back to anchors list'));
@@ -186,9 +182,7 @@ describe('Anchor Detail', () => {
   });
 
   it('shows default error message when data is unavailable', () => {
-    mockUseAnchorDetail.mockReturnValue(
-      mockHookReturn({ data: null, error: null }),
-    );
+    mockUseAnchorDetail.mockReturnValue(mockHookReturn({ data: null, error: null }));
 
     const { getByText } = render(<AnchorDetail anchorId="anchor-1" />);
     expect(getByText('Failed to load anchor data')).toBeTruthy();
@@ -263,7 +257,7 @@ describe('Anchor Detail', () => {
     mockUseAnchorDetail.mockReturnValue(mockHookReturn({ data }));
 
     const { getByLabelText, getByText, getAllByText } = render(
-      <AnchorDetail anchorId="anchor-1" />,
+      <AnchorDetail anchorId="anchor-1" />
     );
 
     expect(getAllByText('GSHORT').length).toBeGreaterThan(0);
@@ -276,7 +270,7 @@ describe('Anchor Detail', () => {
       mockHookReturn({
         dataSource: 'cache',
         warning: 'Offline — showing saved anchor data.',
-      }),
+      })
     );
 
     const { getByText } = render(<AnchorDetail anchorId="anchor-1" />);

@@ -39,52 +39,62 @@ export function useShortcutsSupport(): UseShortcutsSupport {
       } catch {
         // Ignore storage failures.
       } finally {
-        if (active) setLoading(false);
+        if (active) {
+          setLoading(false);
+        }
       }
     }
 
     void loadShortcuts();
-    return () => { active = false; };
+    return () => {
+      active = false;
+    };
   }, []);
 
   const persist = useCallback(async (updated: Shortcut[]) => {
     await AsyncStorage.setItem(SHORTCUTS_STORAGE_KEY, JSON.stringify(updated));
   }, []);
 
-  const addShortcut = useCallback(async (title: string, phrase: string) => {
-    setLoading(true);
-    setError(null);
+  const addShortcut = useCallback(
+    async (title: string, phrase: string) => {
+      setLoading(true);
+      setError(null);
 
-    try {
-      if (!supportsShortcuts()) {
-        throw new Error('Shortcuts are not supported on this platform.');
+      try {
+        if (!supportsShortcuts()) {
+          throw new Error('Shortcuts are not supported on this platform.');
+        }
+
+        const shortcut: Shortcut = {
+          id: Date.now().toString(),
+          title,
+          phrase,
+          createdAt: new Date().toISOString(),
+        };
+        const updated = [...shortcuts, shortcut];
+        setShortcuts(updated);
+        await persist(updated);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to add shortcut.');
+      } finally {
+        setLoading(false);
       }
+    },
+    [shortcuts, persist]
+  );
 
-      const shortcut: Shortcut = {
-        id: Date.now().toString(),
-        title,
-        phrase,
-        createdAt: new Date().toISOString(),
-      };
-      const updated = [...shortcuts, shortcut];
-      setShortcuts(updated);
-      await persist(updated);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to add shortcut.');
-    } finally {
-      setLoading(false);
-    }
-  }, [shortcuts, persist]);
-
-  const removeShortcut = useCallback(async (id: string) => {
-    try {
-      const updated = shortcuts.filter(s => s.id !== id);
-      setShortcuts(updated);
-      await persist(updated);
-    } catch {
-      // Best-effort.
-    }
-  }, [shortcuts, persist]);
+  const removeShortcut = useCallback(
+    async (id: string) => {
+      try {
+        const updated = shortcuts.filter(s => s.id !== id);
+        setShortcuts(updated);
+        await persist(updated);
+      } catch {
+        // Best-effort.
+      }
+    },
+    [shortcuts, persist]
+  );
 
   return {
     isSupported: supportsShortcuts(),

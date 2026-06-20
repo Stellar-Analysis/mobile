@@ -1,7 +1,11 @@
 import React from 'react';
 import {
-  View, Text, TouchableOpacity, ActivityIndicator,
-  StyleSheet, ScrollView,
+  View,
+  Text,
+  TouchableOpacity,
+  ActivityIndicator,
+  StyleSheet,
+  ScrollView,
 } from 'react-native';
 import { useBackgroundLocation } from '../hooks/useBackgroundLocation';
 import type { BackgroundLocationConfig } from '../features/background_location/types';
@@ -10,10 +14,20 @@ interface BackgroundLocationComponentProps {
   config?: Partial<BackgroundLocationConfig>;
 }
 
-export const BackgroundLocationComponent: React.FC<BackgroundLocationComponentProps> = ({ config }) => {
+export const BackgroundLocationComponent: React.FC<BackgroundLocationComponentProps> = ({
+  config,
+}) => {
   const {
-    permissionStatus, isTracking, lastLocation, locationHistory,
-    error, isLoading, requestPermission, startTracking, stopTracking, clearHistory,
+    permissionStatus,
+    isTracking,
+    lastLocation,
+    locationHistory,
+    error,
+    isLoading,
+    requestPermission,
+    startTracking,
+    stopTracking,
+    clearHistory,
   } = useBackgroundLocation(config);
 
   const permissionLabels: Record<string, string> = {
@@ -25,24 +39,45 @@ export const BackgroundLocationComponent: React.FC<BackgroundLocationComponentPr
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container} accessibilityLabel="Background location settings">
-      <View style={styles.section} accessibilityRole="region" accessibilityLabel="Permission status">
-        <Text style={styles.label} accessibilityRole="header">Location Permission</Text>
+    <ScrollView
+      contentContainerStyle={styles.container}
+      accessibilityLabel="Background location settings">
+      <View
+        style={styles.section}
+        accessibilityRole="region"
+        accessibilityLabel="Permission status">
+        <Text style={styles.label} accessibilityRole="header">
+          Location Permission
+        </Text>
         <Text
-          style={[styles.statusText, permissionStatus === 'background_granted' && styles.statusGreen, permissionStatus === 'denied' && styles.statusRed]}
-          accessibilityLiveRegion="polite"
-        >
+          style={[
+            styles.statusText,
+            permissionStatus === 'background_granted' && styles.statusGreen,
+            permissionStatus === 'denied' && styles.statusRed,
+          ]}
+          accessibilityLiveRegion="polite">
           {permissionLabels[permissionStatus]}
         </Text>
         {permissionStatus !== 'background_granted' && (
-          <TouchableOpacity style={styles.button} onPress={requestPermission} disabled={isLoading} accessibilityRole="button" accessibilityLabel="Request background location permission" accessibilityState={{ disabled: isLoading }}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={requestPermission}
+            disabled={isLoading}
+            accessibilityRole="button"
+            accessibilityLabel="Request background location permission"
+            accessibilityState={{ disabled: isLoading }}>
             <Text style={styles.buttonText}>Request Permission</Text>
           </TouchableOpacity>
         )}
       </View>
 
-      <View style={styles.section} accessibilityRole="region" accessibilityLabel="Tracking controls">
-        <Text style={styles.label} accessibilityRole="header">Tracking</Text>
+      <View
+        style={styles.section}
+        accessibilityRole="region"
+        accessibilityLabel="Tracking controls">
+        <Text style={styles.label} accessibilityRole="header">
+          Tracking
+        </Text>
         {isLoading ? (
           <ActivityIndicator size="small" accessibilityLabel="Loading location service" />
         ) : (
@@ -52,22 +87,29 @@ export const BackgroundLocationComponent: React.FC<BackgroundLocationComponentPr
             disabled={permissionStatus === 'denied' || permissionStatus === 'unavailable'}
             accessibilityRole="button"
             accessibilityLabel={isTracking ? 'Stop location tracking' : 'Start location tracking'}
-            accessibilityState={{ disabled: permissionStatus === 'denied' }}
-          >
+            accessibilityState={{ disabled: permissionStatus === 'denied' }}>
             <Text style={styles.buttonText}>{isTracking ? 'Stop Tracking' : 'Start Tracking'}</Text>
           </TouchableOpacity>
         )}
       </View>
 
       {error && (
-        <View style={styles.errorContainer} accessibilityRole="alert" accessibilityLiveRegion="assertive">
+        <View
+          style={styles.errorContainer}
+          accessibilityRole="alert"
+          accessibilityLiveRegion="assertive">
           <Text style={styles.errorText}>{error}</Text>
         </View>
       )}
 
       {lastLocation && (
-        <View style={styles.section} accessibilityRole="region" accessibilityLabel="Last known location">
-          <Text style={styles.label} accessibilityRole="header">Last Location</Text>
+        <View
+          style={styles.section}
+          accessibilityRole="region"
+          accessibilityLabel="Last known location">
+          <Text style={styles.label} accessibilityRole="header">
+            Last Location
+          </Text>
           <Text>Lat: {lastLocation.latitude.toFixed(6)}</Text>
           <Text>Lng: {lastLocation.longitude.toFixed(6)}</Text>
           <Text>Accuracy: ±{lastLocation.accuracy.toFixed(0)}m</Text>
@@ -75,9 +117,15 @@ export const BackgroundLocationComponent: React.FC<BackgroundLocationComponentPr
       )}
 
       <View style={styles.section}>
-        <Text style={styles.label} accessibilityRole="header">History ({locationHistory.length} points)</Text>
+        <Text style={styles.label} accessibilityRole="header">
+          History ({locationHistory.length} points)
+        </Text>
         {locationHistory.length > 0 && (
-          <TouchableOpacity style={styles.buttonSecondary} onPress={clearHistory} accessibilityRole="button" accessibilityLabel="Clear location history">
+          <TouchableOpacity
+            style={styles.buttonSecondary}
+            onPress={clearHistory}
+            accessibilityRole="button"
+            accessibilityLabel="Clear location history">
             <Text style={styles.buttonText}>Clear History</Text>
           </TouchableOpacity>
         )}
@@ -95,7 +143,12 @@ const styles = StyleSheet.create({
   statusRed: { color: '#ef4444' },
   button: { backgroundColor: '#3b82f6', borderRadius: 8, padding: 12, alignItems: 'center' },
   buttonStop: { backgroundColor: '#ef4444' },
-  buttonSecondary: { backgroundColor: '#6b7280', borderRadius: 8, padding: 10, alignItems: 'center' },
+  buttonSecondary: {
+    backgroundColor: '#6b7280',
+    borderRadius: 8,
+    padding: 10,
+    alignItems: 'center',
+  },
   buttonText: { color: '#fff', fontWeight: '600' },
   errorContainer: { backgroundColor: '#fef2f2', borderRadius: 8, padding: 12, marginBottom: 16 },
   errorText: { color: '#dc2626' },

@@ -8,7 +8,9 @@ jest.mock('@hooks/useIOSProjectSetup', () => ({
   useIOSProjectSetup: jest.fn(),
 }));
 
-const mockedUseIOSProjectSetup = useIOSProjectSetup as jest.MockedFunction<typeof useIOSProjectSetup>;
+const mockedUseIOSProjectSetup = useIOSProjectSetup as jest.MockedFunction<
+  typeof useIOSProjectSetup
+>;
 
 const baseResult = {
   status: 'ready' as const,

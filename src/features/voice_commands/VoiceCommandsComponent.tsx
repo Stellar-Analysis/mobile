@@ -1,5 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity, ScrollView, AccessibilityRole } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ActivityIndicator,
+  TouchableOpacity,
+  ScrollView,
+  AccessibilityRole,
+} from 'react-native';
 import { useVoiceCommands } from './useVoiceCommands';
 
 export const VoiceCommandsComponent = () => {
@@ -60,8 +68,7 @@ export const VoiceCommandsComponent = () => {
         style={styles.header}
         accessible={true}
         accessibilityLabel="Voice Commands Interface"
-        accessibilityRole="header"
-      >
+        accessibilityRole="header">
         <Text style={styles.title}>Voice Commands</Text>
       </View>
 
@@ -71,8 +78,7 @@ export const VoiceCommandsComponent = () => {
             style={styles.errorContainer}
             accessible={true}
             accessibilityRole="alert"
-            accessibilityLabel={`Error: ${error}`}
-          >
+            accessibilityLabel={`Error: ${error}`}>
             <Text style={styles.errorText}>{error}</Text>
           </View>
         )}
@@ -82,8 +88,7 @@ export const VoiceCommandsComponent = () => {
             style={styles.resultContainer}
             accessible={true}
             accessibilityRole="status"
-            accessibilityLabel={`Heard: ${transcribedText}`}
-          >
+            accessibilityLabel={`Heard: ${transcribedText}`}>
             <Text style={styles.resultLabel}>You said:</Text>
             <Text style={styles.resultValue}>{transcribedText}</Text>
           </View>
@@ -94,8 +99,7 @@ export const VoiceCommandsComponent = () => {
             style={styles.commandResultContainer}
             accessible={true}
             accessibilityRole="status"
-            accessibilityLabel={`Command executed: ${commandResult}`}
-          >
+            accessibilityLabel={`Command executed: ${commandResult}`}>
             <Text style={styles.commandResultText}>Command: {commandResult}</Text>
           </View>
         )}
@@ -104,16 +108,14 @@ export const VoiceCommandsComponent = () => {
           style={styles.commandsListContainer}
           accessible={true}
           accessibilityRole="list"
-          accessibilityLabel="Available voice commands"
-        >
+          accessibilityLabel="Available voice commands">
           <Text style={styles.commandsTitle}>Available Commands:</Text>
           {availableCommands.map((cmd, idx) => (
             <View
               key={idx}
               style={styles.commandItem}
               accessibilityRole="listitem"
-              accessibilityLabel={`Command: ${cmd}`}
-            >
+              accessibilityLabel={`Command: ${cmd}`}>
               <Text style={styles.commandText}>• {cmd}</Text>
             </View>
           ))}
@@ -126,8 +128,7 @@ export const VoiceCommandsComponent = () => {
             accessible={true}
             accessibilityRole="button"
             accessibilityLabel="Start listening for voice commands"
-            accessibilityHint="Tap to start voice recognition"
-          >
+            accessibilityHint="Tap to start voice recognition">
             {isListening ? (
               <ActivityIndicator size="small" color="#fff" />
             ) : (
@@ -139,7 +140,9 @@ export const VoiceCommandsComponent = () => {
         {isListening && (
           <View style={styles.listeningContainer}>
             <ActivityIndicator size="large" color="#007AFF" />
-            <Text style={styles.listeningText} accessibilityLabel="Voice recognition active, listening...">
+            <Text
+              style={styles.listeningText}
+              accessibilityLabel="Voice recognition active, listening...">
               Listening... Say a command
             </Text>
             <TouchableOpacity
@@ -147,8 +150,7 @@ export const VoiceCommandsComponent = () => {
               onPress={stopListening}
               accessible={true}
               accessibilityRole="button"
-              accessibilityLabel="Stop listening"
-            >
+              accessibilityLabel="Stop listening">
               <Text style={styles.stopButtonText}>Stop</Text>
             </TouchableOpacity>
           </View>
@@ -160,8 +162,7 @@ export const VoiceCommandsComponent = () => {
             onPress={resetResult}
             accessible={true}
             accessibilityRole="button"
-            accessibilityLabel="Clear result"
-          >
+            accessibilityLabel="Clear result">
             <Text style={styles.clearButtonText}>Clear</Text>
           </TouchableOpacity>
         )}

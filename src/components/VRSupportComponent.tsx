@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-  ActivityIndicator,
-  Button,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Button, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useVRSupport } from '@features/vr_support/useVRSupport';
 
 export const VRSupportComponent: React.FC = () => {
@@ -16,7 +9,9 @@ export const VRSupportComponent: React.FC = () => {
     <ScrollView contentContainerStyle={styles.container} accessibilityLabel="VR support screen">
       <View style={styles.header}>
         <Text style={styles.title}>VR Support</Text>
-        <Text style={styles.subtitle}>Activate immersive virtual reality experiences from the app.</Text>
+        <Text style={styles.subtitle}>
+          Activate immersive virtual reality experiences from the app.
+        </Text>
       </View>
 
       <View style={styles.body}>
@@ -48,7 +43,11 @@ export const VRSupportComponent: React.FC = () => {
           />
         </View>
 
-        <View style={styles.detailsCard} accessible accessibilityRole="text" accessibilityLabel="VR mode status details">
+        <View
+          style={styles.detailsCard}
+          accessible
+          accessibilityRole="text"
+          accessibilityLabel="VR mode status details">
           <Text style={styles.detailLabel}>VR Mode</Text>
           <Text style={styles.detailValue}>{isInVrMode ? 'Active' : 'Inactive'}</Text>
         </View>

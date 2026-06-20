@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-  ActivityIndicator,
-  Button,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Button, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useAppIntents } from '@features/app_intents/useAppIntents';
 
 const SAMPLE_INTENTS = [
@@ -27,11 +20,15 @@ export const AppIntentsComponent: React.FC = () => {
 
       <View style={styles.body}>
         <Text style={styles.status} accessibilityRole="text">
-          {isSupported ? 'App Intents are available on this device.' : 'App Intents are not supported on this platform.'}
+          {isSupported
+            ? 'App Intents are available on this device.'
+            : 'App Intents are not supported on this platform.'}
         </Text>
 
         {error ? (
-          <Text style={styles.errorText} accessibilityRole="alert">{error}</Text>
+          <Text style={styles.errorText} accessibilityRole="alert">
+            {error}
+          </Text>
         ) : null}
 
         {loading ? (
@@ -56,21 +53,37 @@ export const AppIntentsComponent: React.FC = () => {
           ))}
         </View>
 
-        <View style={styles.logCard} accessible accessibilityRole="summary" accessibilityLabel="Intent execution log">
+        <View
+          style={styles.logCard}
+          accessible
+          accessibilityRole="summary"
+          accessibilityLabel="Intent execution log">
           <View style={styles.logHeader}>
             <Text style={styles.listTitle}>Execution Log</Text>
             {intents.length > 0 ? (
-              <Button title="Clear" onPress={() => void clearIntents()} accessibilityLabel="Clear intent log" />
+              <Button
+                title="Clear"
+                onPress={() => void clearIntents()}
+                accessibilityLabel="Clear intent log"
+              />
             ) : null}
           </View>
           {intents.length === 0 ? (
             <Text style={styles.emptyText}>No intents executed yet.</Text>
           ) : (
             intents.map(item => (
-              <View key={item.id} style={styles.logRow} accessible accessibilityRole="text"
+              <View
+                key={item.id}
+                style={styles.logRow}
+                accessible
+                accessibilityRole="text"
                 accessibilityLabel={`${item.name} ${item.status} at ${item.executedAt}`}>
-                <Text style={[styles.logName, item.status === 'failed' && styles.failed]}>{item.name}</Text>
-                <Text style={styles.logMeta}>{item.status} · {new Date(item.executedAt).toLocaleTimeString()}</Text>
+                <Text style={[styles.logName, item.status === 'failed' && styles.failed]}>
+                  {item.name}
+                </Text>
+                <Text style={styles.logMeta}>
+                  {item.status} · {new Date(item.executedAt).toLocaleTimeString()}
+                </Text>
               </View>
             ))
           )}
@@ -90,11 +103,36 @@ const styles = StyleSheet.create({
   errorText: { fontSize: 13, color: '#b91c1c', marginTop: 8 },
   loaderRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginVertical: 12 },
   loadingText: { color: '#059669' },
-  intentList: { padding: 16, borderRadius: 12, backgroundColor: '#f0fdf4', borderWidth: 1, borderColor: '#bbf7d0' },
-  intentRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#d1fae5' },
+  intentList: {
+    padding: 16,
+    borderRadius: 12,
+    backgroundColor: '#f0fdf4',
+    borderWidth: 1,
+    borderColor: '#bbf7d0',
+  },
+  intentRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#d1fae5',
+  },
   intentName: { fontSize: 14, fontWeight: '600', color: '#111827' },
-  logCard: { marginTop: 8, padding: 16, borderRadius: 12, backgroundColor: '#f8fafc', borderWidth: 1, borderColor: '#e2e8f0' },
-  logHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
+  logCard: {
+    marginTop: 8,
+    padding: 16,
+    borderRadius: 12,
+    backgroundColor: '#f8fafc',
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+  },
+  logHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
   listTitle: { fontSize: 15, fontWeight: '600', color: '#0f172a' },
   emptyText: { fontSize: 14, color: '#475569' },
   logRow: { paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#e2e8f0' },

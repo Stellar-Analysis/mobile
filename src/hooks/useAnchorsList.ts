@@ -141,12 +141,9 @@ function applyFallbackResult(
   setWarning: (warning: string) => void,
   dataSource: Extract<AnchorDataSource, 'cache' | 'mock'>,
   warning: string,
-  cachedData?: AnchorsListData | null,
+  cachedData?: AnchorsListData | null
 ): void {
-  const data =
-    dataSource === 'cache' && cachedData
-      ? cachedData
-      : generateMockAnchorsList();
+  const data = dataSource === 'cache' && cachedData ? cachedData : generateMockAnchorsList();
 
   setAnchors(data.anchors);
   setTotal(data.total);
@@ -172,10 +169,7 @@ export function useAnchorsList(): UseAnchorsListReturn {
     let offline = false;
     try {
       const networkState = await NetInfo.fetch();
-      offline = !(
-        networkState.isConnected &&
-        networkState.isInternetReachable !== false
-      );
+      offline = !(networkState.isConnected && networkState.isInternetReachable !== false);
     } catch {
       offline = true;
     }
@@ -198,7 +192,7 @@ export function useAnchorsList(): UseAnchorsListReturn {
           setDataSource,
           setWarning,
           'mock',
-          'Offline — no saved data available. Showing sample anchors.',
+          'Offline — no saved data available. Showing sample anchors.'
         );
         return;
       }
@@ -220,7 +214,7 @@ export function useAnchorsList(): UseAnchorsListReturn {
             setWarning,
             'cache',
             'Live data unavailable. Showing saved anchors.',
-            cached,
+            cached
           );
           return;
         }
@@ -231,7 +225,7 @@ export function useAnchorsList(): UseAnchorsListReturn {
           setDataSource,
           setWarning,
           'mock',
-          'Live data unavailable. Showing sample anchors.',
+          'Live data unavailable. Showing sample anchors.'
         );
       }
     } catch {

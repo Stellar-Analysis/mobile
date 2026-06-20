@@ -32,8 +32,10 @@ export async function setupNotifications(): Promise<void> {
   }
 
   // Handle foreground messages
-  messaging().onMessage(async (remoteMessage) => {
-    if (!remoteMessage.notification) return;
+  messaging().onMessage(async remoteMessage => {
+    if (!remoteMessage.notification) {
+      return;
+    }
     await notifee.displayNotification({
       title: remoteMessage.notification.title,
       body: remoteMessage.notification.body,

@@ -16,9 +16,7 @@ const baseResult = {
   error: null,
   isOffline: false,
   actions: [],
-  availableActions: [
-    { type: 'analyze_anchor', label: 'Analyze Anchor' },
-  ],
+  availableActions: [{ type: 'analyze_anchor', label: 'Analyze Anchor' }],
   executeAction: jest.fn(),
   clearActions: jest.fn(),
   syncOfflineQueue: jest.fn(),

@@ -14,11 +14,7 @@ import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { useCorridorDetail } from '@hooks/useCorridorDetail';
-import {
-  CorridorDataSource,
-  CorridorDetailProps,
-  CorridorMetrics,
-} from '@types/corridor';
+import { CorridorDataSource, CorridorDetailProps, CorridorMetrics } from '@types/corridor';
 import { CorridorsStackParamList } from '@navigation/MainNavigator';
 
 type CorridorDetailRouteProp = RouteProp<CorridorsStackParamList, 'CorridorDetail'>;
@@ -62,18 +58,12 @@ interface MetricCardProps {
   accessibilityLabel: string;
 }
 
-const MetricCard: React.FC<MetricCardProps> = ({
-  label,
-  value,
-  subtitle,
-  accessibilityLabel,
-}) => (
+const MetricCard: React.FC<MetricCardProps> = ({ label, value, subtitle, accessibilityLabel }) => (
   <View
     style={styles.metricCard}
     accessible
     accessibilityRole="summary"
-    accessibilityLabel={accessibilityLabel}
-  >
+    accessibilityLabel={accessibilityLabel}>
     <Text style={styles.metricLabel}>{label}</Text>
     <Text style={styles.metricValue}>{value}</Text>
     {subtitle ? <Text style={styles.metricSubtitle}>{subtitle}</Text> : null}
@@ -85,19 +75,12 @@ interface RelatedCorridorCardProps {
   onPress: (corridorId: string) => void;
 }
 
-const RelatedCorridorCard: React.FC<RelatedCorridorCardProps> = ({
-  corridor,
-  onPress,
-}) => (
+const RelatedCorridorCard: React.FC<RelatedCorridorCardProps> = ({ corridor, onPress }) => (
   <Pressable
-    style={({ pressed }) => [
-      styles.relatedCard,
-      pressed && styles.relatedCardPressed,
-    ]}
+    style={({ pressed }) => [styles.relatedCard, pressed && styles.relatedCardPressed]}
     onPress={() => onPress(corridor.id)}
     accessibilityRole="button"
-    accessibilityLabel={`Open corridor ${corridor.source_asset} to ${corridor.destination_asset}`}
-  >
+    accessibilityLabel={`Open corridor ${corridor.source_asset} to ${corridor.destination_asset}`}>
     <View style={styles.relatedHeader}>
       <Text style={styles.relatedTitle}>
         {corridor.source_asset} → {corridor.destination_asset}
@@ -120,8 +103,7 @@ export const CorridorDetail: React.FC<CorridorDetailProps> = ({
   const route = useRoute<CorridorDetailRouteProp>();
   const corridorId = corridorIdProp ?? route.params?.corridorId ?? '';
 
-  const { data, loading, error, warning, dataSource, refetch } =
-    useCorridorDetail({ corridorId });
+  const { data, loading, error, warning, dataSource, refetch } = useCorridorDetail({ corridorId });
 
   const handleGoBack = () => {
     if (onGoBack) {
@@ -146,12 +128,8 @@ export const CorridorDetail: React.FC<CorridorDetailProps> = ({
           style={styles.centerContent}
           accessible
           accessibilityRole="progressbar"
-          accessibilityLabel="Loading corridor detail"
-        >
-          <ActivityIndicator
-            size="large"
-            color={Platform.OS === 'ios' ? '#007AFF' : '#1976D2'}
-          />
+          accessibilityLabel="Loading corridor detail">
+          <ActivityIndicator size="large" color={Platform.OS === 'ios' ? '#007AFF' : '#1976D2'} />
           <Text style={styles.loadingText}>Loading corridor detail...</Text>
         </View>
       </SafeAreaView>
@@ -166,27 +144,22 @@ export const CorridorDetail: React.FC<CorridorDetailProps> = ({
             onPress={handleGoBack}
             style={styles.backButton}
             accessibilityRole="button"
-            accessibilityLabel="Go back to corridors list"
-          >
+            accessibilityLabel="Go back to corridors list">
             <Text style={styles.backButtonText}>Back to Corridors</Text>
           </Pressable>
           <View
             style={styles.errorBanner}
             accessible
             accessibilityRole="alert"
-            accessibilityLabel={error ?? 'Failed to load corridor data'}
-          >
-            <Text style={styles.errorText}>
-              {error ?? 'Failed to load corridor data'}
-            </Text>
+            accessibilityLabel={error ?? 'Failed to load corridor data'}>
+            <Text style={styles.errorText}>{error ?? 'Failed to load corridor data'}</Text>
             <Pressable
               onPress={() => {
                 void refetch();
               }}
               style={styles.retryButton}
               accessibilityRole="button"
-              accessibilityLabel="Retry loading corridor detail"
-            >
+              accessibilityLabel="Retry loading corridor detail">
               <Text style={styles.retryButtonText}>Retry</Text>
             </Pressable>
           </View>
@@ -212,14 +185,12 @@ export const CorridorDetail: React.FC<CorridorDetailProps> = ({
             tintColor={Platform.OS === 'ios' ? '#007AFF' : undefined}
             colors={Platform.OS === 'android' ? ['#1976D2'] : undefined}
           />
-        }
-      >
+        }>
         <Pressable
           onPress={handleGoBack}
           style={styles.backButton}
           accessibilityRole="button"
-          accessibilityLabel="Go back to corridors list"
-        >
+          accessibilityLabel="Go back to corridors list">
           <Text style={styles.backButtonText}>Back to Corridors</Text>
         </Pressable>
 
@@ -228,13 +199,11 @@ export const CorridorDetail: React.FC<CorridorDetailProps> = ({
             style={feedbackBanner.container}
             accessible
             accessibilityRole="text"
-            accessibilityLabel={warning}
-          >
+            accessibilityLabel={warning}>
             <Text style={feedbackBanner.text}>{warning}</Text>
             {dataSource === 'mock' ? (
               <Text style={feedbackBanner.text}>
-                Metrics shown are for preview only and may not reflect live corridor
-                performance.
+                Metrics shown are for preview only and may not reflect live corridor performance.
               </Text>
             ) : null}
           </View>
@@ -244,8 +213,7 @@ export const CorridorDetail: React.FC<CorridorDetailProps> = ({
           style={styles.header}
           accessible
           accessibilityRole="header"
-          accessibilityLabel={`Corridor detail for ${corridor.source_asset} to ${corridor.destination_asset}`}
-        >
+          accessibilityLabel={`Corridor detail for ${corridor.source_asset} to ${corridor.destination_asset}`}>
           <View style={styles.headerTextBlock}>
             <Text style={styles.title}>
               {corridor.source_asset} → {corridor.destination_asset}
@@ -271,7 +239,9 @@ export const CorridorDetail: React.FC<CorridorDetailProps> = ({
             label="Avg Latency"
             value={`${corridor.average_latency_ms.toFixed(0)} ms`}
             subtitle={`Med ${corridor.median_latency_ms} ms · P99 ${corridor.p99_latency_ms} ms`}
-            accessibilityLabel={`Average latency ${corridor.average_latency_ms.toFixed(0)} milliseconds`}
+            accessibilityLabel={`Average latency ${corridor.average_latency_ms.toFixed(
+              0
+            )} milliseconds`}
           />
           <MetricCard
             label="Liquidity Depth"
@@ -283,7 +253,9 @@ export const CorridorDetail: React.FC<CorridorDetailProps> = ({
             label="24h Volume"
             value={formatMillions(corridor.liquidity_volume_24h_usd)}
             subtitle={`Updated ${new Date(corridor.last_updated).toLocaleTimeString()}`}
-            accessibilityLabel={`24 hour volume ${formatMillions(corridor.liquidity_volume_24h_usd)}`}
+            accessibilityLabel={`24 hour volume ${formatMillions(
+              corridor.liquidity_volume_24h_usd
+            )}`}
           />
         </View>
 
@@ -291,14 +263,12 @@ export const CorridorDetail: React.FC<CorridorDetailProps> = ({
           <Text
             style={styles.sectionTitle}
             accessibilityRole="header"
-            accessibilityLabel="Historical summary"
-          >
+            accessibilityLabel="Historical summary">
             Historical Summary
           </Text>
           <Text style={styles.sectionBody}>
-            Success samples: {data.historical_success_rate.length} · Latency
-            buckets: {data.latency_distribution.length} · Liquidity points:{' '}
-            {data.liquidity_trends.length}
+            Success samples: {data.historical_success_rate.length} · Latency buckets:{' '}
+            {data.latency_distribution.length} · Liquidity points: {data.liquidity_trends.length}
           </Text>
         </View>
 
@@ -307,8 +277,7 @@ export const CorridorDetail: React.FC<CorridorDetailProps> = ({
             <Text
               style={styles.sectionTitle}
               accessibilityRole="header"
-              accessibilityLabel="Related corridors"
-            >
+              accessibilityLabel="Related corridors">
               Related Corridors
             </Text>
             {data.related_corridors.map(related => (
@@ -323,8 +292,7 @@ export const CorridorDetail: React.FC<CorridorDetailProps> = ({
 
         <Text
           style={styles.footer}
-          accessibilityLabel={`Last updated ${new Date(corridor.last_updated).toLocaleString()}`}
-        >
+          accessibilityLabel={`Last updated ${new Date(corridor.last_updated).toLocaleString()}`}>
           Last updated: {new Date(corridor.last_updated).toLocaleString()}
         </Text>
       </ScrollView>

@@ -21,7 +21,9 @@ describe('use3DTouchSupport', () => {
   it('records force on press', async () => {
     const { result } = renderHook(() => use3DTouchSupport());
     const mockEvt = { nativeEvent: { force: 0.6, locationX: 50, locationY: 80 } } as any;
-    await act(async () => { result.current.handlePress(mockEvt); });
+    await act(async () => {
+      result.current.handlePress(mockEvt);
+    });
     expect(result.current.lastForce).toBeCloseTo(0.6);
     expect(result.current.error).toBeNull();
   });
@@ -29,7 +31,9 @@ describe('use3DTouchSupport', () => {
   it('clamps force to max 1', async () => {
     const { result } = renderHook(() => use3DTouchSupport());
     const mockEvt = { nativeEvent: { force: 2.0, locationX: 0, locationY: 0 } } as any;
-    await act(async () => { result.current.handlePress(mockEvt); });
+    await act(async () => {
+      result.current.handlePress(mockEvt);
+    });
     expect(result.current.lastForce).toBeLessThanOrEqual(1);
   });
 

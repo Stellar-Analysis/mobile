@@ -59,13 +59,10 @@ export const CalendarIntegrationComponent: React.FC = () => {
   return (
     <ScrollView
       contentContainerStyle={styles.container}
-      accessibilityLabel="Calendar integration screen"
-    >
+      accessibilityLabel="Calendar integration screen">
       <View style={styles.header}>
         <Text style={styles.title}>Calendar</Text>
-        <Text style={styles.subtitle}>
-          View and schedule events with optional reminders.
-        </Text>
+        <Text style={styles.subtitle}>View and schedule events with optional reminders.</Text>
       </View>
 
       {isOffline ? (
@@ -131,7 +128,9 @@ export const CalendarIntegrationComponent: React.FC = () => {
               <Button
                 title={formVisible ? 'Cancel' : 'Create Event'}
                 onPress={() => setFormVisible(v => !v)}
-                accessibilityLabel={formVisible ? 'Cancel event creation' : 'Create new calendar event'}
+                accessibilityLabel={
+                  formVisible ? 'Cancel event creation' : 'Create new calendar event'
+                }
               />
             </View>
           </>
@@ -213,7 +212,10 @@ export const CalendarIntegrationComponent: React.FC = () => {
         </View>
       ) : null}
 
-      <View style={styles.eventList} accessible accessibilityLabel={`Events list for ${selectedDate}`}>
+      <View
+        style={styles.eventList}
+        accessible
+        accessibilityLabel={`Events list for ${selectedDate}`}>
         <Text style={styles.listTitle}>
           Events on {selectedDate} ({eventsForDate.length})
         </Text>
@@ -228,8 +230,11 @@ export const CalendarIntegrationComponent: React.FC = () => {
               style={styles.eventCard}
               accessible
               accessibilityRole="text"
-              accessibilityLabel={`Event: ${event.title}, from ${event.startDate} to ${event.endDate}${event.hasReminder ? `, reminder ${event.reminderMinutes ?? 15} minutes before` : ''}`}
-            >
+              accessibilityLabel={`Event: ${event.title}, from ${event.startDate} to ${
+                event.endDate
+              }${
+                event.hasReminder ? `, reminder ${event.reminderMinutes ?? 15} minutes before` : ''
+              }`}>
               <View style={styles.eventCardHeader}>
                 <Text style={styles.eventTitle}>{event.title}</Text>
                 <Button

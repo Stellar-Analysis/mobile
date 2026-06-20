@@ -25,14 +25,18 @@ export const ShareExtensionComponent: React.FC = () => {
   const [content, setContent] = useState('');
 
   const handleReceive = () => {
-    if (!title.trim() || !content.trim()) return;
+    if (!title.trim() || !content.trim()) {
+      return;
+    }
     void receiveShare(title.trim(), content.trim());
     setTitle('');
     setContent('');
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container} accessibilityLabel="Share extension screen">
+    <ScrollView
+      contentContainerStyle={styles.container}
+      accessibilityLabel="Share extension screen">
       <View style={styles.header}>
         <Text style={styles.title}>Share Extension</Text>
         <Text style={styles.subtitle}>Receive content shared from other apps.</Text>
@@ -106,7 +110,11 @@ export const ShareExtensionComponent: React.FC = () => {
           ) : null}
         </View>
 
-        <View style={styles.listCard} accessible accessibilityRole="summary" accessibilityLabel="Shared items list">
+        <View
+          style={styles.listCard}
+          accessible
+          accessibilityRole="summary"
+          accessibilityLabel="Shared items list">
           <Text style={styles.listTitle}>Received Shares</Text>
           {sharedItems.length === 0 ? (
             <Text style={styles.emptyText}>No shared content yet.</Text>
@@ -117,13 +125,14 @@ export const ShareExtensionComponent: React.FC = () => {
                 style={styles.itemRow}
                 accessible
                 accessibilityRole="text"
-                accessibilityLabel={`${item.title} from ${item.sourceApp}`}
-              >
+                accessibilityLabel={`${item.title} from ${item.sourceApp}`}>
                 <Text style={styles.itemTitle}>{item.title}</Text>
                 <Text style={styles.itemMeta}>
                   {item.sourceApp} · {new Date(item.receivedAt).toLocaleTimeString()}
                 </Text>
-                <Text style={styles.itemContent} numberOfLines={2}>{item.content}</Text>
+                <Text style={styles.itemContent} numberOfLines={2}>
+                  {item.content}
+                </Text>
               </View>
             ))
           )}
@@ -143,11 +152,25 @@ const styles = StyleSheet.create({
   offlineText: { fontSize: 13, color: '#92400e' },
   errorText: { fontSize: 13, color: '#b91c1c', marginTop: 8 },
   form: { gap: 10 },
-  input: { borderWidth: 1, borderColor: '#d1d5db', borderRadius: 8, padding: 10, fontSize: 14, color: '#111827' },
+  input: {
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    borderRadius: 8,
+    padding: 10,
+    fontSize: 14,
+    color: '#111827',
+  },
   loaderRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginVertical: 12 },
   loadingText: { color: '#7c3aed' },
   actionsRow: { flexDirection: 'row', gap: 12 },
-  listCard: { marginTop: 8, padding: 16, borderRadius: 12, backgroundColor: '#f5f3ff', borderWidth: 1, borderColor: '#ddd6fe' },
+  listCard: {
+    marginTop: 8,
+    padding: 16,
+    borderRadius: 12,
+    backgroundColor: '#f5f3ff',
+    borderWidth: 1,
+    borderColor: '#ddd6fe',
+  },
   listTitle: { fontSize: 15, fontWeight: '600', color: '#0f172a', marginBottom: 8 },
   emptyText: { fontSize: 14, color: '#475569' },
   itemRow: { paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#e9d5ff' },

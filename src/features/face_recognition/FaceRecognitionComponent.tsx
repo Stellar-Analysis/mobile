@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity, AccessibilityRole } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ActivityIndicator,
+  TouchableOpacity,
+  AccessibilityRole,
+} from 'react-native';
 import { useFaceRecognition } from './useFaceRecognition';
 
 export const FaceRecognitionComponent = () => {
@@ -75,8 +82,7 @@ export const FaceRecognitionComponent = () => {
         style={styles.header}
         accessible={true}
         accessibilityLabel="Face Recognition Interface"
-        accessibilityRole="header"
-      >
+        accessibilityRole="header">
         <Text style={styles.title}>Face Recognition</Text>
       </View>
 
@@ -86,8 +92,7 @@ export const FaceRecognitionComponent = () => {
             style={styles.errorContainer}
             accessible={true}
             accessibilityRole="alert"
-            accessibilityLabel={`Error: ${error}`}
-          >
+            accessibilityLabel={`Error: ${error}`}>
             <Text style={styles.errorText}>{error}</Text>
           </View>
         )}
@@ -97,8 +102,9 @@ export const FaceRecognitionComponent = () => {
             style={styles.successContainer}
             accessible={true}
             accessibilityRole="status"
-            accessibilityLabel={`Face recognized with ${(confidenceScore * 100).toFixed(0)}% confidence`}
-          >
+            accessibilityLabel={`Face recognized with ${(confidenceScore * 100).toFixed(
+              0
+            )}% confidence`}>
             <Text style={styles.successText}>✓ Face Recognized</Text>
             <Text style={styles.confidenceText}>
               Confidence: {(confidenceScore * 100).toFixed(1)}%
@@ -108,8 +114,7 @@ export const FaceRecognitionComponent = () => {
               onPress={resetResult}
               accessible={true}
               accessibilityRole="button"
-              accessibilityLabel="Reset recognition"
-            >
+              accessibilityLabel="Reset recognition">
               <Text style={styles.resetButtonText}>Reset</Text>
             </TouchableOpacity>
           </View>
@@ -123,8 +128,7 @@ export const FaceRecognitionComponent = () => {
             accessible={true}
             accessibilityRole="button"
             accessibilityLabel="Start face recognition"
-            accessibilityHint="Tap to authenticate with face recognition"
-          >
+            accessibilityHint="Tap to authenticate with face recognition">
             {isScanning ? (
               <ActivityIndicator size="small" color="#fff" />
             ) : (
@@ -144,8 +148,7 @@ export const FaceRecognitionComponent = () => {
               onPress={stopScan}
               accessible={true}
               accessibilityRole="button"
-              accessibilityLabel="Cancel recognition"
-            >
+              accessibilityLabel="Cancel recognition">
               <Text style={styles.stopButtonText}>Cancel</Text>
             </TouchableOpacity>
           </View>

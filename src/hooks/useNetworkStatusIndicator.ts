@@ -23,7 +23,12 @@ export function useNetworkStatusIndicator(): UseNetworkStatusIndicatorResult {
   const [isDismissed, setIsDismissed] = React.useState(false);
 
   const status: NetworkStatus = isSyncing ? 'syncing' : isOnline ? 'online' : 'offline';
-  const message = status === 'syncing' ? 'Syncing offline changes' : status === 'online' ? 'Back online' : 'Offline mode active';
+  const message =
+    status === 'syncing'
+      ? 'Syncing offline changes'
+      : status === 'online'
+      ? 'Back online'
+      : 'Offline mode active';
   const platformOffset = Platform.select({ ios: 8, android: 0, default: 0 }) ?? 0;
 
   React.useEffect(() => {

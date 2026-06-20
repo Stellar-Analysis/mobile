@@ -3,7 +3,10 @@
  * Handles contract transactions with local queueing for offline scenarios
  */
 
-import { ContractTransaction, ContractSubmissionResult, ContractArg } from "./contractSubmission";
+import { ContractSubmissionResult, ContractArg } from './contractSubmission';
+import { createScopedLogger } from './logger';
+
+const log = createScopedLogger('MobileContractService');
 
 // Database schema for local queueing
 interface QueuedTransaction {
@@ -12,7 +15,7 @@ interface QueuedTransaction {
   functionName: string;
   args: ContractArg[];
   simulatedEnvelope?: string;
-  status: "queued" | "submitted" | "confirmed" | "failed";
+  status: 'queued' | 'submitted' | 'confirmed' | 'failed';
   attemptCount: number;
   createdAt: number;
   updatedAt: number;
@@ -26,14 +29,14 @@ interface QueuedTransaction {
  */
 export class MobileContractService {
   private readonly backendUrl: string;
-  private readonly dbName: string = "StellarInsights";
-  private readonly storeName: string = "transactions";
+  private readonly dbName: string = 'StellarInsights';
+  private readonly storeName: string = 'transactions';
   private readonly maxQueuedRetries: number = 5;
   private readonly queueRetryIntervalMs: number = 5000;
   private isOnline: boolean = navigator.onLine;
   private db: IDBDatabase | null = null;
 
-  constructor(backendUrl: string = process.env.REACT_APP_API_URL || "http://localhost:3000") {
+  constructor(backendUrl: string = process.env.REACT_APP_API_URL || 'http://localhost:3000') {
     this.backendUrl = backendUrl;
     this.initializeDatabase();
     this.setupOnlineListener();
@@ -52,12 +55,12 @@ export class MobileContractService {
         resolve();
       };
 
-      request.onupgradeneeded = (event) => {
+      request.onupgradeneeded = event => {
         const db = (event.target as IDBOpenDBRequest).result;
         if (!db.objectStoreNames.contains(this.storeName)) {
-          const store = db.createObjectStore(this.storeName, { keyPath: "id" });
-          store.createIndex("status", "status", { unique: false });
-          store.createIndex("createdAt", "createdAt", { unique: false });
+          const store = db.createObjectStore(this.storeName, { keyPath: 'id' });
+          store.createIndex('status', 'status', { unique: false });
+          store.createIndex('createdAt', 'createdAt', { unique: false });
         }
       };
     });
@@ -67,14 +70,14 @@ export class MobileContractService {
    * Setup listener for online/offline changes
    */
   private setupOnlineListener(): void {
-    window.addEventListener("online", () => {
-      console.log("[MobileContractService] Network online - processing queue");
+    window.addEventListener('online', () => {
+      log.info('Network online - processing queue');
       this.isOnline = true;
       this.processQueue();
     });
 
-    window.addEventListener("offline", () => {
-      console.log("[MobileContractService] Network offline - queuing transactions");
+    window.addEventListener('offline', () => {
+      log.info('Network offline - queuing transactions');
       this.isOnline = false;
     });
   }
@@ -92,7 +95,7 @@ export class MobileContractService {
       contractId: request.contractId,
       functionName: request.functionName,
       args: request.args,
-      status: "queued",
+      status: 'queued',
       attemptCount: 0,
       createdAt: Date.now(),
       updatedAt: Date.now(),
@@ -106,19 +109,19 @@ export class MobileContractService {
       }
       // If failed and retryable, queue for later
       if (result.retryable) {
-        console.log("[MobileContractService] Submission failed but retryable - queueing");
+        log.warn('Submission failed but retryable - queueing');
         await this.queueTransaction(transaction);
       }
       return result;
     }
 
     // Queue for later if offline
-    console.log("[MobileContractService] Offline - queueing transaction");
+    log.info('Offline - queueing transaction');
     await this.queueTransaction(transaction);
 
     return {
       success: false,
-      error: "Device is offline - transaction queued for later submission",
+      error: 'Device is offline - transaction queued for later submission',
       retryable: true,
     };
   }
@@ -126,7 +129,9 @@ export class MobileContractService {
   /**
    * Attempt to submit a transaction to the backend
    */
-  private async attemptSubmission(transaction: QueuedTransaction): Promise<ContractSubmissionResult> {
+  private async attemptSubmission(
+    transaction: QueuedTransaction
+  ): Promise<ContractSubmissionResult> {
     try {
       transaction.attemptCount++;
       transaction.updatedAt = Date.now();
@@ -135,15 +140,15 @@ export class MobileContractService {
       if (!transaction.simulatedEnvelope) {
         const simulated = await this.simulateTransaction(transaction);
         if (!simulated) {
-          throw new Error("Simulation failed");
+          throw new Error('Simulation failed');
         }
         transaction.simulatedEnvelope = simulated;
       }
 
       // Submit to backend
       const response = await fetch(`${this.backendUrl}/api/v1/contracts/submit`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           transactionData: transaction.simulatedEnvelope,
         }),
@@ -155,7 +160,7 @@ export class MobileContractService {
       }
 
       const result = await response.json();
-      transaction.status = "submitted";
+      transaction.status = 'submitted';
       transaction.transactionHash = result.hash;
 
       await this.updateQueuedTransaction(transaction);
@@ -163,7 +168,7 @@ export class MobileContractService {
       // Poll for confirmation
       const confirmed = await this.pollForConfirmation(result.hash);
       if (confirmed) {
-        transaction.status = "confirmed";
+        transaction.status = 'confirmed';
         await this.updateQueuedTransaction(transaction);
       }
 
@@ -173,7 +178,7 @@ export class MobileContractService {
         retryable: false,
       };
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Unknown error";
+      const message = error instanceof Error ? error.message : 'Unknown error';
       transaction.lastError = message;
       transaction.updatedAt = Date.now();
 
@@ -181,9 +186,9 @@ export class MobileContractService {
       const retryable = this.isRetryableError(error);
 
       if (retryable && transaction.attemptCount < this.maxQueuedRetries) {
-        transaction.status = "queued";
+        transaction.status = 'queued';
       } else {
-        transaction.status = "failed";
+        transaction.status = 'failed';
       }
 
       await this.updateQueuedTransaction(transaction);
@@ -202,8 +207,8 @@ export class MobileContractService {
   private async simulateTransaction(transaction: QueuedTransaction): Promise<string | null> {
     try {
       const response = await fetch(`${this.backendUrl}/api/v1/contracts/simulate`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contractId: transaction.contractId,
           functionName: transaction.functionName,
@@ -218,7 +223,7 @@ export class MobileContractService {
       const result = await response.json();
       return result.transactionData;
     } catch (error) {
-      console.error("[MobileContractService] Simulation error:", error);
+      log.error('Simulation error', error);
       return null;
     }
   }
@@ -236,10 +241,10 @@ export class MobileContractService {
 
         if (response.ok) {
           const result = await response.json();
-          if (result.status === "success") {
+          if (result.status === 'success') {
             return true;
           }
-          if (result.status === "failed") {
+          if (result.status === 'failed') {
             return false;
           }
         }
@@ -258,18 +263,18 @@ export class MobileContractService {
    */
   private async queueTransaction(transaction: QueuedTransaction): Promise<void> {
     if (!this.db) {
-      console.error("[MobileContractService] Database not initialized");
+      log.error('Database not initialized');
       return;
     }
 
     return new Promise((resolve, reject) => {
-      const tx = this.db!.transaction([this.storeName], "readwrite");
+      const tx = this.db!.transaction([this.storeName], 'readwrite');
       const store = tx.objectStore(this.storeName);
       const request = store.add(transaction);
 
       request.onerror = () => reject(request.error);
       request.onsuccess = () => {
-        console.log(`[MobileContractService] Transaction queued: ${transaction.id}`);
+        log.info(`Transaction queued: ${transaction.id}`);
         resolve();
       };
     });
@@ -279,10 +284,12 @@ export class MobileContractService {
    * Update a queued transaction
    */
   private async updateQueuedTransaction(transaction: QueuedTransaction): Promise<void> {
-    if (!this.db) return;
+    if (!this.db) {
+      return;
+    }
 
     return new Promise((resolve, reject) => {
-      const tx = this.db!.transaction([this.storeName], "readwrite");
+      const tx = this.db!.transaction([this.storeName], 'readwrite');
       const store = tx.objectStore(this.storeName);
       const request = store.put(transaction);
 
@@ -295,13 +302,15 @@ export class MobileContractService {
    * Get queued transactions
    */
   async getQueuedTransactions(): Promise<QueuedTransaction[]> {
-    if (!this.db) return [];
+    if (!this.db) {
+      return [];
+    }
 
     return new Promise((resolve, reject) => {
-      const tx = this.db!.transaction([this.storeName], "readonly");
+      const tx = this.db!.transaction([this.storeName], 'readonly');
       const store = tx.objectStore(this.storeName);
-      const index = store.index("status");
-      const request = index.getAll("queued");
+      const index = store.index('status');
+      const request = index.getAll('queued');
 
       request.onerror = () => reject(request.error);
       request.onsuccess = () => resolve(request.result || []);
@@ -316,11 +325,11 @@ export class MobileContractService {
 
     for (const transaction of queued) {
       if (!this.isOnline) {
-        console.log("[MobileContractService] Network went offline - stopping queue processing");
+        log.info('Network went offline - stopping queue processing');
         break;
       }
 
-      console.log(`[MobileContractService] Processing queued transaction: ${transaction.id}`);
+      log.info(`Processing queued transaction: ${transaction.id}`);
       await this.attemptSubmission(transaction);
 
       // Delay between submissions
@@ -332,10 +341,12 @@ export class MobileContractService {
    * Get transaction status
    */
   async getTransactionStatus(id: string): Promise<QueuedTransaction | null> {
-    if (!this.db) return null;
+    if (!this.db) {
+      return null;
+    }
 
     return new Promise((resolve, reject) => {
-      const tx = this.db!.transaction([this.storeName], "readonly");
+      const tx = this.db!.transaction([this.storeName], 'readonly');
       const store = tx.objectStore(this.storeName);
       const request = store.get(id);
 
@@ -348,22 +359,24 @@ export class MobileContractService {
    * Clear old completed transactions
    */
   async clearCompletedTransactions(olderThanMs: number = 24 * 60 * 60 * 1000): Promise<void> {
-    if (!this.db) return;
+    if (!this.db) {
+      return;
+    }
 
     const cutoffTime = Date.now() - olderThanMs;
 
     return new Promise((resolve, reject) => {
-      const tx = this.db!.transaction([this.storeName], "readwrite");
+      const tx = this.db!.transaction([this.storeName], 'readwrite');
       const store = tx.objectStore(this.storeName);
-      const index = store.index("status");
-      const request = index.getAll("confirmed");
+      const index = store.index('status');
+      const request = index.getAll('confirmed');
 
       request.onerror = () => reject(request.error);
       request.onsuccess = () => {
         const results = request.result || [];
         const deleteRequests = results
-          .filter((t) => t.updatedAt < cutoffTime)
-          .map((t) => store.delete(t.id));
+          .filter(t => t.updatedAt < cutoffTime)
+          .map(t => store.delete(t.id));
 
         Promise.all(deleteRequests).then(() => resolve());
       };
@@ -374,20 +387,20 @@ export class MobileContractService {
    * Check if error is retryable
    */
   private isRetryableError(error: unknown): boolean {
-    const message = error instanceof Error ? error.message.toLowerCase() : "";
+    const message = error instanceof Error ? error.message.toLowerCase() : '';
 
     // Network errors
-    if (message.includes("network") || message.includes("fetch")) {
+    if (message.includes('network') || message.includes('fetch')) {
       return true;
     }
 
     // Transient errors
-    if (message.includes("timeout") || message.includes("temporarily")) {
+    if (message.includes('timeout') || message.includes('temporarily')) {
       return true;
     }
 
     // Server errors
-    if (message.includes("500") || message.includes("503")) {
+    if (message.includes('500') || message.includes('503')) {
       return true;
     }
 
@@ -398,14 +411,14 @@ export class MobileContractService {
    * Utility to delay execution
    */
   private delay(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 }
 
 /**
  * React Hook for Mobile Contract Service
  */
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 
 export function useMobileContractService() {
   const [service] = useState(() => new MobileContractService());
@@ -416,12 +429,12 @@ export function useMobileContractService() {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
 
-    window.addEventListener("online", handleOnline);
-    window.addEventListener("offline", handleOffline);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
 
     return () => {
-      window.removeEventListener("online", handleOnline);
-      window.removeEventListener("offline", handleOffline);
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
     };
   }, []);
 
@@ -440,7 +453,7 @@ export function useMobileContractService() {
     updateQueuedCount();
     const interval = setInterval(updateQueuedCount, 5000);
     return () => clearInterval(interval);
-  }, [service]);
+  }, [updateQueuedCount]);
 
   return {
     service,

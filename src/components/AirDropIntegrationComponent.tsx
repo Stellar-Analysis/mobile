@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-  ActivityIndicator,
-  Button,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Button, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useAirDropIntegration } from '@features/airdrop_integration/useAirDropIntegration';
 
 export const AirDropIntegrationComponent: React.FC = () => {
@@ -17,15 +10,19 @@ export const AirDropIntegrationComponent: React.FC = () => {
     void shareContent(
       'Stellar Insights',
       'Check out real-time Stellar payment analytics!',
-      'https://stellar.org',
+      'https://stellar.org'
     );
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container} accessibilityLabel="AirDrop integration screen">
+    <ScrollView
+      contentContainerStyle={styles.container}
+      accessibilityLabel="AirDrop integration screen">
       <View style={styles.header}>
         <Text style={styles.title}>AirDrop Integration</Text>
-        <Text style={styles.subtitle}>Share Stellar data with nearby devices via AirDrop or system share sheet.</Text>
+        <Text style={styles.subtitle}>
+          Share Stellar data with nearby devices via AirDrop or system share sheet.
+        </Text>
       </View>
 
       <View style={styles.body}>
@@ -57,18 +54,31 @@ export const AirDropIntegrationComponent: React.FC = () => {
           />
         </View>
 
-        <View style={styles.historyCard} accessible accessibilityRole="summary" accessibilityLabel="Share history">
+        <View
+          style={styles.historyCard}
+          accessible
+          accessibilityRole="summary"
+          accessibilityLabel="Share history">
           <View style={styles.historyHeader}>
             <Text style={styles.listTitle}>Share History</Text>
             {history.length > 0 ? (
-              <Button title="Clear" onPress={() => void clearHistory()} accessibilityLabel="Clear share history" />
+              <Button
+                title="Clear"
+                onPress={() => void clearHistory()}
+                accessibilityLabel="Clear share history"
+              />
             ) : null}
           </View>
           {history.length === 0 ? (
             <Text style={styles.emptyText}>No shares yet.</Text>
           ) : (
             history.map(item => (
-              <View key={item.id} style={styles.historyRow} accessible accessibilityRole="text" accessibilityLabel={`Shared ${item.title} at ${item.sharedAt}`}>
+              <View
+                key={item.id}
+                style={styles.historyRow}
+                accessible
+                accessibilityRole="text"
+                accessibilityLabel={`Shared ${item.title} at ${item.sharedAt}`}>
                 <Text style={styles.historyTitle}>{item.title}</Text>
                 <Text style={styles.historyMeta}>{new Date(item.sharedAt).toLocaleString()}</Text>
               </View>
@@ -91,8 +101,20 @@ const styles = StyleSheet.create({
   loaderRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginVertical: 12 },
   loadingText: { color: '#0369a1' },
   buttonGroup: { marginTop: 10 },
-  historyCard: { marginTop: 20, padding: 16, borderRadius: 12, backgroundColor: '#f8fafc', borderWidth: 1, borderColor: '#e2e8f0' },
-  historyHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
+  historyCard: {
+    marginTop: 20,
+    padding: 16,
+    borderRadius: 12,
+    backgroundColor: '#f8fafc',
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+  },
+  historyHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
   listTitle: { fontSize: 15, fontWeight: '600', color: '#0f172a' },
   emptyText: { fontSize: 14, color: '#475569' },
   historyRow: { paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#e2e8f0' },

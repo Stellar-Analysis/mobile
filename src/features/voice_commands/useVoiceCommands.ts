@@ -1,6 +1,9 @@
 import { useState, useCallback, useRef } from 'react';
 import { Platform } from 'react-native';
 import { useMMKVStorage } from 'react-native-mmkv';
+import { createScopedLogger } from '@services/logger';
+
+const log = createScopedLogger('VoiceCommands');
 
 interface VoiceCommandsState {
   isListening: boolean;
@@ -37,19 +40,25 @@ export const useVoiceCommands = (): VoiceCommandsState => {
   const [error, setError] = useState<string | null>(null);
   const [commandResult, setCommandResult] = useState<string | null>(null);
   const listeningTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const [permissionsGranted, setPermissionsGranted] = useMMKVStorage(VOICE_PERMISSIONS_KEY, storage, false);
+  const [permissionsGranted, setPermissionsGranted] = useMMKVStorage(
+    VOICE_PERMISSIONS_KEY,
+    storage,
+    false
+  );
 
   const hasPermission = useCallback(async (): Promise<boolean> => {
     try {
       if (Platform.OS === 'android') {
         const { PermissionsAndroid } = require('react-native');
-        const recordAudio = await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.RECORD_AUDIO);
+        const recordAudio = await PermissionsAndroid.check(
+          PermissionsAndroid.PERMISSIONS.RECORD_AUDIO
+        );
         return recordAudio;
       }
       // iOS handles permissions at system level
       return true;
     } catch (err) {
-      console.warn('Error checking permissions:', err);
+      log.warn('Error checking permissions', { err });
       return false;
     }
   }, []);
@@ -58,13 +67,16 @@ export const useVoiceCommands = (): VoiceCommandsState => {
     try {
       if (Platform.OS === 'android') {
         const { PermissionsAndroid } = require('react-native');
-        const result = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.RECORD_AUDIO, {
-          title: 'Microphone Permission',
-          message: 'Voice Commands needs access to your microphone',
-          buttonNeutral: 'Ask Me Later',
-          buttonNegative: 'Cancel',
-          buttonPositive: 'OK',
-        });
+        const result = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+          {
+            title: 'Microphone Permission',
+            message: 'Voice Commands needs access to your microphone',
+            buttonNeutral: 'Ask Me Later',
+            buttonNegative: 'Cancel',
+            buttonPositive: 'OK',
+          }
+        );
         const granted = result === PermissionsAndroid.RESULTS.GRANTED;
         setPermissionsGranted(granted);
         return granted;
@@ -72,7 +84,7 @@ export const useVoiceCommands = (): VoiceCommandsState => {
       // iOS permissions handled by system
       return true;
     } catch (err) {
-      console.error('Error requesting permissions:', err);
+      log.error('Error requesting permissions', err);
       return false;
     }
   }, [setPermissionsGranted]);
@@ -161,7 +173,7 @@ export const useVoiceCommands = (): VoiceCommandsState => {
           }
           storage.set(VOICE_COMMANDS_CACHE_KEY, JSON.stringify(cachedCommands));
         } catch (cacheErr) {
-          console.warn('Failed to cache voice command:', cacheErr);
+          log.warn('Failed to cache voice command', { cacheErr });
         }
       }, 3000);
     } catch (err) {

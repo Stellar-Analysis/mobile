@@ -3,7 +3,9 @@ import { renderHook, act, waitFor } from '@testing-library/react-native';
 import { useWidgetSupport } from '../../features/widget_support/useWidgetSupport';
 
 describe('useWidgetSupport', () => {
-  beforeEach(async () => { await AsyncStorage.clear(); });
+  beforeEach(async () => {
+    await AsyncStorage.clear();
+  });
 
   it('loads default widgets', async () => {
     const { result } = renderHook(() => useWidgetSupport());
@@ -15,7 +17,9 @@ describe('useWidgetSupport', () => {
   it('refreshes widgets with updated timestamps', async () => {
     const { result } = renderHook(() => useWidgetSupport());
     await waitFor(() => expect(result.current.loading).toBe(false));
-    await act(async () => { await result.current.refresh(); });
+    await act(async () => {
+      await result.current.refresh();
+    });
     expect(result.current.widgets[0].updatedAt).not.toBe('');
   });
 
@@ -33,7 +37,9 @@ describe('useWidgetSupport', () => {
     const { result } = renderHook(() => useWidgetSupport());
     await waitFor(() => expect(result.current.loading).toBe(false));
     const idToRemove = result.current.widgets[0].id;
-    await act(async () => { await result.current.removeWidget(idToRemove); });
+    await act(async () => {
+      await result.current.removeWidget(idToRemove);
+    });
     expect(result.current.widgets.find(w => w.id === idToRemove)).toBeUndefined();
   });
 

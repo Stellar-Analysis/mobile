@@ -1,12 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ActivityIndicator,
-  Image,
-} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Image } from 'react-native';
 import { useCameraIntegration, CameraMode } from '../hooks/useCameraIntegration';
 
 export const CameraIntegrationComponent = () => {
@@ -30,14 +23,18 @@ export const CameraIntegrationComponent = () => {
   useEffect(() => {
     (async () => {
       const permitted = await hasPermission();
-      if (!permitted) await requestPermission();
+      if (!permitted) {
+        await requestPermission();
+      }
       setIsInitialized(true);
     })().catch(() => setIsInitialized(true));
 
     return () => {
-      if (isActive) stopCamera();
+      if (isActive) {
+        stopCamera();
+      }
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (!isInitialized) {
@@ -67,8 +64,7 @@ export const CameraIntegrationComponent = () => {
             accessible
             accessibilityRole="tab"
             accessibilityState={{ selected: mode === m }}
-            accessibilityLabel={`${m} mode`}
-          >
+            accessibilityLabel={`${m} mode`}>
             <Text style={[styles.modeText, mode === m && styles.modeTextActive]}>
               {m === 'qr' ? 'QR Scan' : m === 'document' ? 'Document' : 'Photo'}
             </Text>
@@ -78,18 +74,33 @@ export const CameraIntegrationComponent = () => {
 
       <View style={styles.content}>
         {error && (
-          <View style={styles.errorContainer} accessible accessibilityRole="alert" accessibilityLabel={`Error: ${error}`}>
+          <View
+            style={styles.errorContainer}
+            accessible
+            accessibilityRole="alert"
+            accessibilityLabel={`Error: ${error}`}>
             <Text style={styles.errorText}>{error}</Text>
           </View>
         )}
 
         {/* QR result */}
         {qrResult && (
-          <View style={styles.resultContainer} accessible accessibilityRole="status" accessibilityLabel={`QR code scanned: ${qrResult.data}`}>
+          <View
+            style={styles.resultContainer}
+            accessible
+            accessibilityRole="status"
+            accessibilityLabel={`QR code scanned: ${qrResult.data}`}>
             <Text style={styles.resultLabel}>QR Code Scanned</Text>
-            <Text style={styles.resultValue} selectable>{qrResult.data}</Text>
+            <Text style={styles.resultValue} selectable>
+              {qrResult.data}
+            </Text>
             <Text style={styles.resultMeta}>Type: {qrResult.type}</Text>
-            <TouchableOpacity style={styles.clearButton} onPress={resetResult} accessible accessibilityRole="button" accessibilityLabel="Clear result">
+            <TouchableOpacity
+              style={styles.clearButton}
+              onPress={resetResult}
+              accessible
+              accessibilityRole="button"
+              accessibilityLabel="Clear result">
               <Text style={styles.clearButtonText}>Clear</Text>
             </TouchableOpacity>
           </View>
@@ -97,11 +108,24 @@ export const CameraIntegrationComponent = () => {
 
         {/* Captured photo result */}
         {capturedPhoto && (
-          <View style={styles.resultContainer} accessible accessibilityRole="status" accessibilityLabel="Photo captured">
+          <View
+            style={styles.resultContainer}
+            accessible
+            accessibilityRole="status"
+            accessibilityLabel="Photo captured">
             <Text style={styles.resultLabel}>Photo Captured</Text>
-            <Text style={styles.resultValue} selectable>{capturedPhoto.uri}</Text>
-            <Text style={styles.resultMeta}>{capturedPhoto.width} × {capturedPhoto.height}</Text>
-            <TouchableOpacity style={styles.clearButton} onPress={resetResult} accessible accessibilityRole="button" accessibilityLabel="Clear captured photo">
+            <Text style={styles.resultValue} selectable>
+              {capturedPhoto.uri}
+            </Text>
+            <Text style={styles.resultMeta}>
+              {capturedPhoto.width} × {capturedPhoto.height}
+            </Text>
+            <TouchableOpacity
+              style={styles.clearButton}
+              onPress={resetResult}
+              accessible
+              accessibilityRole="button"
+              accessibilityLabel="Clear captured photo">
               <Text style={styles.clearButtonText}>Clear</Text>
             </TouchableOpacity>
           </View>
@@ -109,7 +133,11 @@ export const CameraIntegrationComponent = () => {
 
         {/* Active scanning / capture view */}
         {isActive && (
-          <View style={styles.activeContainer} accessible accessibilityRole="status" accessibilityLabel={mode === 'qr' ? 'Scanning for QR code' : 'Camera is ready'}>
+          <View
+            style={styles.activeContainer}
+            accessible
+            accessibilityRole="status"
+            accessibilityLabel={mode === 'qr' ? 'Scanning for QR code' : 'Camera is ready'}>
             <ActivityIndicator size="large" color="#007AFF" />
             <Text style={styles.activeText}>
               {mode === 'qr' ? 'Scanning for QR code...' : 'Camera ready'}
@@ -120,8 +148,7 @@ export const CameraIntegrationComponent = () => {
                 onPress={capturePhoto}
                 accessible
                 accessibilityRole="button"
-                accessibilityLabel="Capture photo"
-              >
+                accessibilityLabel="Capture photo">
                 <Text style={styles.captureButtonText}>Capture</Text>
               </TouchableOpacity>
             )}
@@ -130,8 +157,7 @@ export const CameraIntegrationComponent = () => {
               onPress={stopCamera}
               accessible
               accessibilityRole="button"
-              accessibilityLabel="Stop camera"
-            >
+              accessibilityLabel="Stop camera">
               <Text style={styles.stopButtonText}>Stop</Text>
             </TouchableOpacity>
           </View>
@@ -145,10 +171,13 @@ export const CameraIntegrationComponent = () => {
             accessible
             accessibilityRole="button"
             accessibilityLabel={`Start ${mode === 'qr' ? 'QR scan' : mode + ' capture'}`}
-            accessibilityHint={mode === 'qr' ? 'Scans a QR code with the camera' : 'Opens camera for capture'}
-          >
+            accessibilityHint={
+              mode === 'qr' ? 'Scans a QR code with the camera' : 'Opens camera for capture'
+            }>
             <Text style={styles.startButtonText}>
-              {mode === 'qr' ? 'Scan QR Code' : `Open ${mode === 'document' ? 'Document' : 'Photo'} Camera`}
+              {mode === 'qr'
+                ? 'Scan QR Code'
+                : `Open ${mode === 'document' ? 'Document' : 'Photo'} Camera`}
             </Text>
           </TouchableOpacity>
         )}
@@ -207,7 +236,13 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   resultLabel: { fontSize: 14, fontWeight: '600', color: '#1b5e20', marginBottom: 8 },
-  resultValue: { fontSize: 13, fontWeight: '700', color: '#2e7d32', fontFamily: 'monospace', marginBottom: 4 },
+  resultValue: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#2e7d32',
+    fontFamily: 'monospace',
+    marginBottom: 4,
+  },
   resultMeta: { fontSize: 12, color: '#558b2f', marginBottom: 12 },
   clearButton: {
     backgroundColor: '#f57c00',

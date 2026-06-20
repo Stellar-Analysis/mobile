@@ -26,10 +26,13 @@ describe('BarcodeScannerComponent', () => {
   it('should display start scan button after initialization', async () => {
     const { getByText } = render(<BarcodeScannerComponent />);
 
-    await waitFor(() => {
-      const startButton = getByText('Start Scan');
-      expect(startButton).toBeDefined();
-    }, { timeout: 1000 });
+    await waitFor(
+      () => {
+        const startButton = getByText('Start Scan');
+        expect(startButton).toBeDefined();
+      },
+      { timeout: 1000 }
+    );
   });
 
   it('should handle scan button press', async () => {

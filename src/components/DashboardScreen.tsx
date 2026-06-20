@@ -12,11 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useDashboardScreen } from '@hooks/useDashboardScreen';
-import {
-  CorridorPerformance,
-  DashboardDataSource,
-  DashboardStats,
-} from '@types/dashboard';
+import { CorridorPerformance, DashboardDataSource, DashboardStats } from '@types/dashboard';
 
 const ACCENT_COLOR = Platform.OS === 'ios' ? '#007AFF' : '#1976D2';
 
@@ -83,18 +79,12 @@ interface StatCardProps {
   growthSuffix?: string;
 }
 
-const StatCard: React.FC<StatCardProps> = ({
-  label,
-  value,
-  growth,
-  growthSuffix,
-}) => (
+const StatCard: React.FC<StatCardProps> = ({ label, value, growth, growthSuffix }) => (
   <View
     style={styles.statCard}
     accessible
     accessibilityRole="text"
-    accessibilityLabel={`${label}: ${value}, ${growthLabel(growth)}`}
-  >
+    accessibilityLabel={`${label}: ${value}, ${growthLabel(growth)}`}>
     <Text style={styles.statLabel}>{label}</Text>
     <Text style={styles.statValue}>{value}</Text>
     <Text style={[styles.statGrowth, growthStyle(growth)]}>
@@ -116,8 +106,11 @@ const CorridorRow: React.FC<CorridorRowProps> = ({ corridor, onPress }) => {
       style={({ pressed }) => [styles.corridorRow, pressed && onPress && styles.rowPressed]}
       onPress={onPress ? () => onPress(corridor.corridor) : undefined}
       accessibilityRole={onPress ? 'button' : 'text'}
-      accessibilityLabel={`${corridor.corridor}, ${healthLabel}, success rate ${corridor.success_rate.toFixed(1)} percent, volume ${formatCurrency(corridor.volume)}`}
-    >
+      accessibilityLabel={`${
+        corridor.corridor
+      }, ${healthLabel}, success rate ${corridor.success_rate.toFixed(
+        1
+      )} percent, volume ${formatCurrency(corridor.volume)}`}>
       <View style={styles.corridorInfo}>
         <Text style={styles.corridorName}>{corridor.corridor}</Text>
         <Text style={styles.corridorMeta}>
@@ -151,18 +144,9 @@ function renderStats(stats: DashboardStats) {
   );
 }
 
-export const DashboardScreen: React.FC<DashboardScreenProps> = ({
-  onCorridorPress,
-}) => {
-  const {
-    stats,
-    corridorPerformance,
-    loading,
-    error,
-    warning,
-    dataSource,
-    refetch,
-  } = useDashboardScreen();
+export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onCorridorPress }) => {
+  const { stats, corridorPerformance, loading, error, warning, dataSource, refetch } =
+    useDashboardScreen();
 
   if (loading && !stats && !error) {
     return (
@@ -171,8 +155,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
           style={styles.centerContent}
           accessible
           accessibilityRole="progressbar"
-          accessibilityLabel="Loading dashboard"
-        >
+          accessibilityLabel="Loading dashboard">
           <ActivityIndicator size="large" color={ACCENT_COLOR} />
           <Text style={styles.loadingText}>Loading dashboard...</Text>
         </View>
@@ -188,8 +171,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
             style={styles.errorBanner}
             accessible
             accessibilityRole="alert"
-            accessibilityLabel={error}
-          >
+            accessibilityLabel={error}>
             <Text style={styles.errorText}>{error}</Text>
             <Pressable
               onPress={() => {
@@ -197,8 +179,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
               }}
               style={styles.retryButton}
               accessibilityRole="button"
-              accessibilityLabel="Retry loading dashboard"
-            >
+              accessibilityLabel="Retry loading dashboard">
               <Text style={styles.retryButtonText}>Retry</Text>
             </Pressable>
           </View>
@@ -223,14 +204,12 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
             tintColor={Platform.OS === 'ios' ? '#007AFF' : undefined}
             colors={Platform.OS === 'android' ? ['#1976D2'] : undefined}
           />
-        }
-      >
+        }>
         <View
           style={styles.header}
           accessible
           accessibilityRole="header"
-          accessibilityLabel="Dashboard"
-        >
+          accessibilityLabel="Dashboard">
           <Text style={styles.title}>Dashboard</Text>
           <Text style={styles.subtitle}>Network payment analytics</Text>
         </View>
@@ -240,13 +219,11 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
             style={feedbackBanner.container}
             accessible
             accessibilityRole="text"
-            accessibilityLabel={warning}
-          >
+            accessibilityLabel={warning}>
             <Text style={feedbackBanner.text}>{warning}</Text>
             {dataSource === 'mock' ? (
               <Text style={feedbackBanner.text}>
-                Dashboard metrics shown are for preview only and may not reflect
-                live performance.
+                Dashboard metrics shown are for preview only and may not reflect live performance.
               </Text>
             ) : null}
           </View>
@@ -258,26 +235,20 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
           style={styles.section}
           accessible
           accessibilityRole="header"
-          accessibilityLabel="Top corridors"
-        >
+          accessibilityLabel="Top corridors">
           <Text style={styles.sectionTitle}>Top Corridors</Text>
         </View>
 
         {corridorPerformance.length > 0 ? (
           corridorPerformance.map(corridor => (
-            <CorridorRow
-              key={corridor.corridor}
-              corridor={corridor}
-              onPress={onCorridorPress}
-            />
+            <CorridorRow key={corridor.corridor} corridor={corridor} onPress={onCorridorPress} />
           ))
         ) : (
           <View
             style={styles.empty}
             accessible
             accessibilityRole="text"
-            accessibilityLabel="No corridor data available"
-          >
+            accessibilityLabel="No corridor data available">
             <Text style={styles.emptyText}>No corridor data available</Text>
           </View>
         )}

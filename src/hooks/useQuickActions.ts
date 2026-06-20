@@ -2,10 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useCallback, useEffect, useState } from 'react';
 import { Platform } from 'react-native';
 import NetInfo from '@react-native-community/netinfo';
-import {
-  DEFAULT_QUICK_ACTIONS,
-  QuickActionRecord,
-} from '@features/quick_actions';
+import { DEFAULT_QUICK_ACTIONS, QuickActionRecord } from '@features/quick_actions';
 
 const QUICK_ACTIONS_CACHE_KEY = 'quick-actions-cache';
 
@@ -62,7 +59,9 @@ export function useQuickActions(): UseQuickActions {
           setError(err instanceof Error ? err.message : 'Failed to load quick actions.');
         }
       } finally {
-        if (active) setLoading(false);
+        if (active) {
+          setLoading(false);
+        }
       }
     }
 
@@ -100,28 +99,28 @@ export function useQuickActions(): UseQuickActions {
     }
   }, []);
 
-  const pinAction = useCallback(async (actionId: string) => {
-    setLoading(true);
-    setError(null);
+  const pinAction = useCallback(
+    async (actionId: string) => {
+      setLoading(true);
+      setError(null);
 
-    try {
-      const pinned = actions.find(a => a.id === actionId);
-      if (!pinned) {
-        throw new Error('Quick action not found.');
+      try {
+        const pinned = actions.find(a => a.id === actionId);
+        if (!pinned) {
+          throw new Error('Quick action not found.');
+        }
+
+        const updated = [pinned, ...actions.filter(a => a.id !== actionId)];
+        setActions(updated);
+        await saveCachedActions(updated);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to pin quick action.');
+      } finally {
+        setLoading(false);
       }
-
-      const updated = [
-        pinned,
-        ...actions.filter(a => a.id !== actionId),
-      ];
-      setActions(updated);
-      await saveCachedActions(updated);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to pin quick action.');
-    } finally {
-      setLoading(false);
-    }
-  }, [actions]);
+    },
+    [actions]
+  );
 
   return {
     isSupported: supportsQuickActions(),

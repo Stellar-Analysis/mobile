@@ -1,5 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity, AccessibilityInfo, AccessibilityRole } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ActivityIndicator,
+  TouchableOpacity,
+  AccessibilityInfo,
+  AccessibilityRole,
+} from 'react-native';
 import { useBarcodeScanner } from './useBarcodeScanner';
 
 export const BarcodeScannerComponent = () => {
@@ -62,8 +70,7 @@ export const BarcodeScannerComponent = () => {
         style={styles.header}
         accessible={true}
         accessibilityLabel="Barcode Scanner Interface"
-        accessibilityRole="header"
-      >
+        accessibilityRole="header">
         <Text style={styles.title}>Barcode Scanner</Text>
       </View>
 
@@ -73,8 +80,7 @@ export const BarcodeScannerComponent = () => {
             style={styles.errorContainer}
             accessible={true}
             accessibilityRole="alert"
-            accessibilityLabel={`Error: ${error}`}
-          >
+            accessibilityLabel={`Error: ${error}`}>
             <Text style={styles.errorText}>{error}</Text>
           </View>
         )}
@@ -84,8 +90,7 @@ export const BarcodeScannerComponent = () => {
             style={styles.resultContainer}
             accessible={true}
             accessibilityRole="status"
-            accessibilityLabel={`Barcode scanned: ${result.data}`}
-          >
+            accessibilityLabel={`Barcode scanned: ${result.data}`}>
             <Text style={styles.resultLabel}>Scanned Barcode:</Text>
             <Text style={styles.resultValue} selectable={true}>
               {result.data}
@@ -101,8 +106,7 @@ export const BarcodeScannerComponent = () => {
               accessible={true}
               accessibilityRole="button"
               accessibilityLabel="Clear result"
-              accessibilityHint="Clears the current scan result"
-            >
+              accessibilityHint="Clears the current scan result">
               <Text style={styles.clearButtonText}>Clear</Text>
             </TouchableOpacity>
           </View>
@@ -116,8 +120,7 @@ export const BarcodeScannerComponent = () => {
             accessible={true}
             accessibilityRole="button"
             accessibilityLabel="Start barcode scan"
-            accessibilityHint="Tap to start scanning barcodes"
-          >
+            accessibilityHint="Tap to start scanning barcodes">
             {isScanning ? (
               <ActivityIndicator size="small" color="#fff" />
             ) : (
@@ -129,7 +132,9 @@ export const BarcodeScannerComponent = () => {
         {isScanning && (
           <View style={styles.scanningContainer}>
             <ActivityIndicator size="large" color="#007AFF" />
-            <Text style={styles.scanningText} accessibilityLabel="Scanner is active, please aim at a barcode">
+            <Text
+              style={styles.scanningText}
+              accessibilityLabel="Scanner is active, please aim at a barcode">
               Scanning... Point at a barcode
             </Text>
             <TouchableOpacity
@@ -137,8 +142,7 @@ export const BarcodeScannerComponent = () => {
               onPress={stopScan}
               accessible={true}
               accessibilityRole="button"
-              accessibilityLabel="Stop scan"
-            >
+              accessibilityLabel="Stop scan">
               <Text style={styles.stopButtonText}>Stop</Text>
             </TouchableOpacity>
           </View>

@@ -25,7 +25,9 @@ export const ActionExtensionComponent: React.FC = () => {
   const [payload, setPayload] = useState('');
 
   return (
-    <ScrollView contentContainerStyle={styles.container} accessibilityLabel="Action extension screen">
+    <ScrollView
+      contentContainerStyle={styles.container}
+      accessibilityLabel="Action extension screen">
       <View style={styles.header}>
         <Text style={styles.title}>Action Extension</Text>
         <Text style={styles.subtitle}>Run Stellar actions from other apps.</Text>
@@ -98,7 +100,11 @@ export const ActionExtensionComponent: React.FC = () => {
           ) : null}
         </View>
 
-        <View style={styles.logCard} accessible accessibilityRole="summary" accessibilityLabel="Action execution log">
+        <View
+          style={styles.logCard}
+          accessible
+          accessibilityRole="summary"
+          accessibilityLabel="Action execution log">
           <Text style={styles.listTitle}>Execution Log</Text>
           {actions.length === 0 ? (
             <Text style={styles.emptyText}>No actions executed yet.</Text>
@@ -109,8 +115,7 @@ export const ActionExtensionComponent: React.FC = () => {
                 style={styles.logRow}
                 accessible
                 accessibilityRole="text"
-                accessibilityLabel={`${item.actionType} ${item.status}`}
-              >
+                accessibilityLabel={`${item.actionType} ${item.status}`}>
                 <Text style={[styles.logName, item.status === 'failed' && styles.failed]}>
                   {item.actionType}
                 </Text>
@@ -135,14 +140,41 @@ const styles = StyleSheet.create({
   status: { fontSize: 14, color: '#059669' },
   offlineText: { fontSize: 13, color: '#92400e' },
   errorText: { fontSize: 13, color: '#b91c1c', marginTop: 8 },
-  input: { borderWidth: 1, borderColor: '#d1d5db', borderRadius: 8, padding: 10, fontSize: 14, color: '#111827' },
+  input: {
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    borderRadius: 8,
+    padding: 10,
+    fontSize: 14,
+    color: '#111827',
+  },
   loaderRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginVertical: 12 },
   loadingText: { color: '#059669' },
-  actionList: { padding: 16, borderRadius: 12, backgroundColor: '#f0fdf4', borderWidth: 1, borderColor: '#bbf7d0' },
-  actionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#d1fae5' },
+  actionList: {
+    padding: 16,
+    borderRadius: 12,
+    backgroundColor: '#f0fdf4',
+    borderWidth: 1,
+    borderColor: '#bbf7d0',
+  },
+  actionRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#d1fae5',
+  },
   actionName: { fontSize: 14, fontWeight: '600', color: '#111827' },
   actionsRow: { flexDirection: 'row', gap: 12 },
-  logCard: { marginTop: 8, padding: 16, borderRadius: 12, backgroundColor: '#f8fafc', borderWidth: 1, borderColor: '#e2e8f0' },
+  logCard: {
+    marginTop: 8,
+    padding: 16,
+    borderRadius: 12,
+    backgroundColor: '#f8fafc',
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+  },
   listTitle: { fontSize: 15, fontWeight: '600', color: '#0f172a', marginBottom: 8 },
   emptyText: { fontSize: 14, color: '#475569' },
   logRow: { paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#e2e8f0' },

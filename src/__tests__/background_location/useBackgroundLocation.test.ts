@@ -3,8 +3,13 @@ import { useBackgroundLocation } from '../../hooks/useBackgroundLocation';
 import type { LocationCoordinates } from '../../features/background_location/types';
 
 const mockCoords = (lat: number, lng: number): LocationCoordinates => ({
-  latitude: lat, longitude: lng, altitude: null,
-  accuracy: 10, speed: null, heading: null, timestamp: Date.now(),
+  latitude: lat,
+  longitude: lng,
+  altitude: null,
+  accuracy: 10,
+  speed: null,
+  heading: null,
+  timestamp: Date.now(),
 });
 
 describe('useBackgroundLocation', () => {
@@ -33,7 +38,9 @@ describe('useBackgroundLocation', () => {
   it('locationHistory is capped at 100 entries', () => {
     const { result } = renderHook(() => useBackgroundLocation());
     act(() => {
-      for (let i = 0; i < 105; i++) result.current.onLocationUpdate(mockCoords(i, i));
+      for (let i = 0; i < 105; i++) {
+        result.current.onLocationUpdate(mockCoords(i, i));
+      }
     });
     expect(result.current.locationHistory.length).toBeLessThanOrEqual(100);
   });

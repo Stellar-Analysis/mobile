@@ -64,9 +64,7 @@ export const useAudioRecording = (): UseAudioRecordingReturn => {
     try {
       if (Platform.OS === 'android') {
         const { PermissionsAndroid } = require('react-native');
-        const granted = await PermissionsAndroid.check(
-          PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
-        );
+        const granted = await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.RECORD_AUDIO);
         return granted;
       }
       return true;
@@ -87,7 +85,7 @@ export const useAudioRecording = (): UseAudioRecordingReturn => {
             buttonNeutral: 'Ask Me Later',
             buttonNegative: 'Cancel',
             buttonPositive: 'OK',
-          },
+          }
         );
         return result === PermissionsAndroid.RESULTS.GRANTED;
       }
@@ -105,7 +103,9 @@ export const useAudioRecording = (): UseAudioRecordingReturn => {
       const permission = await hasPermission();
       if (!permission) {
         const granted = await requestPermission();
-        if (!granted) throw new Error('Microphone permission denied');
+        if (!granted) {
+          throw new Error('Microphone permission denied');
+        }
       }
 
       setIsLoading(false);
@@ -115,7 +115,7 @@ export const useAudioRecording = (): UseAudioRecordingReturn => {
       recordingStartRef.current = Date.now();
 
       durationIntervalRef.current = setInterval(() => {
-        setRecordingDuration((prev) => prev + 1);
+        setRecordingDuration(prev => prev + 1);
       }, 1000);
     } catch (err) {
       setIsLoading(false);
@@ -125,7 +125,9 @@ export const useAudioRecording = (): UseAudioRecordingReturn => {
   }, [hasPermission, requestPermission]);
 
   const pauseRecording = useCallback((): void => {
-    if (!isRecording || isPaused) return;
+    if (!isRecording || isPaused) {
+      return;
+    }
     if (durationIntervalRef.current) {
       clearInterval(durationIntervalRef.current);
       durationIntervalRef.current = null;
@@ -134,15 +136,19 @@ export const useAudioRecording = (): UseAudioRecordingReturn => {
   }, [isRecording, isPaused]);
 
   const resumeRecording = useCallback((): void => {
-    if (!isPaused) return;
+    if (!isPaused) {
+      return;
+    }
     setIsPaused(false);
     durationIntervalRef.current = setInterval(() => {
-      setRecordingDuration((prev) => prev + 1);
+      setRecordingDuration(prev => prev + 1);
     }, 1000);
   }, [isPaused]);
 
   const stopRecording = useCallback(async (): Promise<AudioRecording | null> => {
-    if (!isRecording) return null;
+    if (!isRecording) {
+      return null;
+    }
     clearTimers();
 
     const duration = Math.max(recordingDuration, 1);
@@ -165,7 +171,7 @@ export const useAudioRecording = (): UseAudioRecordingReturn => {
       // non-fatal
     }
 
-    setRecordings((prev) => [...prev, newRecording]);
+    setRecordings(prev => [...prev, newRecording]);
     setCurrentRecording(newRecording);
     setIsRecording(false);
     setIsPaused(false);
@@ -196,13 +202,13 @@ export const useAudioRecording = (): UseAudioRecordingReturn => {
   }, []);
 
   const deleteRecording = useCallback((id: string): void => {
-    setRecordings((prev) => prev.filter((r) => r.id !== id));
-    setCurrentRecording((prev) => (prev?.id === id ? null : prev));
+    setRecordings(prev => prev.filter(r => r.id !== id));
+    setCurrentRecording(prev => (prev?.id === id ? null : prev));
     try {
       const storage = require('react-native-mmkv').default;
       const cached = storage.getString('audio_recordings') ?? '[]';
       const list: AudioRecording[] = JSON.parse(cached);
-      storage.set('audio_recordings', JSON.stringify(list.filter((r) => r.id !== id)));
+      storage.set('audio_recordings', JSON.stringify(list.filter(r => r.id !== id)));
     } catch {
       // non-fatal
     }

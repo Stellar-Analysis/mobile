@@ -1,8 +1,4 @@
-import {
-  authenticate,
-  getBiometricType,
-  isBiometricAvailable,
-} from '@services/biometricService';
+import { authenticate, getBiometricType, isBiometricAvailable } from '@services/biometricService';
 
 interface BiometricsMockHandles {
   isSensorAvailable: jest.Mock;
@@ -10,9 +6,7 @@ interface BiometricsMockHandles {
 }
 
 jest.mock('react-native-biometrics', () => {
-  const isSensorAvailable = jest.fn(() =>
-    Promise.resolve({ available: false }),
-  );
+  const isSensorAvailable = jest.fn(() => Promise.resolve({ available: false }));
   const simplePrompt = jest.fn(() => Promise.resolve({ success: false }));
   return {
     __esModule: true,
@@ -29,10 +23,11 @@ jest.mock('react-native-biometrics', () => {
   };
 });
 
-const { isSensorAvailable: mockIsSensorAvailable, simplePrompt: mockSimplePrompt } =
-  (jest.requireMock('react-native-biometrics') as {
+const { isSensorAvailable: mockIsSensorAvailable, simplePrompt: mockSimplePrompt } = (
+  jest.requireMock('react-native-biometrics') as {
     __mocks: BiometricsMockHandles;
-  }).__mocks;
+  }
+).__mocks;
 
 describe('biometricService', () => {
   beforeEach(() => {

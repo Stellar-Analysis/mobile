@@ -1,11 +1,7 @@
 import { act, renderHook, waitFor } from '@testing-library/react-native';
 
 import { useBiometricAuthentication } from '@hooks/useBiometricAuthentication';
-import {
-  authenticate,
-  getBiometricType,
-  isBiometricAvailable,
-} from '@services/biometricService';
+import { authenticate, getBiometricType, isBiometricAvailable } from '@services/biometricService';
 
 jest.mock('@services/biometricService', () => ({
   isBiometricAvailable: jest.fn(),
@@ -80,9 +76,7 @@ describe('useBiometricAuthentication', () => {
       outcome = await result.current.authenticate('Sign in');
     });
     expect(outcome).toBe(false);
-    expect(result.current.error).toBe(
-      'Biometric authentication is unavailable right now',
-    );
+    expect(result.current.error).toBe('Biometric authentication is unavailable right now');
   });
 
   it('surfaces an availability-probe error', async () => {

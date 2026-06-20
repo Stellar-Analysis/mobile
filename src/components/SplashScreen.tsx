@@ -9,8 +9,9 @@ export const SplashScreen: React.FC = () => {
     <View
       style={styles.container}
       accessibilityRole="none"
-      accessibilityLabel={status === 'error' ? `Initialization error: ${error}` : 'Loading Stellar Insights'}
-    >
+      accessibilityLabel={
+        status === 'error' ? `Initialization error: ${error}` : 'Loading Stellar Insights'
+      }>
       <Text style={styles.title} accessibilityRole="header">
         Stellar Insights
       </Text>

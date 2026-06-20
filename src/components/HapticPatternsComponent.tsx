@@ -29,7 +29,9 @@ export const HapticPatternsComponent: React.FC = () => {
   }, [error]);
 
   return (
-    <ScrollView contentContainerStyle={styles.container} accessibilityLabel="Haptic patterns screen">
+    <ScrollView
+      contentContainerStyle={styles.container}
+      accessibilityLabel="Haptic patterns screen">
       <View style={styles.header}>
         <Text style={styles.title}>Haptic Patterns</Text>
         <Text style={styles.subtitle}>
@@ -68,7 +70,8 @@ export const HapticPatternsComponent: React.FC = () => {
         ))}
 
         <Text style={styles.note} accessibilityRole="text">
-          Haptic patterns are implemented with a fallback vibration experience for both iOS and Android.
+          Haptic patterns are implemented with a fallback vibration experience for both iOS and
+          Android.
         </Text>
       </View>
     </ScrollView>

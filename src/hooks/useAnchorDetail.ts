@@ -16,9 +16,7 @@ import {
 
 function isStellarAccountAddress(value: string): boolean {
   const trimmed = value.trim();
-  return (
-    trimmed.length === 56 && (trimmed.startsWith('G') || trimmed.startsWith('M'))
-  );
+  return trimmed.length === 56 && (trimmed.startsWith('G') || trimmed.startsWith('M'));
 }
 
 function computeFailureRate(anchor: {
@@ -36,9 +34,7 @@ function computeFailureRate(anchor: {
 }
 
 function normalizeIssuedAssets(raw: unknown, stellarAccount: string): IssuedAsset[] {
-  const assets = raw as
-    | { assets?: unknown[]; issued_assets?: IssuedAsset[] }
-    | unknown[];
+  const assets = raw as { assets?: unknown[]; issued_assets?: IssuedAsset[] } | unknown[];
 
   if (Array.isArray((assets as { issued_assets?: IssuedAsset[] }).issued_assets)) {
     return (assets as { issued_assets: IssuedAsset[] }).issued_assets;
@@ -47,8 +43,8 @@ function normalizeIssuedAssets(raw: unknown, stellarAccount: string): IssuedAsse
   const list = Array.isArray(assets)
     ? assets
     : Array.isArray((assets as { assets?: unknown[] }).assets)
-      ? (assets as { assets: unknown[] }).assets
-      : [];
+    ? (assets as { assets: unknown[] }).assets
+    : [];
 
   return list.map(item => {
     const asset = item as Record<string, unknown>;
@@ -85,33 +81,28 @@ function normalizeReliabilityHistory(raw: unknown): ReliabilityDataPoint[] {
 
   return response.metrics_history.map(point => ({
     timestamp:
-      typeof point.timestamp === 'string'
-        ? point.timestamp.split('T')[0]
-        : String(point.timestamp),
+      typeof point.timestamp === 'string' ? point.timestamp.split('T')[0] : String(point.timestamp),
     score: point.score ?? point.reliability_score,
   }));
 }
 
-export function normalizeAnchorDetailResponse(
-  raw: unknown,
-  fallbackId: string,
-): AnchorDetailData {
+export function normalizeAnchorDetailResponse(raw: unknown, fallbackId: string): AnchorDetailData {
   const response = raw as Record<string, unknown>;
   const anchorRaw = (response.anchor ?? {}) as Record<string, unknown>;
   const stellarAccount = String(
-    anchorRaw.stellar_account ?? anchorRaw.stellarAccount ?? fallbackId,
+    anchorRaw.stellar_account ?? anchorRaw.stellarAccount ?? fallbackId
   );
   const issuedAssets = normalizeIssuedAssets(response, stellarAccount);
   const totalTransactions = Number(
-    anchorRaw.total_transactions ?? anchorRaw.totalTransactions ?? 0,
+    anchorRaw.total_transactions ?? anchorRaw.totalTransactions ?? 0
   );
   const failedTransactions = Number(
-    anchorRaw.failed_transactions ?? anchorRaw.failedTransactions ?? 0,
+    anchorRaw.failed_transactions ?? anchorRaw.failedTransactions ?? 0
   );
   const successfulTransactions = Number(
     anchorRaw.successful_transactions ??
       anchorRaw.successfulTransactions ??
-      Math.max(0, totalTransactions - failedTransactions),
+      Math.max(0, totalTransactions - failedTransactions)
   );
 
   const anchor: AnchorMetrics = {
@@ -120,7 +111,7 @@ export function normalizeAnchorDetailResponse(
     stellar_account: stellarAccount,
     reliability_score: Number(anchorRaw.reliability_score ?? anchorRaw.reliabilityScore ?? 0),
     asset_coverage: Number(
-      anchorRaw.asset_coverage ?? anchorRaw.assetCoverage ?? issuedAssets.length,
+      anchorRaw.asset_coverage ?? anchorRaw.assetCoverage ?? issuedAssets.length
     ),
     failure_rate: computeFailureRate({
       total_transactions: totalTransactions,
@@ -138,7 +129,8 @@ export function normalizeAnchorDetailResponse(
     issued_assets: issuedAssets,
     reliability_history: normalizeReliabilityHistory(response),
     top_failure_reasons: response.top_failure_reasons as AnchorDetailData['top_failure_reasons'],
-    recent_failed_corridors: response.recent_failed_corridors as AnchorDetailData['recent_failed_corridors'],
+    recent_failed_corridors:
+      response.recent_failed_corridors as AnchorDetailData['recent_failed_corridors'],
   };
 }
 
@@ -212,9 +204,7 @@ export function generateMockAnchorDetail(anchorId: string): AnchorDetailData {
 
 async function readCachedAnchor(anchorId: string): Promise<AnchorDetailData | null> {
   try {
-    const cached = await AsyncStorage.getItem(
-      `${ANCHOR_DETAIL_CACHE_PREFIX}${anchorId}`,
-    );
+    const cached = await AsyncStorage.getItem(`${ANCHOR_DETAIL_CACHE_PREFIX}${anchorId}`);
     return cached ? (JSON.parse(cached) as AnchorDetailData) : null;
   } catch {
     return null;
@@ -223,10 +213,7 @@ async function readCachedAnchor(anchorId: string): Promise<AnchorDetailData | nu
 
 async function writeCachedAnchor(anchorId: string, data: AnchorDetailData): Promise<void> {
   try {
-    await AsyncStorage.setItem(
-      `${ANCHOR_DETAIL_CACHE_PREFIX}${anchorId}`,
-      JSON.stringify(data),
-    );
+    await AsyncStorage.setItem(`${ANCHOR_DETAIL_CACHE_PREFIX}${anchorId}`, JSON.stringify(data));
   } catch {
     // Cache writes are best-effort for offline support.
   }
@@ -249,21 +236,17 @@ function applyFallbackResult(
   anchorId: string,
   dataSource: Extract<AnchorDataSource, 'cache' | 'mock'>,
   warning: string,
-  cachedData?: AnchorDetailData | null,
+  cachedData?: AnchorDetailData | null
 ): void {
   const data =
-    dataSource === 'cache' && cachedData
-      ? cachedData
-      : generateMockAnchorDetail(anchorId);
+    dataSource === 'cache' && cachedData ? cachedData : generateMockAnchorDetail(anchorId);
 
   setData(data);
   setDataSource(dataSource);
   setWarning(warning);
 }
 
-export function useAnchorDetail({
-  anchorId,
-}: UseAnchorDetailOptions): UseAnchorDetailReturn {
+export function useAnchorDetail({ anchorId }: UseAnchorDetailOptions): UseAnchorDetailReturn {
   const [data, setData] = useState<AnchorDetailData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -289,10 +272,7 @@ export function useAnchorDetail({
     let offline = false;
     try {
       const networkState = await NetInfo.fetch();
-      offline = !(
-        networkState.isConnected &&
-        networkState.isInternetReachable !== false
-      );
+      offline = !(networkState.isConnected && networkState.isInternetReachable !== false);
     } catch {
       offline = true;
     }
@@ -314,7 +294,7 @@ export function useAnchorDetail({
           setWarning,
           anchorId,
           'mock',
-          'Offline — no saved data available. Showing sample data.',
+          'Offline — no saved data available. Showing sample data.'
         );
         return;
       }
@@ -335,7 +315,7 @@ export function useAnchorDetail({
             anchorId,
             'cache',
             'Live data unavailable. Showing saved anchor data.',
-            cached,
+            cached
           );
           return;
         }
@@ -346,7 +326,7 @@ export function useAnchorDetail({
           setWarning,
           anchorId,
           'mock',
-          'Live data unavailable. Showing sample data.',
+          'Live data unavailable. Showing sample data.'
         );
       }
     } catch {

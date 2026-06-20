@@ -105,8 +105,12 @@ describe('usePhotoGallery', () => {
     const NetInfo = require('@react-native-community/netinfo');
     NetInfo.fetch.mockResolvedValueOnce({ isConnected: false, isInternetReachable: false });
     const { result } = renderHook(() => usePhotoGallery());
-    await act(async () => { await Promise.resolve(); });
-    act(() => { result.current.toggleSelection('1'); });
+    await act(async () => {
+      await Promise.resolve();
+    });
+    act(() => {
+      result.current.toggleSelection('1');
+    });
     await act(async () => {
       await result.current.uploadSelected();
     });
@@ -117,7 +121,9 @@ describe('usePhotoGallery', () => {
     const NetInfo = require('@react-native-community/netinfo');
     NetInfo.fetch.mockResolvedValueOnce({ isConnected: false, isInternetReachable: false });
     const { result } = renderHook(() => usePhotoGallery());
-    await act(async () => { await Promise.resolve(); });
+    await act(async () => {
+      await Promise.resolve();
+    });
     expect(result.current.isOffline).toBe(true);
   });
 });

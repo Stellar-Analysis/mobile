@@ -58,10 +58,11 @@ async function requestCalendarPermission(): Promise<boolean> {
 let nextId = 100;
 
 export function useCalendarIntegration(): UseCalendarIntegration {
-  const [permissionStatus, setPermissionStatus] = useState<CalendarState['permissionStatus']>('not_requested');
+  const [permissionStatus, setPermissionStatus] =
+    useState<CalendarState['permissionStatus']>('not_requested');
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [selectedDate, setSelectedDateState] = useState<string>(
-    new Date().toISOString().split('T')[0],
+    new Date().toISOString().split('T')[0]
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -110,42 +111,48 @@ export function useCalendarIntegration(): UseCalendarIntegration {
     }
   }, []);
 
-  const loadEvents = useCallback(async (_date?: string) => {
-    if (permissionStatus !== 'granted') {
-      setError('Calendar permission is required.');
-      return;
-    }
-    setLoading(true);
-    setError(null);
-    try {
-      const cached = await loadCachedEvents();
-      setEvents(cached);
-      await cacheEvents(cached);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load calendar events.');
-    } finally {
-      setLoading(false);
-    }
-  }, [permissionStatus]);
+  const loadEvents = useCallback(
+    async (_date?: string) => {
+      if (permissionStatus !== 'granted') {
+        setError('Calendar permission is required.');
+        return;
+      }
+      setLoading(true);
+      setError(null);
+      try {
+        const cached = await loadCachedEvents();
+        setEvents(cached);
+        await cacheEvents(cached);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load calendar events.');
+      } finally {
+        setLoading(false);
+      }
+    },
+    [permissionStatus]
+  );
 
-  const createEvent = useCallback(async (event: Omit<CalendarEvent, 'id'>) => {
-    if (permissionStatus !== 'granted') {
-      setError('Calendar permission is required to create events.');
-      return;
-    }
-    setLoading(true);
-    setError(null);
-    try {
-      const newEvent: CalendarEvent = { ...event, id: String(nextId++) };
-      const updated = [...events, newEvent];
-      setEvents(updated);
-      await cacheEvents(updated);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create calendar event.');
-    } finally {
-      setLoading(false);
-    }
-  }, [permissionStatus, events]);
+  const createEvent = useCallback(
+    async (event: Omit<CalendarEvent, 'id'>) => {
+      if (permissionStatus !== 'granted') {
+        setError('Calendar permission is required to create events.');
+        return;
+      }
+      setLoading(true);
+      setError(null);
+      try {
+        const newEvent: CalendarEvent = { ...event, id: String(nextId++) };
+        const updated = [...events, newEvent];
+        setEvents(updated);
+        await cacheEvents(updated);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to create calendar event.');
+      } finally {
+        setLoading(false);
+      }
+    },
+    [permissionStatus, events]
+  );
 
   const deleteEvent = useCallback((id: string) => {
     setEvents(prev => {

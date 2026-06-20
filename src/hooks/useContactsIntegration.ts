@@ -35,33 +35,33 @@ async function cacheContacts(contacts: Contact[]): Promise<void> {
 
 async function requestContactsPermission(): Promise<boolean> {
   if (Platform.OS === 'android') {
-    const granted = await PermissionsAndroid.request(
-      PermissionsAndroid.PERMISSIONS.READ_CONTACTS,
-      {
-        title: 'Contacts Permission',
-        message: 'This app needs access to your contacts for sharing.',
-        buttonPositive: 'OK',
-        buttonNegative: 'Cancel',
-      },
-    );
+    const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.READ_CONTACTS, {
+      title: 'Contacts Permission',
+      message: 'This app needs access to your contacts for sharing.',
+      buttonPositive: 'OK',
+      buttonNegative: 'Cancel',
+    });
     return granted === PermissionsAndroid.RESULTS.GRANTED;
   }
   return true;
 }
 
 function filterContacts(contacts: Contact[], query: string): Contact[] {
-  if (!query.trim()) return contacts;
+  if (!query.trim()) {
+    return contacts;
+  }
   const lower = query.toLowerCase();
   return contacts.filter(
     c =>
       c.name.toLowerCase().includes(lower) ||
       c.emails?.some(e => e.toLowerCase().includes(lower)) ||
-      c.phoneNumbers?.some(p => p.includes(query)),
+      c.phoneNumbers?.some(p => p.includes(query))
   );
 }
 
 export function useContactsIntegration(): UseContactsIntegration {
-  const [permissionStatus, setPermissionStatus] = useState<ContactsState['permissionStatus']>('not_requested');
+  const [permissionStatus, setPermissionStatus] =
+    useState<ContactsState['permissionStatus']>('not_requested');
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [filteredContacts, setFilteredContacts] = useState<Contact[]>([]);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -133,10 +133,13 @@ export function useContactsIntegration(): UseContactsIntegration {
     }
   }, [permissionStatus, searchQuery]);
 
-  const setSearchQuery = useCallback((query: string) => {
-    setSearchQueryState(query);
-    setFilteredContacts(prev => filterContacts(contacts, query));
-  }, [contacts]);
+  const setSearchQuery = useCallback(
+    (query: string) => {
+      setSearchQueryState(query);
+      setFilteredContacts(prev => filterContacts(contacts, query));
+    },
+    [contacts]
+  );
 
   const toggleSelection = useCallback((id: string) => {
     setSelectedIds(prev => {

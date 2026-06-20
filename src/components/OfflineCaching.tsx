@@ -47,8 +47,8 @@ export const OfflineCaching: React.FC<OfflineCachingProps> = ({
       size > 1024 * 1024
         ? `${(size / (1024 * 1024)).toFixed(2)} MB`
         : size > 1024
-          ? `${(size / 1024).toFixed(2)} KB`
-          : `${size} B`;
+        ? `${(size / 1024).toFixed(2)} KB`
+        : `${size} B`;
 
     setStats({
       size,

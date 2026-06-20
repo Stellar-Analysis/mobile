@@ -28,9 +28,8 @@ interface VideoPlayerControls {
 
 export type UseVideoPlayerReturn = VideoPlayerState & VideoPlayerControls;
 
-const SUPPORTED_FORMATS = Platform.OS === 'ios'
-  ? ['mp4', 'mov', 'm4v', 'hls']
-  : ['mp4', 'webm', 'mkv', 'hls'];
+const SUPPORTED_FORMATS =
+  Platform.OS === 'ios' ? ['mp4', 'mov', 'm4v', 'hls'] : ['mp4', 'webm', 'mkv', 'hls'];
 
 export const useVideoPlayer = (): UseVideoPlayerReturn => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -57,64 +56,71 @@ export const useVideoPlayer = (): UseVideoPlayerReturn => {
     }
   }, []);
 
-  const play = useCallback(async (url: string): Promise<void> => {
-    try {
-      setError(null);
-      setIsLoading(true);
-      setIsBuffering(true);
+  const play = useCallback(
+    async (url: string): Promise<void> => {
+      try {
+        setError(null);
+        setIsLoading(true);
+        setIsBuffering(true);
 
-      const extension = url.split('.').pop()?.toLowerCase();
-      if (extension && !SUPPORTED_FORMATS.includes(extension) && !url.includes('m3u8')) {
-        throw new Error(`Unsupported video format: ${extension}`);
-      }
+        const extension = url.split('.').pop()?.toLowerCase();
+        if (extension && !SUPPORTED_FORMATS.includes(extension) && !url.includes('m3u8')) {
+          throw new Error(`Unsupported video format: ${extension}`);
+        }
 
-      // Simulate buffering/loading delay
-      await new Promise<void>((resolve) => {
-        loadingTimeoutRef.current = setTimeout(() => {
-          resolve();
-        }, 1200);
-      });
-
-      setIsLoading(false);
-      setIsBuffering(false);
-      setIsPlaying(true);
-      setIsPaused(false);
-      setDuration(300); // 5 min mock duration
-
-      // Simulate playback progress
-      playbackIntervalRef.current = setInterval(() => {
-        setCurrentTime((prev) => {
-          if (prev >= 300) {
-            clearTimers();
-            setIsPlaying(false);
-            return 0;
-          }
-          return prev + 1;
+        // Simulate buffering/loading delay
+        await new Promise<void>(resolve => {
+          loadingTimeoutRef.current = setTimeout(() => {
+            resolve();
+          }, 1200);
         });
-      }, 1000);
-    } catch (err) {
-      setIsLoading(false);
-      setIsBuffering(false);
-      setIsPlaying(false);
-      const msg = err instanceof Error ? err.message : 'Failed to play video';
-      setError(msg);
-    }
-  }, [clearTimers]);
+
+        setIsLoading(false);
+        setIsBuffering(false);
+        setIsPlaying(true);
+        setIsPaused(false);
+        setDuration(300); // 5 min mock duration
+
+        // Simulate playback progress
+        playbackIntervalRef.current = setInterval(() => {
+          setCurrentTime(prev => {
+            if (prev >= 300) {
+              clearTimers();
+              setIsPlaying(false);
+              return 0;
+            }
+            return prev + 1;
+          });
+        }, 1000);
+      } catch (err) {
+        setIsLoading(false);
+        setIsBuffering(false);
+        setIsPlaying(false);
+        const msg = err instanceof Error ? err.message : 'Failed to play video';
+        setError(msg);
+      }
+    },
+    [clearTimers]
+  );
 
   const pause = useCallback((): void => {
-    if (!isPlaying) return;
+    if (!isPlaying) {
+      return;
+    }
     clearTimers();
     setIsPlaying(false);
     setIsPaused(true);
   }, [isPlaying, clearTimers]);
 
   const resume = useCallback((): void => {
-    if (!isPaused) return;
+    if (!isPaused) {
+      return;
+    }
     setIsPlaying(true);
     setIsPaused(false);
 
     playbackIntervalRef.current = setInterval(() => {
-      setCurrentTime((prev) => {
+      setCurrentTime(prev => {
         if (prev >= duration) {
           clearTimers();
           setIsPlaying(false);
@@ -134,25 +140,30 @@ export const useVideoPlayer = (): UseVideoPlayerReturn => {
     setIsLoading(false);
   }, [clearTimers]);
 
-  const seek = useCallback((time: number): void => {
-    const clamped = Math.max(0, Math.min(time, duration));
-    setCurrentTime(clamped);
-  }, [duration]);
+  const seek = useCallback(
+    (time: number): void => {
+      const clamped = Math.max(0, Math.min(time, duration));
+      setCurrentTime(clamped);
+    },
+    [duration]
+  );
 
   const setVolume = useCallback((level: number): void => {
     const clamped = Math.max(0, Math.min(level, 1));
     setVolumeState(clamped);
-    if (clamped > 0) setIsMuted(false);
+    if (clamped > 0) {
+      setIsMuted(false);
+    }
   }, []);
 
   const toggleMute = useCallback((): void => {
-    setIsMuted((prev) => !prev);
+    setIsMuted(prev => !prev);
   }, []);
 
   const cacheForOffline = useCallback(async (url: string): Promise<boolean> => {
     try {
       // Simulate caching to local storage
-      await new Promise<void>((resolve) => setTimeout(resolve, 800));
+      await new Promise<void>(resolve => setTimeout(resolve, 800));
       const storage = require('react-native-mmkv').default;
       const cached = storage.getString('video_player_cache') ?? '[]';
       const list: string[] = JSON.parse(cached);

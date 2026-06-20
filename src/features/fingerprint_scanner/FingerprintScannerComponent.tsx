@@ -1,5 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity, AccessibilityInfo, AccessibilityRole } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ActivityIndicator,
+  TouchableOpacity,
+  AccessibilityInfo,
+  AccessibilityRole,
+} from 'react-native';
 import { useFingerprintScanner } from './useFingerprintScanner';
 
 export const FingerprintScannerComponent = () => {
@@ -62,7 +70,9 @@ export const FingerprintScannerComponent = () => {
     return (
       <View style={styles.container} accessibilityRole="alert">
         <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>Biometric authentication not available on this device</Text>
+          <Text style={styles.errorText}>
+            Biometric authentication not available on this device
+          </Text>
         </View>
       </View>
     );
@@ -74,8 +84,7 @@ export const FingerprintScannerComponent = () => {
         style={styles.header}
         accessible={true}
         accessibilityLabel="Fingerprint Scanner Interface"
-        accessibilityRole="header"
-      >
+        accessibilityRole="header">
         <Text style={styles.title}>Fingerprint Scanner</Text>
       </View>
 
@@ -85,8 +94,7 @@ export const FingerprintScannerComponent = () => {
             style={styles.errorContainer}
             accessible={true}
             accessibilityRole="alert"
-            accessibilityLabel={`Error: ${error}`}
-          >
+            accessibilityLabel={`Error: ${error}`}>
             <Text style={styles.errorText}>{error}</Text>
           </View>
         )}
@@ -96,16 +104,14 @@ export const FingerprintScannerComponent = () => {
             style={styles.successContainer}
             accessible={true}
             accessibilityRole="status"
-            accessibilityLabel="Authentication successful"
-          >
+            accessibilityLabel="Authentication successful">
             <Text style={styles.successText}>✓ Authentication Successful</Text>
             <TouchableOpacity
               style={styles.resetButton}
               onPress={resetResult}
               accessible={true}
               accessibilityRole="button"
-              accessibilityLabel="Reset authentication"
-            >
+              accessibilityLabel="Reset authentication">
               <Text style={styles.resetButtonText}>Reset</Text>
             </TouchableOpacity>
           </View>
@@ -119,8 +125,7 @@ export const FingerprintScannerComponent = () => {
             accessible={true}
             accessibilityRole="button"
             accessibilityLabel="Start fingerprint scan"
-            accessibilityHint="Tap to authenticate with your fingerprint"
-          >
+            accessibilityHint="Tap to authenticate with your fingerprint">
             {isScanning ? (
               <ActivityIndicator size="small" color="#fff" />
             ) : (
@@ -140,8 +145,7 @@ export const FingerprintScannerComponent = () => {
               onPress={stopScan}
               accessible={true}
               accessibilityRole="button"
-              accessibilityLabel="Cancel scan"
-            >
+              accessibilityLabel="Cancel scan">
               <Text style={styles.stopButtonText}>Cancel</Text>
             </TouchableOpacity>
           </View>

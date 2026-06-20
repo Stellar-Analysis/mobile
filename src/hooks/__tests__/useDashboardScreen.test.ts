@@ -61,9 +61,7 @@ describe('useDashboardScreen', () => {
   });
 
   it('throws for an invalid dashboard response shape', () => {
-    expect(() => normalizeDashboardResponse({ foo: 'bar' })).toThrow(
-      'Invalid dashboard response',
-    );
+    expect(() => normalizeDashboardResponse({ foo: 'bar' })).toThrow('Invalid dashboard response');
   });
 
   it('falls back to cached data when API fails', async () => {
@@ -97,7 +95,7 @@ describe('useDashboardScreen', () => {
     expect(result.current.dataSource).toBe('mock');
     expect(result.current.isOffline).toBe(true);
     expect(result.current.warning).toBe(
-      'Offline — no saved data available. Showing sample dashboard.',
+      'Offline — no saved data available. Showing sample dashboard.'
     );
   });
 
@@ -129,9 +127,7 @@ describe('useDashboardScreen', () => {
     });
 
     expect(result.current.dataSource).toBe('mock');
-    expect(result.current.warning).toBe(
-      'Live data unavailable. Showing sample dashboard.',
-    );
+    expect(result.current.warning).toBe('Live data unavailable. Showing sample dashboard.');
   });
 
   it('treats a NetInfo failure as offline', async () => {

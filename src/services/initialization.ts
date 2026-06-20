@@ -3,6 +3,9 @@ import { setupNotifications } from './notifications';
 import { setupNetworkMonitoring } from './network';
 import { loadStoredAuth } from './auth';
 import { initializeDatabase } from './database';
+import { createScopedLogger } from './logger';
+
+const log = createScopedLogger('Initialization');
 
 export async function initializeApp(): Promise<void> {
   try {
@@ -20,8 +23,8 @@ export async function initializeApp(): Promise<void> {
       await setupNotifications();
     }
 
-    console.log('App initialized successfully');
+    log.info('App initialized successfully');
   } catch (error) {
-    console.error('Failed to initialize app:', error);
+    log.error('Failed to initialize app', error);
   }
 }

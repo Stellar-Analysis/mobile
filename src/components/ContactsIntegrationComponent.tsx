@@ -38,8 +38,7 @@ export const ContactsIntegrationComponent: React.FC = () => {
         accessible
         accessibilityRole="button"
         accessibilityLabel={`Contact: ${item.name}${isSelected ? ', selected' : ''}`}
-        accessibilityState={{ selected: isSelected }}
-      >
+        accessibilityState={{ selected: isSelected }}>
         <View style={styles.avatar} accessibilityElementsHidden>
           <Text style={styles.avatarText}>{item.name.charAt(0).toUpperCase()}</Text>
         </View>
@@ -124,7 +123,9 @@ export const ContactsIntegrationComponent: React.FC = () => {
           <>
             <View style={styles.buttonWrapper}>
               <Button
-                title={`Share with ${selectedIds.length} contact${selectedIds.length !== 1 ? 's' : ''}`}
+                title={`Share with ${selectedIds.length} contact${
+                  selectedIds.length !== 1 ? 's' : ''
+                }`}
                 onPress={shareWithSelected}
                 accessibilityLabel={`Share with ${selectedIds.length} selected contacts`}
               />

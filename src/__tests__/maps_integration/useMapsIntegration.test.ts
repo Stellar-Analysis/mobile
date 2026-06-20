@@ -27,8 +27,8 @@ jest.mock('react-native', () => {
 global.navigator = {
   ...global.navigator,
   geolocation: {
-    getCurrentPosition: jest.fn((success) =>
-      success({ coords: { latitude: 37.7749, longitude: -122.4194 } }),
+    getCurrentPosition: jest.fn(success =>
+      success({ coords: { latitude: 37.7749, longitude: -122.4194 } })
     ),
   },
 };

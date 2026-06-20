@@ -33,8 +33,7 @@ export const IOSProjectSetup: React.FC = () => {
         <Text
           style={[styles.value, isSupported ? styles.ready : styles.unsupported]}
           accessibilityRole="text"
-          accessibilityLabel={`Status: ${statusLabel}`}
-        >
+          accessibilityLabel={`Status: ${statusLabel}`}>
           {statusLabel}
         </Text>
       </View>
@@ -49,8 +48,7 @@ export const IOSProjectSetup: React.FC = () => {
         onPress={recheck}
         style={styles.button}
         accessibilityRole="button"
-        accessibilityLabel="Recheck iOS setup"
-      >
+        accessibilityLabel="Recheck iOS setup">
         <Text style={styles.buttonText}>Recheck</Text>
       </Pressable>
     </View>

@@ -1,7 +1,11 @@
 import React from 'react';
 import {
-  View, Text, TouchableOpacity, ActivityIndicator,
-  StyleSheet, Platform,
+  View,
+  Text,
+  TouchableOpacity,
+  ActivityIndicator,
+  StyleSheet,
+  Platform,
 } from 'react-native';
 import { useARFeatures } from '../hooks/useARFeatures';
 import type { ARFeaturesConfig, ARMarker } from '../features/ar_features/types';
@@ -12,10 +16,20 @@ interface ARFeaturesComponentProps {
   renderCamera?: () => React.ReactNode;
 }
 
-export const ARFeaturesComponent: React.FC<ARFeaturesComponentProps> = ({ config, renderCamera }) => {
+export const ARFeaturesComponent: React.FC<ARFeaturesComponentProps> = ({
+  config,
+  renderCamera,
+}) => {
   const {
-    permissionStatus, isSessionActive, markers, error, isLoading, isSupported,
-    requestPermission, startSession, stopSession,
+    permissionStatus,
+    isSessionActive,
+    markers,
+    error,
+    isLoading,
+    isSupported,
+    requestPermission,
+    startSession,
+    stopSession,
   } = useARFeatures(config);
 
   if (!isSupported) {
@@ -30,8 +44,13 @@ export const ARFeaturesComponent: React.FC<ARFeaturesComponentProps> = ({ config
   return (
     <View style={styles.container} accessibilityLabel="AR features view">
       {/* Camera / AR scene */}
-      <View style={styles.cameraContainer} accessibilityRole="image" accessibilityLabel="AR camera feed">
-        {isSessionActive && renderCamera ? renderCamera() : (
+      <View
+        style={styles.cameraContainer}
+        accessibilityRole="image"
+        accessibilityLabel="AR camera feed">
+        {isSessionActive && renderCamera ? (
+          renderCamera()
+        ) : (
           <View style={styles.cameraPlaceholder}>
             <Text style={styles.placeholderText}>AR session inactive</Text>
           </View>
@@ -39,17 +58,19 @@ export const ARFeaturesComponent: React.FC<ARFeaturesComponentProps> = ({ config
       </View>
 
       {/* AR marker overlays */}
-      {isSessionActive && markers.filter(m => m.visible).map((marker: ARMarker) => (
-        <View
-          key={marker.id}
-          style={[styles.markerOverlay, { left: marker.screenPos.x, top: marker.screenPos.y }]}
-          accessibilityRole="text"
-          accessibilityLabel={`${marker.label}: ${marker.value}`}
-        >
-          <Text style={styles.markerLabel}>{marker.label}</Text>
-          <Text style={styles.markerValue}>{marker.value}</Text>
-        </View>
-      ))}
+      {isSessionActive &&
+        markers
+          .filter(m => m.visible)
+          .map((marker: ARMarker) => (
+            <View
+              key={marker.id}
+              style={[styles.markerOverlay, { left: marker.screenPos.x, top: marker.screenPos.y }]}
+              accessibilityRole="text"
+              accessibilityLabel={`${marker.label}: ${marker.value}`}>
+              <Text style={styles.markerLabel}>{marker.label}</Text>
+              <Text style={styles.markerValue}>{marker.value}</Text>
+            </View>
+          ))}
 
       {/* Controls */}
       <View style={styles.controls} accessibilityRole="toolbar">
@@ -60,8 +81,7 @@ export const ARFeaturesComponent: React.FC<ARFeaturesComponentProps> = ({ config
             disabled={isLoading}
             accessibilityRole="button"
             accessibilityLabel="Request camera permission for AR"
-            accessibilityState={{ disabled: isLoading }}
-          >
+            accessibilityState={{ disabled: isLoading }}>
             <Text style={styles.buttonText}>Allow Camera</Text>
           </TouchableOpacity>
         )}
@@ -73,19 +93,22 @@ export const ARFeaturesComponent: React.FC<ARFeaturesComponentProps> = ({ config
             disabled={isLoading}
             accessibilityRole="button"
             accessibilityLabel={isSessionActive ? 'Stop AR session' : 'Start AR session'}
-            accessibilityState={{ disabled: isLoading }}
-          >
-            {isLoading
-              ? <ActivityIndicator color="#fff" />
-              : <Text style={styles.buttonText}>{isSessionActive ? 'Stop AR' : 'Start AR'}</Text>
-            }
+            accessibilityState={{ disabled: isLoading }}>
+            {isLoading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.buttonText}>{isSessionActive ? 'Stop AR' : 'Start AR'}</Text>
+            )}
           </TouchableOpacity>
         )}
       </View>
 
       {/* Error */}
       {error && (
-        <View style={styles.errorBanner} accessibilityRole="alert" accessibilityLiveRegion="assertive">
+        <View
+          style={styles.errorBanner}
+          accessibilityRole="alert"
+          accessibilityLiveRegion="assertive">
           <Text style={styles.errorText}>{error}</Text>
         </View>
       )}
@@ -106,7 +129,12 @@ const styles = StyleSheet.create({
   unsupportedText: { fontSize: 18, fontWeight: '600', marginBottom: 8 },
   unsupportedSub: { fontSize: 14, color: '#666' },
   cameraContainer: { flex: 1 },
-  cameraPlaceholder: { flex: 1, backgroundColor: '#111', alignItems: 'center', justifyContent: 'center' },
+  cameraPlaceholder: {
+    flex: 1,
+    backgroundColor: '#111',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   placeholderText: { color: '#555', fontSize: 14 },
   markerOverlay: {
     position: 'absolute',
@@ -124,7 +152,12 @@ const styles = StyleSheet.create({
     right: 0,
     alignItems: 'center',
   },
-  button: { backgroundColor: '#3b82f6', borderRadius: 24, paddingVertical: 12, paddingHorizontal: 32 },
+  button: {
+    backgroundColor: '#3b82f6',
+    borderRadius: 24,
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+  },
   buttonStop: { backgroundColor: '#ef4444' },
   buttonText: { color: '#fff', fontWeight: '700', fontSize: 16 },
   errorBanner: {

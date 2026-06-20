@@ -16,7 +16,7 @@ export interface UseShaketoRefresh {
 
 export function useShaketoRefresh(
   onRefresh?: () => Promise<void>,
-  config: ShakeConfig = DEFAULT_SHAKE_CONFIG,
+  config: ShakeConfig = DEFAULT_SHAKE_CONFIG
 ): UseShaketoRefresh {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -39,23 +39,33 @@ export function useShaketoRefresh(
       const { DeviceEventEmitter } = require('react-native');
       subscription = DeviceEventEmitter.addListener('shake', () => {
         const now = Date.now();
-        if (now - lastShakeRef.current < config.cooldownMs) return;
+        if (now - lastShakeRef.current < config.cooldownMs) {
+          return;
+        }
         lastShakeRef.current = now;
         setShakeCount(c => c + 1);
         setLastShakeAt(now);
         void triggerRefresh();
       });
-    } catch { /* DeviceEventEmitter shake not available */ }
-    return () => { subscription?.remove(); };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    } catch {
+      /* DeviceEventEmitter shake not available */
+    }
+    return () => {
+      subscription?.remove();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [config.cooldownMs]);
 
   const triggerRefresh = useCallback(async () => {
-    if (loading) return;
+    if (loading) {
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
-      if (onRefresh) await onRefresh();
+      if (onRefresh) {
+        await onRefresh();
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Refresh failed.');
     } finally {

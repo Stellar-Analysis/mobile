@@ -1,5 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Keychain from 'react-native-keychain';
+import { createScopedLogger } from './logger';
+
+const log = createScopedLogger('TokenStorage');
 
 /**
  * Secure auth-token storage.
@@ -20,10 +23,7 @@ const EXPIRY_KEY = '@stellar-insights/token-expiry';
  * @param token - The auth token to store.
  * @param expiresAt - Optional expiry as a Unix epoch in milliseconds.
  */
-export async function saveToken(
-  token: string,
-  expiresAt?: number,
-): Promise<void> {
+export async function saveToken(token: string, expiresAt?: number): Promise<void> {
   // SEC-002: Use stricter access control for the keychain
   await Keychain.setGenericPassword(TOKEN_ACCOUNT, token, {
     service: KEYCHAIN_SERVICE,
@@ -51,7 +51,7 @@ export async function getToken(): Promise<string | null> {
     return credentials ? credentials.password : null;
   } catch (error) {
     // SEC-003: Fail-closed if secure storage is unavailable or compromised
-    console.error('Secure storage access failed:', error);
+    log.error('Secure storage access failed', error);
     return null;
   }
 }

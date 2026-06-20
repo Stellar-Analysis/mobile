@@ -14,10 +14,7 @@ import {
 export function parseCorridorAssets(corridorId: string): [string, string] {
   if (corridorId.includes('->')) {
     const [sourcePart, destinationPart] = corridorId.split('->');
-    return [
-      sourcePart.split(':')[0] || 'USDC',
-      destinationPart.split(':')[0] || 'PHP',
-    ];
+    return [sourcePart.split(':')[0] || 'USDC', destinationPart.split(':')[0] || 'PHP'];
   }
 
   const separatorIndex = corridorId.indexOf('-');
@@ -25,10 +22,7 @@ export function parseCorridorAssets(corridorId: string): [string, string] {
     return ['USDC', 'PHP'];
   }
 
-  return [
-    corridorId.slice(0, separatorIndex),
-    corridorId.slice(separatorIndex + 1),
-  ];
+  return [corridorId.slice(0, separatorIndex), corridorId.slice(separatorIndex + 1)];
 }
 
 export function generateMockCorridorData(corridorId: string): CorridorDetailData {
@@ -127,27 +121,20 @@ export function generateMockCorridorData(corridorId: string): CorridorDetailData
   };
 }
 
-async function readCachedCorridor(
-  corridorId: string,
-): Promise<CorridorDetailData | null> {
+async function readCachedCorridor(corridorId: string): Promise<CorridorDetailData | null> {
   try {
-    const cached = await AsyncStorage.getItem(
-      `${CORRIDOR_DETAIL_CACHE_PREFIX}${corridorId}`,
-    );
+    const cached = await AsyncStorage.getItem(`${CORRIDOR_DETAIL_CACHE_PREFIX}${corridorId}`);
     return cached ? (JSON.parse(cached) as CorridorDetailData) : null;
   } catch {
     return null;
   }
 }
 
-async function writeCachedCorridor(
-  corridorId: string,
-  data: CorridorDetailData,
-): Promise<void> {
+async function writeCachedCorridor(corridorId: string, data: CorridorDetailData): Promise<void> {
   try {
     await AsyncStorage.setItem(
       `${CORRIDOR_DETAIL_CACHE_PREFIX}${corridorId}`,
-      JSON.stringify(data),
+      JSON.stringify(data)
     );
   } catch {
     // Cache writes are best-effort for offline support.
@@ -155,9 +142,7 @@ async function writeCachedCorridor(
 }
 
 async function fetchCorridorDetail(corridorId: string): Promise<CorridorDetailData> {
-  return apiClient.get<CorridorDetailData>(
-    `/corridors/${encodeURIComponent(corridorId)}`,
-  );
+  return apiClient.get<CorridorDetailData>(`/corridors/${encodeURIComponent(corridorId)}`);
 }
 
 function applyFallbackResult(
@@ -167,12 +152,10 @@ function applyFallbackResult(
   corridorId: string,
   dataSource: Extract<CorridorDataSource, 'cache' | 'mock'>,
   warning: string,
-  cachedData?: CorridorDetailData | null,
+  cachedData?: CorridorDetailData | null
 ): void {
   const data =
-    dataSource === 'cache' && cachedData
-      ? cachedData
-      : generateMockCorridorData(corridorId);
+    dataSource === 'cache' && cachedData ? cachedData : generateMockCorridorData(corridorId);
 
   setData(data);
   setDataSource(dataSource);
@@ -207,10 +190,7 @@ export function useCorridorDetail({
     let offline = false;
     try {
       const networkState = await NetInfo.fetch();
-      offline = !(
-        networkState.isConnected &&
-        networkState.isInternetReachable !== false
-      );
+      offline = !(networkState.isConnected && networkState.isInternetReachable !== false);
     } catch {
       offline = true;
     }
@@ -232,7 +212,7 @@ export function useCorridorDetail({
           setWarning,
           corridorId,
           'mock',
-          'Offline — no saved data available. Showing sample data.',
+          'Offline — no saved data available. Showing sample data.'
         );
         return;
       }
@@ -253,7 +233,7 @@ export function useCorridorDetail({
             corridorId,
             'cache',
             'Live data unavailable. Showing saved corridor data.',
-            cached,
+            cached
           );
           return;
         }
@@ -264,7 +244,7 @@ export function useCorridorDetail({
           setWarning,
           corridorId,
           'mock',
-          'Live data unavailable. Showing sample data.',
+          'Live data unavailable. Showing sample data.'
         );
       }
     } catch {

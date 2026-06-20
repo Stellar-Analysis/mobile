@@ -44,10 +44,7 @@ describe('useAnchorDetail', () => {
 
   it('falls back to cached data when API fails', async () => {
     const mockData = generateMockAnchorDetail('anchor-1');
-    await AsyncStorage.setItem(
-      `${ANCHOR_DETAIL_CACHE_PREFIX}anchor-1`,
-      JSON.stringify(mockData),
-    );
+    await AsyncStorage.setItem(`${ANCHOR_DETAIL_CACHE_PREFIX}anchor-1`, JSON.stringify(mockData));
     (apiClient.get as jest.Mock).mockRejectedValue(new Error('Network error'));
 
     const { result } = renderHook(() => useAnchorDetail({ anchorId: 'anchor-1' }));
@@ -73,9 +70,7 @@ describe('useAnchorDetail', () => {
     });
 
     expect(result.current.dataSource).toBe('mock');
-    expect(result.current.warning).toBe(
-      'Offline — no saved data available. Showing sample data.',
-    );
+    expect(result.current.warning).toBe('Offline — no saved data available. Showing sample data.');
   });
 
   it('uses mock data with warning when online API fails and no cache exists', async () => {
@@ -120,10 +115,7 @@ describe('useAnchorDetail', () => {
 
   it('uses offline cache when device is offline', async () => {
     const mockData = generateMockAnchorDetail('anchor-3');
-    await AsyncStorage.setItem(
-      `${ANCHOR_DETAIL_CACHE_PREFIX}anchor-3`,
-      JSON.stringify(mockData),
-    );
+    await AsyncStorage.setItem(`${ANCHOR_DETAIL_CACHE_PREFIX}anchor-3`, JSON.stringify(mockData));
     (NetInfo.fetch as jest.Mock).mockResolvedValue({
       isConnected: false,
       isInternetReachable: false,
@@ -144,9 +136,7 @@ describe('useAnchorDetail', () => {
       isConnected: false,
       isInternetReachable: false,
     });
-    (AsyncStorage.getItem as jest.Mock).mockRejectedValueOnce(
-      new Error('Storage read failed'),
-    );
+    (AsyncStorage.getItem as jest.Mock).mockRejectedValueOnce(new Error('Storage read failed'));
 
     const { result } = renderHook(() => useAnchorDetail({ anchorId: 'anchor-1' }));
 
@@ -171,21 +161,18 @@ describe('useAnchorDetail', () => {
   });
 
   it('fetches by stellar account when anchor id is a G-address', async () => {
-    const stellarAccount =
-      'GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN';
+    const stellarAccount = 'GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN';
     const mockData = generateMockAnchorDetail(stellarAccount);
     (apiClient.get as jest.Mock).mockResolvedValue(mockData);
 
-    const { result } = renderHook(() =>
-      useAnchorDetail({ anchorId: stellarAccount }),
-    );
+    const { result } = renderHook(() => useAnchorDetail({ anchorId: stellarAccount }));
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
     });
 
     expect(apiClient.get).toHaveBeenCalledWith(
-      `/anchors/account/${encodeURIComponent(stellarAccount)}`,
+      `/anchors/account/${encodeURIComponent(stellarAccount)}`
     );
   });
 });
@@ -209,7 +196,7 @@ describe('normalizeAnchorDetailResponse', () => {
         issued_assets,
         reliability_history: [{ timestamp: '2026-05-01', score: 90 }],
       },
-      'a1',
+      'a1'
     );
 
     expect(normalized.issued_assets).toEqual(issued_assets);
@@ -241,7 +228,7 @@ describe('normalizeAnchorDetailResponse', () => {
           },
         ],
       },
-      'anchor-1',
+      'anchor-1'
     );
 
     expect(normalized.issued_assets).toHaveLength(1);
@@ -261,7 +248,7 @@ describe('normalizeAnchorDetailResponse', () => {
           failed_transactions: 0,
         },
       },
-      'a1',
+      'a1'
     );
     expect(withExplicit.anchor.failure_rate).toBe(12.5);
 
@@ -274,16 +261,13 @@ describe('normalizeAnchorDetailResponse', () => {
           successful_transactions: 180,
         },
       },
-      'a2',
+      'a2'
     );
     expect(computed.anchor.failure_rate).toBe(10);
   });
 
   it('returns empty reliability history when metrics are missing', () => {
-    const normalized = normalizeAnchorDetailResponse(
-      { anchor: { id: 'a1' } },
-      'a1',
-    );
+    const normalized = normalizeAnchorDetailResponse({ anchor: { id: 'a1' } }, 'a1');
     expect(normalized.reliability_history).toEqual([]);
   });
 });
@@ -297,8 +281,7 @@ describe('generateMockAnchorDetail', () => {
   });
 
   it('uses provided stellar account for mock G-address ids', () => {
-    const stellarAccount =
-      'GBBD47IF6LWK7P7MDEVSCWR7DPUXV3NAM7KNR4WTXV7X5FDT5O6ADFOY';
+    const stellarAccount = 'GBBD47IF6LWK7P7MDEVSCWR7DPUXV3NAM7KNR4WTXV7X5FDT5O6ADFOY';
     const data = generateMockAnchorDetail(stellarAccount);
     expect(data.anchor.stellar_account).toBe(stellarAccount);
     expect(data.anchor.id).toBe(stellarAccount);

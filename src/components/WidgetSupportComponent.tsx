@@ -3,10 +3,13 @@ import { ActivityIndicator, Alert, Button, ScrollView, StyleSheet, Text, View } 
 import { useWidgetSupport } from '@features/widget_support/useWidgetSupport';
 
 export const WidgetSupportComponent: React.FC = () => {
-  const { supported, loading, error, isOffline, widgets, refresh, removeWidget } = useWidgetSupport();
+  const { supported, loading, error, isOffline, widgets, refresh, removeWidget } =
+    useWidgetSupport();
 
   React.useEffect(() => {
-    if (error) Alert.alert('Widget Error', error, [{ text: 'OK' }], { cancelable: true });
+    if (error) {
+      Alert.alert('Widget Error', error, [{ text: 'OK' }], { cancelable: true });
+    }
   }, [error]);
 
   return (
@@ -18,11 +21,15 @@ export const WidgetSupportComponent: React.FC = () => {
 
       <View style={styles.body}>
         <Text style={styles.status} accessibilityRole="text">
-          {supported ? 'Widgets are supported on this device.' : 'Widgets are not supported on this platform.'}
+          {supported
+            ? 'Widgets are supported on this device.'
+            : 'Widgets are not supported on this platform.'}
         </Text>
 
         {isOffline && (
-          <Text style={styles.offlineText} accessibilityRole="text">Offline — showing cached widgets.</Text>
+          <Text style={styles.offlineText} accessibilityRole="text">
+            Offline — showing cached widgets.
+          </Text>
         )}
 
         {loading && (
@@ -39,16 +46,27 @@ export const WidgetSupportComponent: React.FC = () => {
           accessibilityLabel="Refresh home screen widgets"
         />
 
-        <View style={styles.listCard} accessible accessibilityRole="summary" accessibilityLabel="Widget list">
+        <View
+          style={styles.listCard}
+          accessible
+          accessibilityRole="summary"
+          accessibilityLabel="Widget list">
           <Text style={styles.listTitle}>Configured Widgets</Text>
           {widgets.length === 0 ? (
             <Text style={styles.emptyText}>No widgets configured.</Text>
           ) : (
             widgets.map(w => (
-              <View key={w.id} style={styles.row} accessible accessibilityRole="button" accessibilityLabel={`${w.title} widget, ${w.kind} size`}>
+              <View
+                key={w.id}
+                style={styles.row}
+                accessible
+                accessibilityRole="button"
+                accessibilityLabel={`${w.title} widget, ${w.kind} size`}>
                 <View style={styles.info}>
                   <Text style={styles.widgetTitle}>{w.title}</Text>
-                  <Text style={styles.widgetMeta}>Size: {w.kind} · Route: {w.route}</Text>
+                  <Text style={styles.widgetMeta}>
+                    Size: {w.kind} · Route: {w.route}
+                  </Text>
                 </View>
                 <Button
                   title="Remove"
@@ -79,10 +97,24 @@ const styles = StyleSheet.create({
   offlineText: { fontSize: 13, color: '#92400e' },
   loaderRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   loadingText: { fontSize: 13, color: '#6B7280' },
-  listCard: { marginTop: 8, padding: 16, borderRadius: 12, backgroundColor: '#f0fdf4', borderWidth: 1, borderColor: '#bbf7d0' },
+  listCard: {
+    marginTop: 8,
+    padding: 16,
+    borderRadius: 12,
+    backgroundColor: '#f0fdf4',
+    borderWidth: 1,
+    borderColor: '#bbf7d0',
+  },
   listTitle: { fontSize: 15, fontWeight: '600', color: '#0f172a', marginBottom: 8 },
   emptyText: { fontSize: 14, color: '#475569' },
-  row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#d1fae5' },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#d1fae5',
+  },
   info: { flex: 1 },
   widgetTitle: { fontSize: 14, fontWeight: '600', color: '#111827' },
   widgetMeta: { fontSize: 12, color: '#64748b', marginTop: 2 },

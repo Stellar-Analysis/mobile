@@ -20,7 +20,9 @@ export function useSplashScreen(): UseSplashScreenResult {
 
     initializeApp()
       .then(() => {
-        if (!cancelled) setStatus('ready');
+        if (!cancelled) {
+          setStatus('ready');
+        }
       })
       .catch((err: unknown) => {
         if (!cancelled) {
@@ -38,6 +40,7 @@ export function useSplashScreen(): UseSplashScreenResult {
     status,
     error,
     isVisible: status === 'loading',
-    platformName: Platform.select({ ios: 'iOS', android: 'Android', default: 'Unknown' }) ?? 'Unknown',
+    platformName:
+      Platform.select({ ios: 'iOS', android: 'Android', default: 'Unknown' }) ?? 'Unknown',
   };
 }

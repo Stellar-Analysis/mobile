@@ -31,7 +31,9 @@ export function useBackgroundLocation(config: Partial<BackgroundLocationConfig> 
   const taskRef = useRef<{ stop: () => void } | null>(null);
 
   useEffect(() => {
-    const sub = AppState.addEventListener('change', next => { appState.current = next; });
+    const sub = AppState.addEventListener('change', next => {
+      appState.current = next;
+    });
     return () => sub.remove();
   }, []);
 
@@ -52,23 +54,33 @@ export function useBackgroundLocation(config: Partial<BackgroundLocationConfig> 
   }, []);
 
   const startTracking = useCallback(async () => {
-    if (state.isTracking) return;
+    if (state.isTracking) {
+      return;
+    }
     let permission = state.permissionStatus;
     if (permission !== 'background_granted') {
       permission = await requestPermission();
     }
-    if (permission === 'denied' || permission === 'unavailable') return;
+    if (permission === 'denied' || permission === 'unavailable') {
+      return;
+    }
     setState(s => ({ ...s, isLoading: true, error: null }));
     try {
       // Wire to expo-location startLocationUpdatesAsync or rn-background-geolocation start()
       setState(s => ({ ...s, isTracking: true, isLoading: false }));
     } catch (err: any) {
-      setState(s => ({ ...s, error: err?.message ?? 'Failed to start background location', isLoading: false }));
+      setState(s => ({
+        ...s,
+        error: err?.message ?? 'Failed to start background location',
+        isLoading: false,
+      }));
     }
   }, [state.isTracking, state.permissionStatus, mergedConfig, requestPermission]);
 
   const stopTracking = useCallback(async () => {
-    if (!state.isTracking) return;
+    if (!state.isTracking) {
+      return;
+    }
     try {
       // Wire to expo-location stopLocationUpdatesAsync or BackgroundGeolocation.stop()
       taskRef.current?.stop();
@@ -88,7 +100,9 @@ export function useBackgroundLocation(config: Partial<BackgroundLocationConfig> 
   }, []);
 
   useEffect(() => {
-    return () => { taskRef.current?.stop(); };
+    return () => {
+      taskRef.current?.stop();
+    };
   }, []);
 
   const clearHistory = useCallback(() => {

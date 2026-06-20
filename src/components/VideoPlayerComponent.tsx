@@ -51,7 +51,9 @@ export const VideoPlayerComponent = () => {
   }, []);
 
   const handlePlay = async () => {
-    if (!videoUrl.trim()) return;
+    if (!videoUrl.trim()) {
+      return;
+    }
     await play(videoUrl.trim());
   };
 
@@ -79,9 +81,16 @@ export const VideoPlayerComponent = () => {
       </View>
 
       {error && (
-        <View style={styles.errorContainer} accessible accessibilityRole="alert" accessibilityLabel={`Error: ${error}`}>
+        <View
+          style={styles.errorContainer}
+          accessible
+          accessibilityRole="alert"
+          accessibilityLabel={`Error: ${error}`}>
           <Text style={styles.errorText}>{error}</Text>
-          <TouchableOpacity onPress={clearError} accessibilityRole="button" accessibilityLabel="Dismiss error">
+          <TouchableOpacity
+            onPress={clearError}
+            accessibilityRole="button"
+            accessibilityLabel="Dismiss error">
             <Text style={styles.dismissText}>Dismiss</Text>
           </TouchableOpacity>
         </View>
@@ -105,7 +114,9 @@ export const VideoPlayerComponent = () => {
           {isPlaying ? '▶ Playing' : isPaused ? '⏸ Paused' : '⬛ Stopped'}
         </Text>
         {(isPlaying || isPaused) && (
-          <Text style={styles.timeText} accessibilityLabel={`${formatTime(currentTime)} of ${formatTime(duration)}`}>
+          <Text
+            style={styles.timeText}
+            accessibilityLabel={`${formatTime(currentTime)} of ${formatTime(duration)}`}>
             {formatTime(currentTime)} / {formatTime(duration)}
           </Text>
         )}
@@ -135,8 +146,7 @@ export const VideoPlayerComponent = () => {
             onPress={handlePlay}
             accessible
             accessibilityRole="button"
-            accessibilityLabel="Play video"
-          >
+            accessibilityLabel="Play video">
             <Text style={styles.primaryButtonText}>Play</Text>
           </TouchableOpacity>
         )}
@@ -147,8 +157,7 @@ export const VideoPlayerComponent = () => {
             onPress={pause}
             accessible
             accessibilityRole="button"
-            accessibilityLabel="Pause video"
-          >
+            accessibilityLabel="Pause video">
             <Text style={styles.controlButtonText}>Pause</Text>
           </TouchableOpacity>
         )}
@@ -159,8 +168,7 @@ export const VideoPlayerComponent = () => {
             onPress={resume}
             accessible
             accessibilityRole="button"
-            accessibilityLabel="Resume video"
-          >
+            accessibilityLabel="Resume video">
             <Text style={styles.controlButtonText}>Resume</Text>
           </TouchableOpacity>
         )}
@@ -171,8 +179,7 @@ export const VideoPlayerComponent = () => {
             onPress={stop}
             accessible
             accessibilityRole="button"
-            accessibilityLabel="Stop video"
-          >
+            accessibilityLabel="Stop video">
             <Text style={styles.controlButtonText}>Stop</Text>
           </TouchableOpacity>
         )}
@@ -184,8 +191,7 @@ export const VideoPlayerComponent = () => {
           accessible
           accessibilityRole="button"
           accessibilityLabel={isMuted ? 'Unmute' : 'Mute'}
-          style={styles.muteButton}
-        >
+          style={styles.muteButton}>
           <Text style={styles.muteButtonText}>{isMuted ? 'Unmute' : 'Mute'}</Text>
         </TouchableOpacity>
         <Slider
@@ -209,8 +215,9 @@ export const VideoPlayerComponent = () => {
           disabled={isCaching || isOfflineCached}
           accessible
           accessibilityRole="button"
-          accessibilityLabel={isOfflineCached ? 'Video cached for offline' : 'Cache video for offline use'}
-        >
+          accessibilityLabel={
+            isOfflineCached ? 'Video cached for offline' : 'Cache video for offline use'
+          }>
           {isCaching ? (
             <ActivityIndicator size="small" color="#fff" />
           ) : (

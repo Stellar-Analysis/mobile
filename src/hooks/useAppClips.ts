@@ -25,37 +25,58 @@ export function useAppClips(): UseAppClips {
     async function load() {
       try {
         const stored = await AsyncStorage.getItem(STORAGE_KEY);
-        if (active && stored) setClips(JSON.parse(stored));
-      } catch { /* best-effort */ } finally {
-        if (active) setLoading(false);
+        if (active && stored) {
+          setClips(JSON.parse(stored));
+        }
+      } catch {
+        /* best-effort */
+      } finally {
+        if (active) {
+          setLoading(false);
+        }
       }
     }
     void load();
-    return () => { active = false; };
+    return () => {
+      active = false;
+    };
   }, []);
 
-  const launchClip = useCallback(async (url: string, title: string) => {
-    setLoading(true);
-    setError(null);
-    try {
-      if (!isSupported()) throw new Error('App Clips are only supported on iOS.');
-      await new Promise<void>(resolve => setTimeout(resolve, 400));
-      const clip: AppClip = { id: Date.now().toString(), url, title, launchedAt: new Date().toISOString(), status: 'success' };
-      const updated = [clip, ...clips].slice(0, 20);
-      setClips(updated);
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to launch App Clip.');
-    } finally {
-      setLoading(false);
-    }
-  }, [clips]);
+  const launchClip = useCallback(
+    async (url: string, title: string) => {
+      setLoading(true);
+      setError(null);
+      try {
+        if (!isSupported()) {
+          throw new Error('App Clips are only supported on iOS.');
+        }
+        await new Promise<void>(resolve => setTimeout(resolve, 400));
+        const clip: AppClip = {
+          id: Date.now().toString(),
+          url,
+          title,
+          launchedAt: new Date().toISOString(),
+          status: 'success',
+        };
+        const updated = [clip, ...clips].slice(0, 20);
+        setClips(updated);
+        await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to launch App Clip.');
+      } finally {
+        setLoading(false);
+      }
+    },
+    [clips]
+  );
 
   const clearClips = useCallback(async () => {
     try {
       await AsyncStorage.removeItem(STORAGE_KEY);
       setClips([]);
-    } catch { /* best-effort */ }
+    } catch {
+      /* best-effort */
+    }
   }, []);
 
   return { isSupported: isSupported(), loading, error, clips, launchClip, clearClips };

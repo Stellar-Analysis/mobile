@@ -1,6 +1,6 @@
 /**
  * Secure Mobile Logging Service
- * 
+ *
  * Features:
  * - Comprehensive sensitive data redaction
  * - Environment-aware logging levels
@@ -8,11 +8,11 @@
  * - Opt-in debug mode for production
  * - Native logging integration
  * - Error tracking with automatic PII filtering
- * 
+ *
  * Usage:
  * ```typescript
  * import { logger } from '@services/logger';
- * 
+ *
  * logger.debug('User action', { action: 'tap', screen: 'home' });
  * logger.info('API call completed', { endpoint: '/api/data', status: 200 });
  * logger.warn('Deprecated feature used', { feature: 'oldAPI' });
@@ -28,8 +28,8 @@ const isDevelopment = __DEV__;
 const enableDebugMode = __DEV__ || global.__FLIPPER__;
 
 // Enable production logging only in debug builds or when explicitly enabled
-const enableProductionLogging = isDevelopment || 
-  (typeof global !== 'undefined' && global.__DEV_LOGGING_ENABLED__);
+const enableProductionLogging =
+  isDevelopment || (typeof global !== 'undefined' && global.__DEV_LOGGING_ENABLED__);
 
 export interface LogMetadata {
   [key: string]: unknown;
@@ -50,31 +50,34 @@ export interface LogContext {
 function redactSensitiveData(data: unknown): unknown {
   if (typeof data === 'string') {
     let result = data;
-    
+
     // Redact Stellar addresses (56 chars starting with G)
     result = result.replace(/G[A-Z0-9]{55}/g, 'G****[REDACTED]');
-    
-    // Redact Stellar secret keys (56 chars starting with S)  
+
+    // Redact Stellar secret keys (56 chars starting with S)
     result = result.replace(/S[A-Z0-9]{55}/g, 'S****[REDACTED_SECRET]');
-    
+
     // Redact JWT tokens
     result = result.replace(/eyJ[A-Za-z0-9_-]*\.[A-Za-z0-9_-]*\.[A-Za-z0-9_-]*/g, '[REDACTED_JWT]');
-    
+
     // Redact API keys and long tokens (32+ chars)
     result = result.replace(/\b[A-Za-z0-9_-]{32,}\b/g, '[REDACTED_KEY]');
-    
+
     // Redact email addresses
     result = result.replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, '****@[REDACTED]');
-    
+
     // Redact phone numbers
     result = result.replace(/(\+\d{1,3})\d{7,}/g, '$1****[REDACTED]');
-    
+
     // Redact potential credit card numbers
-    result = result.replace(/\b\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}\b/g, '****-****-****-[REDACTED]');
-    
+    result = result.replace(
+      /\b\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}\b/g,
+      '****-****-****-[REDACTED]'
+    );
+
     // Redact potential SSNs or government IDs
     result = result.replace(/\b\d{3}-\d{2}-\d{4}\b/g, '***-**-[REDACTED]');
-    
+
     // Redact mnemonic phrases (12/24 common words)
     if (result.split(' ').length >= 12) {
       const words = result.split(' ');
@@ -82,17 +85,17 @@ function redactSensitiveData(data: unknown): unknown {
         result = `[${words.length}_WORD_MNEMONIC_REDACTED]`;
       }
     }
-    
+
     return result;
   }
-  
+
   if (Array.isArray(data)) {
     return data.map(item => redactSensitiveData(item));
   }
-  
+
   if (typeof data === 'object' && data !== null) {
     const redacted: Record<string, unknown> = {};
-    
+
     for (const [key, value] of Object.entries(data)) {
       // Redact sensitive field names (case-insensitive)
       const lowerKey = key.toLowerCase();
@@ -117,10 +120,10 @@ function redactSensitiveData(data: unknown): unknown {
         redacted[key] = redactSensitiveData(value);
       }
     }
-    
+
     return redacted;
   }
-  
+
   return data;
 }
 
@@ -146,11 +149,7 @@ function formatMessage(level: string, message: string, context: LogContext): str
 /**
  * Send error to crash reporting service
  */
-function sendToErrorTracking(
-  error: Error,
-  message: string,
-  metadata?: LogMetadata
-): void {
+function sendToErrorTracking(error: Error, message: string, metadata?: LogMetadata): void {
   try {
     if (!crashlytics || isDevelopment) {
       return;
@@ -171,10 +170,9 @@ function sendToErrorTracking(
 
     // Record the error
     crashlytics().recordError(error);
-    
+
     // Log a custom event for additional context
     crashlytics().log(`Error: ${message}`);
-    
   } catch (trackingError) {
     // Fallback: log tracking failure without exposing the original error
     if (isDevelopment) {
@@ -190,11 +188,11 @@ function normalizeError(error: unknown): Error {
   if (error instanceof Error) {
     return error;
   }
-  
+
   if (typeof error === 'string') {
     return new Error(error);
   }
-  
+
   try {
     return new Error(JSON.stringify(error));
   } catch {
@@ -214,10 +212,10 @@ export const logger = {
     if (!enableDebugMode) {
       return;
     }
-    
+
     const baseContext = createBaseContext(context);
     const redactedMetadata = metadata ? redactSensitiveData(metadata) : undefined;
-    
+
     if (redactedMetadata) {
       console.debug(formatMessage('DEBUG', message, baseContext), redactedMetadata);
     } else {
@@ -233,10 +231,10 @@ export const logger = {
     if (!isDevelopment && !enableProductionLogging) {
       return;
     }
-    
+
     const baseContext = createBaseContext(context);
     const redactedMetadata = metadata ? redactSensitiveData(metadata) : undefined;
-    
+
     if (redactedMetadata) {
       console.info(formatMessage('INFO', message, baseContext), redactedMetadata);
     } else {
@@ -251,7 +249,7 @@ export const logger = {
   warn: (message: string, metadata?: LogMetadata, context?: Partial<LogContext>): void => {
     const baseContext = createBaseContext(context);
     const redactedMetadata = metadata ? redactSensitiveData(metadata) : undefined;
-    
+
     if (redactedMetadata) {
       console.warn(formatMessage('WARN', message, baseContext), redactedMetadata);
     } else {
@@ -264,8 +262,8 @@ export const logger = {
    * Always outputs and sends to crash reporting in production
    */
   error: (
-    message: string, 
-    error?: Error | unknown, 
+    message: string,
+    error?: Error | unknown,
     metadata?: LogMetadata,
     context?: Partial<LogContext>
   ): void => {
@@ -275,7 +273,11 @@ export const logger = {
 
     // Always log to console with redacted data
     if (redactedMetadata) {
-      console.error(formatMessage('ERROR', message, baseContext), normalizedError, redactedMetadata);
+      console.error(
+        formatMessage('ERROR', message, baseContext),
+        normalizedError,
+        redactedMetadata
+      );
     } else {
       console.error(formatMessage('ERROR', message, baseContext), normalizedError);
     }
@@ -311,8 +313,10 @@ export const logger = {
     };
     const redactedNetworkData = redactSensitiveData(networkData);
 
-    const logMessage = `Network ${method} ${url}${status ? ` → ${status}` : ''}${duration ? ` (${duration}ms)` : ''}`;
-    
+    const logMessage = `Network ${method} ${url}${status ? ` → ${status}` : ''}${
+      duration ? ` (${duration}ms)` : ''
+    }`;
+
     if (status && status >= 400) {
       logger.warn(logMessage, redactedNetworkData as LogMetadata, baseContext);
     } else {
@@ -323,11 +327,7 @@ export const logger = {
   /**
    * User action logging
    */
-  userAction: (
-    action: string,
-    metadata?: LogMetadata,
-    context?: Partial<LogContext>
-  ): void => {
+  userAction: (action: string, metadata?: LogMetadata, context?: Partial<LogContext>): void => {
     if (!enableDebugMode && !enableProductionLogging) {
       return;
     }
@@ -357,14 +357,10 @@ export const logger = {
   /**
    * Auth-related logging (extra security for sensitive operations)
    */
-  auth: (
-    event: string,
-    metadata?: LogMetadata,
-    context?: Partial<LogContext>
-  ): void => {
+  auth: (event: string, metadata?: LogMetadata, context?: Partial<LogContext>): void => {
     const baseContext = createBaseContext(context);
     const authMetadata = metadata ? redactSensitiveData(metadata) : undefined;
-    
+
     // Auth events are important for security - always log but redacted
     logger.info(`Auth: ${event}`, authMetadata as LogMetadata, baseContext);
   },
@@ -373,10 +369,7 @@ export const logger = {
 /**
  * Create a scoped logger with context
  */
-export function createScopedLogger(
-  scope: string,
-  defaultContext?: Partial<LogContext>
-) {
+export function createScopedLogger(scope: string, defaultContext?: Partial<LogContext>) {
   return {
     debug: (message: string, metadata?: LogMetadata, context?: Partial<LogContext>) =>
       logger.debug(`[${scope}] ${message}`, metadata, { ...defaultContext, ...context }),
@@ -384,14 +377,32 @@ export function createScopedLogger(
       logger.info(`[${scope}] ${message}`, metadata, { ...defaultContext, ...context }),
     warn: (message: string, metadata?: LogMetadata, context?: Partial<LogContext>) =>
       logger.warn(`[${scope}] ${message}`, metadata, { ...defaultContext, ...context }),
-    error: (message: string, error?: Error | unknown, metadata?: LogMetadata, context?: Partial<LogContext>) =>
-      logger.error(`[${scope}] ${message}`, error, metadata, { ...defaultContext, ...context }),
-    network: (method: string, url: string, status?: number, duration?: number, metadata?: LogMetadata, context?: Partial<LogContext>) =>
-      logger.network(method, url, status, duration, metadata, { ...defaultContext, ...context }),
+    error: (
+      message: string,
+      error?: Error | unknown,
+      metadata?: LogMetadata,
+      context?: Partial<LogContext>
+    ) => logger.error(`[${scope}] ${message}`, error, metadata, { ...defaultContext, ...context }),
+    network: (
+      method: string,
+      url: string,
+      status?: number,
+      duration?: number,
+      metadata?: LogMetadata,
+      context?: Partial<LogContext>
+    ) => logger.network(method, url, status, duration, metadata, { ...defaultContext, ...context }),
     userAction: (action: string, metadata?: LogMetadata, context?: Partial<LogContext>) =>
       logger.userAction(`[${scope}] ${action}`, metadata, { ...defaultContext, ...context }),
-    performance: (label: string, duration: number, metadata?: LogMetadata, context?: Partial<LogContext>) =>
-      logger.performance(`[${scope}] ${label}`, duration, metadata, { ...defaultContext, ...context }),
+    performance: (
+      label: string,
+      duration: number,
+      metadata?: LogMetadata,
+      context?: Partial<LogContext>
+    ) =>
+      logger.performance(`[${scope}] ${label}`, duration, metadata, {
+        ...defaultContext,
+        ...context,
+      }),
     auth: (event: string, metadata?: LogMetadata, context?: Partial<LogContext>) =>
       logger.auth(`[${scope}] ${event}`, metadata, { ...defaultContext, ...context }),
   };

@@ -38,9 +38,7 @@ describe('tokenStorage', () => {
     expect(mockSet).toHaveBeenCalledWith('auth-token', 'my-token', {
       service: 'com.stellarinsights.auth',
     });
-    await expect(AsyncStorage.getItem(EXPIRY_KEY)).resolves.toBe(
-      String(expiresAt),
-    );
+    await expect(AsyncStorage.getItem(EXPIRY_KEY)).resolves.toBe(String(expiresAt));
   });
 
   it('clears any stale expiry when saving a token without one', async () => {

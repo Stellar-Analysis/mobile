@@ -61,7 +61,9 @@ export function useBackgroundSync(): UseBackgroundSync {
 
   const syncOfflineChanges = useCallback(async () => {
     const offlineTasks = tasks.filter(t => t.status === 'pending');
-    if (offlineTasks.length === 0) return;
+    if (offlineTasks.length === 0) {
+      return;
+    }
 
     setTasks(prev => prev.map(t => (t.status === 'pending' ? { ...t, status: 'syncing' } : t)));
 

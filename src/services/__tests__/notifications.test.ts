@@ -30,7 +30,9 @@ jest.mock('@notifee/react-native', () => ({
 
 jest.mock('react-native', () => ({
   Platform: {
-    get OS() { return mockPlatformOS; },
+    get OS() {
+      return mockPlatformOS;
+    },
   },
 }));
 
@@ -68,7 +70,7 @@ describe('setupNotifications', () => {
       await setupNotifications();
 
       expect(mockCreateChannel).toHaveBeenCalledWith(
-        expect.objectContaining({ id: NOTIFICATION_CHANNEL_ID, importance: 4 }),
+        expect.objectContaining({ id: NOTIFICATION_CHANNEL_ID, importance: 4 })
       );
       expect(mockOnMessage).toHaveBeenCalled();
     });
@@ -78,14 +80,16 @@ describe('setupNotifications', () => {
       await setupNotifications();
 
       expect(mockCreateChannel).toHaveBeenCalledWith(
-        expect.objectContaining({ id: NOTIFICATION_CHANNEL_ID }),
+        expect.objectContaining({ id: NOTIFICATION_CHANNEL_ID })
       );
       expect(mockOnMessage).toHaveBeenCalled();
     });
   });
 
   describe('permission granted — iOS', () => {
-    beforeEach(() => { mockPlatformOS = 'ios'; });
+    beforeEach(() => {
+      mockPlatformOS = 'ios';
+    });
 
     it('does NOT create an Android channel on iOS', async () => {
       mockRequestPermission.mockResolvedValue(1); // AUTHORIZED
@@ -112,7 +116,7 @@ describe('setupNotifications', () => {
       await messageHandler!({ notification: { title: 'Alert', body: 'Ledger ingested' } });
 
       expect(mockDisplayNotification).toHaveBeenCalledWith(
-        expect.objectContaining({ title: 'Alert', body: 'Ledger ingested' }),
+        expect.objectContaining({ title: 'Alert', body: 'Ledger ingested' })
       );
     });
 
@@ -122,7 +126,7 @@ describe('setupNotifications', () => {
       expect(mockDisplayNotification).toHaveBeenCalledWith(
         expect.objectContaining({
           android: expect.objectContaining({ channelId: NOTIFICATION_CHANNEL_ID }),
-        }),
+        })
       );
     });
 
