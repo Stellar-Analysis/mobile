@@ -4,6 +4,9 @@
  */
 
 import { ContractTransaction, ContractSubmissionResult, ContractArg } from "./contractSubmission";
+import { createScopedLogger } from "./logger";
+
+const log = createScopedLogger('MobileContractService');
 
 // Database schema for local queueing
 interface QueuedTransaction {
@@ -68,13 +71,13 @@ export class MobileContractService {
    */
   private setupOnlineListener(): void {
     window.addEventListener("online", () => {
-      console.log("[MobileContractService] Network online - processing queue");
+      log.info('Network online - processing queue');
       this.isOnline = true;
       this.processQueue();
     });
 
     window.addEventListener("offline", () => {
-      console.log("[MobileContractService] Network offline - queuing transactions");
+      log.info('Network offline - queuing transactions');
       this.isOnline = false;
     });
   }
@@ -106,14 +109,14 @@ export class MobileContractService {
       }
       // If failed and retryable, queue for later
       if (result.retryable) {
-        console.log("[MobileContractService] Submission failed but retryable - queueing");
+        log.warn('Submission failed but retryable - queueing');
         await this.queueTransaction(transaction);
       }
       return result;
     }
 
     // Queue for later if offline
-    console.log("[MobileContractService] Offline - queueing transaction");
+    log.info('Offline - queueing transaction');
     await this.queueTransaction(transaction);
 
     return {
@@ -218,7 +221,7 @@ export class MobileContractService {
       const result = await response.json();
       return result.transactionData;
     } catch (error) {
-      console.error("[MobileContractService] Simulation error:", error);
+      log.error('Simulation error', error);
       return null;
     }
   }
@@ -258,7 +261,7 @@ export class MobileContractService {
    */
   private async queueTransaction(transaction: QueuedTransaction): Promise<void> {
     if (!this.db) {
-      console.error("[MobileContractService] Database not initialized");
+      log.error('Database not initialized');
       return;
     }
 
@@ -269,7 +272,7 @@ export class MobileContractService {
 
       request.onerror = () => reject(request.error);
       request.onsuccess = () => {
-        console.log(`[MobileContractService] Transaction queued: ${transaction.id}`);
+        log.info(`Transaction queued: ${transaction.id}`);
         resolve();
       };
     });
@@ -316,11 +319,11 @@ export class MobileContractService {
 
     for (const transaction of queued) {
       if (!this.isOnline) {
-        console.log("[MobileContractService] Network went offline - stopping queue processing");
+        log.info('Network went offline - stopping queue processing');
         break;
       }
 
-      console.log(`[MobileContractService] Processing queued transaction: ${transaction.id}`);
+      log.info(`Processing queued transaction: ${transaction.id}`);
       await this.attemptSubmission(transaction);
 
       // Delay between submissions

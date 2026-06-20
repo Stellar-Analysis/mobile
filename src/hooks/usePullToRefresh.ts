@@ -2,6 +2,9 @@ import React from 'react';
 import { Platform, RefreshControlProps } from 'react-native';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAppStore } from '@store/appStore';
+import { createScopedLogger } from '@services/logger';
+
+const log = createScopedLogger('PullToRefresh');
 
 export interface UsePullToRefreshResult {
   isRefreshing: boolean;
@@ -59,7 +62,7 @@ export function usePullToRefresh(config?: PullToRefreshConfig): UsePullToRefresh
       // Give queries time to refetch
       await new Promise(resolve => setTimeout(resolve, 300));
     } catch (error) {
-      console.warn('Pull-to-refresh error:', error);
+      log.warn('Pull-to-refresh error', { error });
     } finally {
       setIsRefreshing(false);
     }

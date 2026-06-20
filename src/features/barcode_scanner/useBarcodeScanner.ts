@@ -1,6 +1,9 @@
 import { useState, useCallback, useRef } from 'react';
 import { Platform } from 'react-native';
 import { useMMKVStorage } from 'react-native-mmkv';
+import { createScopedLogger } from '@services/logger';
+
+const log = createScopedLogger('BarcodeScanner');
 
 interface BarcodeResult {
   data: string;
@@ -41,7 +44,7 @@ export const useBarcodeScanner = (): BarcodeScannerState => {
       // On iOS, camera permission is checked at app level
       return true;
     } catch (err) {
-      console.warn('Error checking permissions:', err);
+      log.warn('Error checking permissions', { err });
       return false;
     }
   }, []);
@@ -64,7 +67,7 @@ export const useBarcodeScanner = (): BarcodeScannerState => {
       // iOS permissions are handled by the system
       return true;
     } catch (err) {
-      console.error('Error requesting permissions:', err);
+      log.error('Error requesting permissions', err);
       return false;
     }
   }, [setPermissionsGranted]);
@@ -116,7 +119,7 @@ export const useBarcodeScanner = (): BarcodeScannerState => {
           }
           storage.set(BARCODE_CACHE_KEY, JSON.stringify(cachedResults));
         } catch (cacheErr) {
-          console.warn('Failed to cache barcode result:', cacheErr);
+          log.warn('Failed to cache barcode result', { cacheErr });
         }
       }, 3000);
     } catch (err) {

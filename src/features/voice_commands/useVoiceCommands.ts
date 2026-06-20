@@ -1,6 +1,9 @@
 import { useState, useCallback, useRef } from 'react';
 import { Platform } from 'react-native';
 import { useMMKVStorage } from 'react-native-mmkv';
+import { createScopedLogger } from '@services/logger';
+
+const log = createScopedLogger('VoiceCommands');
 
 interface VoiceCommandsState {
   isListening: boolean;
@@ -49,7 +52,7 @@ export const useVoiceCommands = (): VoiceCommandsState => {
       // iOS handles permissions at system level
       return true;
     } catch (err) {
-      console.warn('Error checking permissions:', err);
+      log.warn('Error checking permissions', { err });
       return false;
     }
   }, []);
@@ -72,7 +75,7 @@ export const useVoiceCommands = (): VoiceCommandsState => {
       // iOS permissions handled by system
       return true;
     } catch (err) {
-      console.error('Error requesting permissions:', err);
+      log.error('Error requesting permissions', err);
       return false;
     }
   }, [setPermissionsGranted]);
@@ -161,7 +164,7 @@ export const useVoiceCommands = (): VoiceCommandsState => {
           }
           storage.set(VOICE_COMMANDS_CACHE_KEY, JSON.stringify(cachedCommands));
         } catch (cacheErr) {
-          console.warn('Failed to cache voice command:', cacheErr);
+          log.warn('Failed to cache voice command', { cacheErr });
         }
       }, 3000);
     } catch (err) {

@@ -1,6 +1,9 @@
 import { useState, useCallback, useRef } from 'react';
 import { Platform } from 'react-native';
 import { useMMKVStorage } from 'react-native-mmkv';
+import { createScopedLogger } from '@services/logger';
+
+const log = createScopedLogger('CameraIntegration');
 
 export type CameraMode = 'qr' | 'document' | 'photo';
 
@@ -53,7 +56,7 @@ export const useCameraIntegration = (): CameraIntegrationState => {
       }
       return true;
     } catch (err) {
-      console.warn('Error checking camera permission:', err);
+      log.warn('Error checking camera permission', { err });
       return false;
     }
   }, []);
@@ -75,7 +78,7 @@ export const useCameraIntegration = (): CameraIntegrationState => {
       }
       return true;
     } catch (err) {
-      console.error('Error requesting camera permission:', err);
+      log.error('Error requesting camera permission', err);
       return false;
     }
   }, [setPermissionsGranted]);
@@ -176,6 +179,6 @@ function cacheResult(type: string, data: unknown) {
     if (cached.length > 50) cached.shift();
     storage.set(CAMERA_CACHE_KEY, JSON.stringify(cached));
   } catch {
-    console.warn('Failed to cache camera result');
+    log.warn('Failed to cache camera result');
   }
 }

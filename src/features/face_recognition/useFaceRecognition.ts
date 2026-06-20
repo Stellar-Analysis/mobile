@@ -1,6 +1,9 @@
 import { useState, useCallback, useRef } from 'react';
 import { Platform } from 'react-native';
 import { useMMKVStorage } from 'react-native-mmkv';
+import { createScopedLogger } from '@services/logger';
+
+const log = createScopedLogger('FaceRecognition');
 
 interface FaceRecognitionState {
   isScanning: boolean;
@@ -33,7 +36,7 @@ export const useFaceRecognition = (): FaceRecognitionState => {
       // In production, use react-native-camera or ml-kit
       return true; // Assume most devices have cameras
     } catch (err) {
-      console.warn('Camera not available:', err);
+      log.warn('Camera not available', { err });
       return false;
     }
   }, []);
@@ -48,7 +51,7 @@ export const useFaceRecognition = (): FaceRecognitionState => {
       // iOS camera permission is checked at system level
       return true;
     } catch (err) {
-      console.warn('Error checking permissions:', err);
+      log.warn('Error checking permissions', { err });
       return false;
     }
   }, []);
@@ -71,7 +74,7 @@ export const useFaceRecognition = (): FaceRecognitionState => {
       // iOS permissions handled by system
       return true;
     } catch (err) {
-      console.error('Error requesting permissions:', err);
+      log.error('Error requesting permissions', err);
       return false;
     }
   }, [setPermissionsGranted]);
@@ -116,7 +119,7 @@ export const useFaceRecognition = (): FaceRecognitionState => {
             };
             storage.set(FACE_RECOGNITION_CACHE_KEY, JSON.stringify(cacheData));
           } catch (cacheErr) {
-            console.warn('Failed to cache face recognition:', cacheErr);
+            log.warn('Failed to cache face recognition', { cacheErr });
           }
         } else {
           setError('Face not recognized. Please try again or ensure good lighting.');

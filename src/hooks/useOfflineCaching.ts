@@ -3,6 +3,9 @@ import { Platform } from 'react-native';
 import { QueryKey, useQuery, useQueryClient } from '@tanstack/react-query';
 import { storageUtils } from '@services/storage';
 import { useAppStore } from '@store/appStore';
+import { createScopedLogger } from '@services/logger';
+
+const log = createScopedLogger('OfflineCaching');
 
 const OFFLINE_CACHE_STORAGE_KEY = 'offline-cache:v1';
 const CACHE_EXPIRY_MS = 24 * 60 * 60 * 1000; // 24 hours
@@ -58,7 +61,7 @@ function readCache(): Map<string, CacheEntry> {
       }
     }
   } catch (error) {
-    console.warn('Failed to read offline cache:', error);
+    log.warn('Failed to read offline cache', { error });
   }
 
   return cache;
@@ -72,7 +75,7 @@ function writeCache(cache: Map<string, CacheEntry>): void {
     const entries = Array.from(cache.values());
     storageUtils.setItem(OFFLINE_CACHE_STORAGE_KEY, JSON.stringify(entries));
   } catch (error) {
-    console.warn('Failed to write offline cache:', error);
+    log.warn('Failed to write offline cache', { error });
   }
 }
 

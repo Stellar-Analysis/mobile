@@ -1,6 +1,9 @@
 import { useState, useCallback, useRef } from 'react';
 import { Platform } from 'react-native';
 import { useMMKVStorage } from 'react-native-mmkv';
+import { createScopedLogger } from '@services/logger';
+
+const log = createScopedLogger('FingerprintScanner');
 
 interface FingerprintScannerState {
   isScanning: boolean;
@@ -31,7 +34,7 @@ export const useFingerprintScanner = (): FingerprintScannerState => {
       const compatible = await RNBiometrics.isSensorAvailable();
       return compatible;
     } catch (err) {
-      console.warn('Biometric not available:', err);
+      log.warn('Biometric not available', { err });
       return false;
     }
   }, []);
@@ -41,7 +44,7 @@ export const useFingerprintScanner = (): FingerprintScannerState => {
       // Biometric permissions are granted when device has biometric capability
       return await isBiometricAvailable();
     } catch (err) {
-      console.warn('Error checking permissions:', err);
+      log.warn('Error checking permissions', { err });
       return false;
     }
   }, [isBiometricAvailable]);
@@ -52,7 +55,7 @@ export const useFingerprintScanner = (): FingerprintScannerState => {
       setPermissionsGranted(available);
       return available;
     } catch (err) {
-      console.error('Error requesting permissions:', err);
+      log.error('Error requesting permissions', err);
       return false;
     }
   }, [isBiometricAvailable, setPermissionsGranted]);
@@ -92,7 +95,7 @@ export const useFingerprintScanner = (): FingerprintScannerState => {
             };
             storage.set(FINGERPRINT_CACHE_KEY, JSON.stringify(cacheData));
           } catch (cacheErr) {
-            console.warn('Failed to cache fingerprint auth:', cacheErr);
+            log.warn('Failed to cache fingerprint auth', { cacheErr });
           }
         } else {
           setError('Fingerprint not recognized. Please try again.');
