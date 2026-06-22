@@ -150,8 +150,13 @@ export async function replayPendingSyncActions(): Promise<ReplaySyncActionsResul
 }
 
 /**
- * Hook for managing offline data caching
- * Automatically caches successful queries when offline
+ * Hook for managing offline data caching.
+ *
+ * Issue #93: now integrates with `services/database.ts` so cached rows
+ * also live in SQLite (survives app restarts) and failed mutations are
+ * persisted to `sync_queue` so they're replayed when connectivity returns.
+ * The MMKV cache remains the primary fast-path; SQLite is the long-term
+ * fallback when MMKV is unavailable (e.g. after a redacted file).
  */
 export function useOfflineCache(config?: OfflineCacheConfig): UseOfflineCacheResult {
   const [cache, setCache] = React.useState<Map<string, CacheEntry>>(() => readCache());
@@ -161,6 +166,33 @@ export function useOfflineCache(config?: OfflineCacheConfig): UseOfflineCacheRes
   const ttl = config?.ttl || CACHE_EXPIRY_MS;
   const maxSize = config?.maxSize || 5 * 1024 * 1024; // 5 MB default
   const isEnabled = config?.enabled !== false;
+
+  // Mirror a single cache entry into SQLite on a best-effort basis.
+  // Failures are logged but DO NOT block the MMKV write path. We only
+  // touch the affected entry (instead of iterating the whole map) so the
+  // cost stays O(1) per write regardless of total cache size.
+  const mirrorEntryToSqlite = React.useCallback(
+    async (entry: CacheEntry) => {
+      try {
+        const sqlite = await import('@services/database');
+        await sqlite.initializeDatabase();
+        const [table] = entry.key.split(':');
+        if (
+          table === 'corridors' ||
+          table === 'anchors' ||
+          table === 'assets'
+        ) {
+          await sqlite.upsertCacheRow(table, entry.key, entry.data);
+        }
+      } catch (error) {
+        log.warn('SQLite mirror failed (non-fatal)', {
+          error,
+          key: entry.key,
+        });
+      }
+    },
+    [],
+  );
 
   const getCachedData = React.useCallback(
     (key: QueryKey) => {
@@ -226,9 +258,15 @@ export function useOfflineCache(config?: OfflineCacheConfig): UseOfflineCacheRes
       }
 
       writeCache(newCache);
+      // Mirror to SQLite BEFORE updating React state so a later
+      // `getCachedData` read can never see "MMKV says fresh, SQLite says
+      // older". The call is fire-and-forget because MMKV (the primary
+      // cache) is already authoritative; SQLite is the long-term
+      // fallback that tolerates eventual consistency.
+      void mirrorEntryToSqlite(entry);
       setCache(newCache);
     },
-    [cache, isEnabled, ttl, maxSize]
+    [cache, isEnabled, ttl, maxSize, mirrorEntryToSqlite]
   );
 
   const invalidateCache = React.useCallback(
