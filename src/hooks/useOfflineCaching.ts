@@ -4,6 +4,13 @@ import { QueryKey, useQuery, useQueryClient } from '@tanstack/react-query';
 import { storageUtils } from '@services/storage';
 import { useAppStore } from '@store/appStore';
 import { createScopedLogger } from '@services/logger';
+import { apiClient } from '@services/api';
+import {
+  getPendingSyncActions,
+  markSyncActionStatus,
+  removeSyncAction,
+  SyncQueueRow,
+} from '@services/database';
 
 const log = createScopedLogger('OfflineCaching');
 
@@ -90,6 +97,56 @@ function getCacheSizeInBytes(cache: Map<string, CacheEntry>): number {
     size += JSON.stringify(entry).length;
   }
   return size;
+}
+
+async function executeSyncAction(row: SyncQueueRow): Promise<void> {
+  if (row.method === 'POST') {
+    await apiClient.post(row.resource, row.payload);
+    return;
+  }
+
+  if (row.method === 'PUT') {
+    await apiClient.put(row.resource, row.payload);
+    return;
+  }
+
+  await apiClient.delete(row.resource);
+}
+
+export interface ReplaySyncActionsResult {
+  applied: string[];
+  failed: string[];
+}
+
+/**
+ * Replays every pending row in the local `sync_queue` table (see
+ * mobile/src/services/database.ts) against the backend, in the order they
+ * were enqueued. Each row's `id` is the idempotency key shared with the
+ * backend reconciliation contract (docs/offline-sync.md), so re-running this
+ * after a partial failure is safe — already-applied rows have already been
+ * removed from the queue.
+ *
+ * Intended to run once connectivity is restored; see the `useOfflineCache`
+ * reconnect effect below.
+ */
+export async function replayPendingSyncActions(): Promise<ReplaySyncActionsResult> {
+  const pending = await getPendingSyncActions();
+  const result: ReplaySyncActionsResult = { applied: [], failed: [] };
+
+  for (const row of pending) {
+    try {
+      await executeSyncAction(row);
+      await removeSyncAction(row.id);
+      result.applied.push(row.id);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unable to replay queued action';
+      await markSyncActionStatus(row.id, 'failed', message);
+      result.failed.push(row.id);
+      log.warn('Failed to replay offline sync action', { id: row.id, resource: row.resource, error: message });
+    }
+  }
+
+  return result;
 }
 
 /**
@@ -270,6 +327,41 @@ export function useOfflineCache(config?: OfflineCacheConfig): UseOfflineCacheRes
 
     return unsubscribe;
   }, [isEnabled, queryClient, setCachedData]);
+
+  // Replay queued offline mutations and clear stale cache when connectivity returns
+  React.useEffect(() => {
+    if (!isEnabled) {
+      return;
+    }
+
+    const unsubscribe = useAppStore.subscribe(
+      state => state.isOnline,
+      (isOnlineNow, wasOnline) => {
+        if (isOnlineNow && !wasOnline) {
+          replayPendingSyncActions()
+            .then(result => {
+              if (result.applied.length > 0 || result.failed.length > 0) {
+                log.info('Replayed offline sync queue on reconnect', {
+                  applied: result.applied,
+                  failed: result.failed,
+                });
+              }
+              // The data we served while offline may now be stale - drop it
+              // so the next read goes back to the network, and ask the
+              // backend to reconcile any state we missed while offline.
+              invalidateCache();
+              queryClient.invalidateQueries();
+              return apiClient.reconcileState();
+            })
+            .catch(error => {
+              log.warn('Failed to reconcile state after reconnect', { error });
+            });
+        }
+      }
+    );
+
+    return unsubscribe;
+  }, [isEnabled, queryClient, invalidateCache]);
 
   return {
     getCachedData,
