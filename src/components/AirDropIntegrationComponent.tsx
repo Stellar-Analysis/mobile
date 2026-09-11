@@ -8,7 +8,7 @@ export const AirDropIntegrationComponent: React.FC = () => {
 
   const handleShare = () => {
     void shareContent(
-      'Stellar Insights',
+      'Stellar Analysis',
       'Check out real-time Stellar payment analytics!',
       'https://stellar.org'
     );

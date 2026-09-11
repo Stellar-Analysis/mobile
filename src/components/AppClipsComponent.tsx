@@ -11,8 +11,8 @@ import {
 import { useAppClips } from '@hooks/useAppClips';
 
 const SAMPLE_CLIPS = [
-  { url: 'https://stellar-insights.app/clips/dashboard', title: 'Dashboard Clip' },
-  { url: 'https://stellar-insights.app/clips/anchors', title: 'Anchors Clip' },
+  { url: 'https://stellar-analysis.app/clips/dashboard', title: 'Dashboard Clip' },
+  { url: 'https://stellar-analysis.app/clips/anchors', title: 'Anchors Clip' },
 ];
 
 export const AppClipsComponent: React.FC = () => {

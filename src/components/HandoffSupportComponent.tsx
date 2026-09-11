@@ -13,7 +13,7 @@ export const HandoffSupportComponent: React.FC = () => {
 
   const handleContinue = () => {
     continueActivity({
-      type: 'com.stellar-insights.dashboard',
+      type: 'com.stellar-analysis.dashboard',
       userInfo: { screen: 'dashboard', timestamp: Date.now() },
       needsSave: true,
     }).catch(console.error);

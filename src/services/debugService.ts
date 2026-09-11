@@ -51,7 +51,7 @@ export interface MobileDebugSnapshot {
 }
 
 const DOCS_URL =
-  'https://github.com/Stellar-Insightss/Stellar-inights/blob/main/docs/debugging-guide.md';
+  'https://github.com/Stellar-Analysis/frontend/blob/main/docs/debugging-guide.md';
 
 const DISABLED: MobileDebugSnapshot = {
   devMode: false,

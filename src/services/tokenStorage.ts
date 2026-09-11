@@ -15,7 +15,7 @@ const log = createScopedLogger('TokenStorage');
 
 const KEYCHAIN_SERVICE = 'com.stellarinsights.auth';
 const TOKEN_ACCOUNT = 'auth-token';
-const EXPIRY_KEY = '@stellar-insights/token-expiry';
+const EXPIRY_KEY = '@stellar-analysis/token-expiry';
 
 /**
  * Persist an auth token in encrypted storage.

@@ -1,4 +1,4 @@
-// Production-grade offline persistence layer for the Stellar Insights mobile app.
+// Production-grade offline persistence layer for the Stellar Analysis mobile app.
 //
 // Implements:
 //   * SQLite schema (corridors, anchors, assets, sync_queue, schema_version)
@@ -40,7 +40,7 @@ export const __logger = log;
 // Promise-based API for ergonomic async/await usage.
 SQLite.enablePromise(true);
 
-const DB_NAME = 'stellar_insights.db';
+const DB_NAME = 'stellar_analysis.db';
 // iOS uses `Library` (the app's Documents dir); Android uses the platform default.
 const DB_LOCATION = Platform.OS === 'ios' ? 'Library' : 'default';
 

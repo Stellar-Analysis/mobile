@@ -1,8 +1,8 @@
 import { MMKV } from 'react-native-mmkv';
 
 export const storage = new MMKV({
-  id: 'stellar-insights-storage',
-  encryptionKey: 'stellar-insights-encryption-key',
+  id: 'stellar-analysis-storage',
+  encryptionKey: 'stellar-analysis-encryption-key',
 });
 
 export const storageUtils = {

@@ -15,7 +15,7 @@ import { NetworkStatusIndicator } from './components/NetworkStatusIndicator';
 import { OfflineCachingIndicator } from './components/OfflineCaching';
 
 const linking: LinkingOptions<RootStackParamList> = {
-  prefixes: ['stellar-insights://'],
+  prefixes: ['stellar-analysis://'],
   config: {
     screens: {
       Main: {

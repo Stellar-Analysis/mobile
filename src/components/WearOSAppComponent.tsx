@@ -22,7 +22,7 @@ export const WearOSAppComponent: React.FC = () => {
   return (
     <ScrollView contentContainerStyle={styles.container} accessibilityLabel="Wear OS App screen">
       <Text style={styles.title}>Wear OS App</Text>
-      <Text style={styles.subtitle}>Android Wear companion for Stellar Insights.</Text>
+      <Text style={styles.subtitle}>Android Wear companion for Stellar Analysis.</Text>
       <Text style={styles.status} accessibilityRole="text">
         {isSupported ? 'Wear OS supported on this device.' : 'Wear OS App requires Android.'}
       </Text>

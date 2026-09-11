@@ -1,287 +1,210 @@
-# Stellar Analysis — Technical Documentation
+# Stellar Analysis — Architecture
 
-*A detailed reference for the `Stellar-Analysis` GitHub org: what it builds, how the pieces fit together, and how to work in any of its repos. Written from the actual code and in-repo docs, not marketing copy.*
+*A detailed architecture reference for the Stellar Analysis system: what each component is responsible for, how data flows between them, and how the whole thing is deployed and secured.*
 
----
+## 1. Problem and system overview
 
-## Table of contents
+Stellar is a payments-focused blockchain built for fast, cheap cross-border settlement. Money moves between currencies and jurisdictions through **anchors** (regulated fiat on/off-ramps) and **payment corridors** (a source-asset → destination-asset path). When an anchor degrades or a corridor's success rate drops, there is no ledger-native way to see it — the failure is invisible until a payment gets stuck, and diagnosing it means reading raw XDR off the network.
 
-1. [What this org builds](#1-what-this-org-builds)
-2. [Naming history: Stellar Insights vs Stellar Analysis](#2-naming-history-stellar-insights-vs-stellar-analysis)
-3. [Repository map](#3-repository-map)
-4. [System architecture](#4-system-architecture)
-5. [Backend (Rust)](#5-backend-rust)
-6. [Frontend (Next.js dashboard)](#6-frontend-nextjs-dashboard)
-7. [Mobile (React Native)](#7-mobile-react-native)
-8. [TypeScript SDK](#8-typescript-sdk)
-9. [Soroban smart contracts](#9-soroban-smart-contracts)
-10. [Realtime analytics pipeline](#10-realtime-analytics-pipeline)
-11. [Offline sync & local persistence](#11-offline-sync--local-persistence)
-12. [Public API surface](#12-public-api-surface)
-13. [Security model](#13-security-model)
-14. [Secrets management (Vault)](#14-secrets-management-vault)
-15. [Infrastructure & deployment](#15-infrastructure--deployment)
-16. [Observability](#16-observability)
-17. [Local development](#17-local-development)
-18. [Known inconsistencies & technical debt](#18-known-inconsistencies--technical-debt)
+Stellar Analysis is a purpose-built observability layer on top of that gap. At a high level it:
 
----
+1. **Ingests** raw Stellar network activity continuously (via Horizon and Soroban RPC).
+2. **Computes** derived reliability metrics from that raw activity — corridor success rate, anchor uptime/reliability score, settlement latency.
+3. **Serves** those metrics to three different consumers — a web dashboard, a mobile app, and a public API — over both request/response and realtime channels.
+4. **Anchors** a subset of that state on-chain via Soroban smart contracts, for the parts where trustlessness matters more than raw throughput (analytics snapshot hashes, escrow, multi-sig, time-locked transfers, governance).
 
-## 1. What this org builds
-
-Stellar is a payments-focused blockchain built for fast, cheap cross-border settlement. Fiat enters and exits the network through **anchors** — regulated on/off-ramps — and moves between currencies through **payment corridors**. When an anchor degrades or a corridor's success rate drops, there is normally no equivalent of a status page: the failure is invisible until money gets stuck, and diagnosing it means reading raw XDR off the ledger.
-
-Stellar Analysis is that missing observability layer. Concretely, the stack:
-
-- **Ingests** Stellar network activity in real time (via Horizon/RPC).
-- **Computes** corridor success rates, anchor uptime/reliability scores, and settlement latency.
-- **Serves** those metrics through a web dashboard, a mobile app, and a public HTTP/WebSocket API.
-- **Anchors** selected state on-chain (via Soroban contracts) where trustlessness matters more than convenience — escrow, multi-sig, time-locked transfers, and the analytics snapshots themselves.
-
-## 2. Naming history: Stellar Insights vs Stellar Analysis
-
-Three names appear across the codebase and it's worth being explicit about which is current:
-
-- **Stellar Insights** is the product/project name. It shows up as the `package.json` name (`"name": "stellar-insights"`), the Rust crate names (`stellar_insights_backend`), the Postgres database name (`stellar_insights`), the mobile SQLite file (`stellar_insights.db`), and throughout in-repo prose.
-- **Stellar Analysis** is the current GitHub org. It hosts `frontend`, `backend`, `mobile`, `contracts`, and `.github`.
-- **`Stellar-Insightss`** (double s) and **`Stellar-inights`** (missing a letter) are an **older org and repo name** that the project was renamed from. The org profile (`.github` repo) and several in-repo doc links still point at `github.com/Stellar-Insightss/...` — those are stale. If a README link 404s, this is almost always why; treat `Stellar-Analysis` as the canonical org and `frontend` as the canonical core repo going forward.
-
-## 3. Repository map
-
-| Repo | Language | Role |
-|---|---|---|
-| [`frontend`](https://github.com/Stellar-Analysis/frontend) | TypeScript (+ Rust, Terraform) | The historical monorepo. Despite the name, it contains `frontend/`, `backend/`, `contracts/`, `sdk/`, `docs/`, `k8s/`, `terraform/`, and `elk/` as subfolders — see [§18](#18-known-inconsistencies--technical-debt) for why that's confusing. |
-| [`backend`](https://github.com/Stellar-Analysis/backend) | Rust | Standalone extraction of the analytics engine. |
-| [`mobile`](https://github.com/Stellar-Analysis/mobile) | TypeScript (React Native) | Standalone mobile app repo. |
-| [`contracts`](https://github.com/Stellar-Analysis/contracts) | Rust (Soroban) | Standalone Soroban contract workspace — documented as the source of truth (see [§9](#9-soroban-smart-contracts) and [§18](#18-known-inconsistencies--technical-debt)). |
-| [`.github`](https://github.com/Stellar-Analysis/.github) | — | Org profile page. |
-
-The `contracts` and `backend` split-outs mean **some code physically exists in two places**: once inside `frontend/backend` and `frontend/contracts` (monorepo subfolders), and once in the standalone `backend` and `contracts` repos. In-repo docs (`docs/contract-invariants.md`) explicitly say the contracts should live *only* in the standalone repo and that a CI workflow (`.github/workflows/contract-fuzzing.yml`) exists specifically to fail the build if a `contracts/` directory reappears in the monorepo — yet a `contracts/` directory is present and actively tracked in `frontend` as of this writing (last touched by commit `8cc7424a`, "organize root-level files into their documented folders"). Don't assume the two copies are in sync; check which one CI/deploys actually build from before editing contract code.
-
-## 4. System architecture
+## 2. Component architecture
 
 ```
-                         ┌─────────────────────┐
-                         │   Stellar Network    │
-                         │ (Horizon / Soroban)  │
-                         └──────────┬───────────┘
-                                    │ RPC / Horizon polling
-                                    ▼
-                         ┌─────────────────────┐
-                         │       backend         │
-                         │  Rust · Axum · SQLx   │
-                         │  ingestion · alerting │
-                         │  REST/GraphQL/WS API  │
-                         └──────────┬───────────┘
-                     ┌──────────────┼──────────────┐
-                     ▼              ▼              ▼
-             ┌───────────┐  ┌─────────────┐  ┌───────────┐
-             │ frontend  │  │   mobile    │  │ contracts │
-             │  Next.js  │  │React Native │  │  Soroban  │
-             │ dashboard │  │  SEP-10 auth│  │  on-chain │
-             └───────────┘  └─────────────┘  └───────────┘
-                     ▲              ▲
-                     └──────┬───────┘
-                            │
-                 ┌──────────────────────┐
-                 │ @stellar-insights/sdk│
-                 │ TypeScript, shared   │
-                 │ API client           │
-                 └──────────────────────┘
+                         ┌───────────────────────┐
+                         │     Stellar Network     │
+                         │  (Horizon RPC / Soroban) │
+                         └────────────┬────────────┘
+                                      │ polling + event subscription
+                                      ▼
+                         ┌───────────────────────────┐
+                         │          Backend            │
+                         │   Rust · Axum · SQLx        │
+                         │                              │
+                         │  ingestion → analytics →     │
+                         │  alerting → REST/GraphQL/WS  │
+                         └────────────┬────────────────┘
+                     ┌────────────────┼────────────────┐
+                     ▼                ▼                ▼
+             ┌───────────────┐ ┌─────────────┐ ┌───────────────┐
+             │    Frontend    │ │    Mobile    │ │   Contracts    │
+             │    Next.js     │ │React Native  │ │ Soroban (Rust) │
+             │  web dashboard │ │  iOS/Android │ │  on-chain state │
+             └───────┬────────┘ └──────┬───────┘ └────────────────┘
+                     │                 │
+                     └────────┬────────┘
+                              ▼
+                   ┌───────────────────────┐
+                   │  Shared TypeScript SDK   │
+                   │  HTTP client, retry,     │
+                   │  dedup, network context  │
+                   └───────────────────────┘
 ```
 
-A design document in `docs/architecture/ARCHITECTURE_ISSUES_AND_RECOMMENDATIONS.md` records the original planning rationale for this shape: before the mobile app existed, the frontend was tightly coupled to Next.js SSR with API-client logic embedded directly in it, which made a second client (mobile) impossible without duplicating everything. The proposed fix — extract a platform-agnostic `@stellar-insights/sdk`, inject network context (testnet/mainnet) via an `X-Stellar-Network` header rather than a build-time env var, and build the mobile app against the SDK — matches what exists today: the `sdk/typescript` package now holds the shared API client, retry/backoff, request deduplication, and React Native compatibility layers, and both `frontend` and `mobile` consume it rather than each rolling their own HTTP client.
+**Backend** is the single source of truth for derived state. It's the only component that talks to Horizon/Soroban RPC directly; every other component talks to the backend, never to the chain directly (except contracts, which *are* on-chain).
 
-## 5. Backend (Rust)
+**Frontend** and **Mobile** are both thin clients over the same API surface, built against the same shared SDK rather than each implementing their own HTTP layer — this keeps request semantics (retry, dedup, network-context switching between testnet/mainnet) consistent across platforms instead of drifting.
 
-Axum-based service. Top-level modules (`backend/src/`): `contract_ops`, `distributed_lock`, `event_indexer`, `network`, `observability`, `realtime`, `reconciliation`, `replay`, `snapshot`.
+**Contracts** are architecturally separate from the request/response system: they don't serve traffic, they hold state that needs to be independently verifiable (snapshot hashes, escrow balances, multi-sig approvals) rather than trusted from a centralized database.
 
-Notable pieces documented in `docs/backend-modules.md`:
+## 3. Backend architecture
 
-- **Event Indexer** — stores and queries on-chain contract events with a flexible `EventQuery` (filter by contract id, event type, epoch, ledger range, time range, verification status; sortable via `EventOrderBy`).
-- **Circuit Breaker** — wraps outbound RPC calls (via the `failsafe` crate) with a closed → open → half-open state machine. Defaults: opens after 5 consecutive failures, stays open 30 seconds before probing recovery.
-- **Vault module** — see [§14](#14-secrets-management-vault).
+Axum-based service, organized around a pipeline rather than a flat set of endpoints:
 
-Data store: PostgreSQL in production, SQLite for local dev (`DATABASE_URL=sqlite:./stellar_insights.db`). Redis is used for caching, rate limiting, and cross-instance WebSocket pub/sub. The backend refuses to boot with placeholder values for `JWT_SECRET`, `ENCRYPTION_KEY`, or `SEP10_SERVER_PUBLIC_KEY`.
+```
+Horizon/RPC ──▶ ingestion ──▶ event_indexer ──▶ analytics ──▶ snapshot ──▶ API layer
+                    │                                            │
+                    ▼                                            ▼
+              distributed_lock                              realtime (WS)
+              (coordinates multiple                          broadcasts to
+               backend instances)                            subscribed clients
+```
 
-## 6. Frontend (Next.js dashboard)
+- **`event_indexer`** — stores and queries on-chain contract events. Query interface (`EventQuery`) supports filtering by contract id, event type, epoch, ledger range, time range, and verification status, with configurable sort order (`EventOrderBy`). This is the join point between the on-chain contracts and the off-chain analytics pipeline: contract events are the raw input, analytics summaries are the derived output.
+- **`network`** — talks to Horizon/Soroban RPC. Wrapped in a **circuit breaker** (via the `failsafe` crate): opens after 5 consecutive failures, stays open 30 seconds before probing recovery, so a degraded upstream RPC endpoint doesn't cascade into backend-wide failure.
+- **`snapshot` / `reconciliation` / `replay`** — the realtime-consistency subsystem, detailed in §5.
+- **`distributed_lock`** — coordinates work across multiple backend instances (e.g. only one instance should be actively polling a given RPC endpoint at a time), backed by Redis.
+- **`observability`** — OpenTelemetry instrumentation, exported to Jaeger.
 
-Package name `stellar-insights`, living at `frontend/frontend` inside the monorepo (or standalone as its own checkout of `frontend/`). Next.js 16, React 19, Tailwind 4, pnpm-managed, deployed to Vercel.
+**Storage**: PostgreSQL in production, SQLite for local development, with Redis for caching, rate limiting, and cross-instance WebSocket pub/sub. Every credential (DB, JWT signing key, encryption key) is fetched from Vault at boot — the process refuses to start on placeholder secret values rather than silently running insecurely (see §7).
 
-The route surface under `src/app/[locale]/` gives the clearest picture of the product's actual feature set: `dashboard`, `corridors`, `anchors`, `health`, `network`, `liquidity`, `liquidity-pools`, `governance`, `rankings`, `prediction`, `calculator`, `send-payment`, `deposit-withdraw`, `wallet`, `trustlines`, `transactions`, `sep6`, `sep10-demo`, `soroban`, `developer`, `performance`, `quests`, `settings`, `about`, `contact`, `how-to-use`. There's also a top-level (non-localized) `api-docs` playground and an `alerts` page.
+## 4. Frontend architecture
 
-Engineering details worth knowing:
-- PWA-enabled (`@ducanh2912/next-pwa`) with an `/offline` fallback page.
-- Heavy visualization libraries (`recharts`, `d3-force-3d`, `react-force-graph-2d`, `framer-motion`) are dynamically imported and split into separate webpack chunks (`charts.js`, `animation.js`) to keep the initial bundle small, with a 500KB-per-asset performance budget enforced in CI.
-- `next-intl` for i18n, Sentry for error tracking, Prisma as the DB client, strict CSP + security headers applied via `next.config.ts` and mirrored at runtime in `src/middleware.ts`.
-- Ships `output: 'standalone'` in its Next config — a self-hosted-Node deployment mode, not appropriate for Vercel (see the earlier debugging conversation in this session: this setting caused the production Vercel deployment to 404 on every route despite a "successful" build, because Vercel's own output tracing conflicts with a manually-produced standalone bundle when there's no Dockerfile actually consuming it).
+Next.js app, server-rendered where it matters (SEO-relevant pages, initial data) and client-rendered for the interactive dashboard surfaces. Structural choices:
 
-## 7. Mobile (React Native)
+- **Route-per-feature** under `src/app/[locale]/`: `dashboard`, `corridors`, `anchors`, `health`, `network`, `liquidity`, `governance`, `rankings`, `prediction`, `wallet`, `trustlines`, `transactions`, `send-payment`, `deposit-withdraw`, `sep6`/`sep10-demo` (protocol demo/testing surfaces), `soroban`, `developer`, `performance`, `settings`. Each route owns its own data-fetching against the shared SDK rather than a global data layer.
+- **Code-splitting by capability, not by route**: the heavy visualization stack (`recharts`, `d3-force-3d`, `react-force-graph-2d`, `framer-motion`) is dynamically imported and bundled into dedicated chunks (`charts.js`, `animation.js`) regardless of which route pulls them in, because they're the majority of bundle weight and are reused across many routes. A CI-enforced 500KB-per-asset budget keeps this from regressing silently.
+- **PWA layer**: a service worker with an offline fallback route, so the dashboard degrades to a static "you're offline" page rather than a broken app shell when connectivity drops — the mobile app's offline story (§6) is far more sophisticated than the web app's, which is closer to "read-only availability."
+- **Security boundary**: CSP and related headers are applied twice — once statically in the Next.js config (covers static/prerendered responses) and once in middleware (covers dynamically rendered responses) — so there's no route that accidentally ships without them.
 
-Cross-platform iOS/Android app, TypeScript, built for anchors and corridor monitoring on the go.
+## 5. Realtime consistency architecture
 
-- **Auth**: SEP-10 (Stellar's challenge-response identity standard), plus biometric auth and platform keychain/keystore token storage.
-- **State**: Zustand for local UI state, React Query for server state (mirrors the frontend's pattern, per the SDK-sharing goal in §4).
-- **Networking**: testnet/mainnet switching at runtime via the shared SDK's network-context management, not a build-time flag.
-- **Push notifications**: Firebase Cloud Messaging.
+This is the subsystem that keeps the backend, the web dashboard, and the mobile app agreeing on the current state of corridors/anchors without requiring every client to poll constantly.
 
-`src/features/` contains an unusually large set of native-capability modules — `bluetooth_support`, `nfc_support`, `camera_integration`, `barcode_scanner`, `geofencing`, `biometric`-adjacent features, `ar_features`, `vr_support`, `watch_app`, `wear_os_app`, `widget_support`, and more. These are **not uniformly complete**: some (`bluetooth_support`, `nfc_support`) are fully built — a hook, types, tests, and their own README, ~200 lines each — while others (`watch_app`, `ar_features`) are thin stubs (single-digit to low-double-digit line counts). Don't assume a feature folder existing means the feature works; check for a `__tests__` directory and a README inside it as a quick signal of completeness.
+```
+Backend                                    Clients
+┌─────────────────────┐
+│ WebSocket server      │◀──── subscribe(channels) ──── frontend / mobile
+│ (Redis pub/sub across │
+│  backend instances)   │───── corridor_update / ─────▶ frontend / mobile
+│                        │      anchor_update /
+│                        │      health_alert
+└──────────┬─────────────┘
+           │ on disconnect / reconnect
+           ▼
+┌─────────────────────┐
+│ Snapshot API          │◀──── GET /api/rpc/snapshot/{type} (fallback read)
+│ Reconciliation API    │◀──── POST /api/rpc/reconcile (catch-up since timestamp)
+└─────────────────────┘
+```
 
-Core screens live under `src/screens/main/`: `CorridorsScreen`, `AnchorsScreen`, `SettingsScreen`.
+- A client subscribes to specific channels (`corridor:<key>`, `anchor:<id>`) over a full-duplex WebSocket. Updates are pushed as typed JSON messages (`corridor_update`, `anchor_update`, `health_alert`).
+- **Cross-instance consistency**: because the backend runs as multiple instances behind a load balancer, a message published on one instance has to reach clients connected to *any* instance — this is what the Redis pub/sub layer is for.
+- **Subscription recovery**: on reconnect, the server restores the client's previous channel subscriptions automatically rather than requiring the client to resubscribe from scratch, and sends a `subscription_recovered` confirmation.
+- **Staleness as a first-class state, not a failure**: the frontend/mobile track time-since-last-message and flag data as stale past a 30-second threshold, triggering a snapshot-API fallback fetch rather than presenting silently-outdated numbers.
+- **Reconciliation** (`POST /api/rpc/reconcile`) is the catch-up path after any gap (reconnect, cold start, long offline period on mobile): a client sends its last-known timestamp and gets back only what changed since then, rather than a full re-fetch.
+- **Operating limits**: 100 messages/min per connection, 1,000 concurrent connections per backend instance, 10 connections per IP with a 20-attempts/min rate limit on new connections.
 
-## 8. TypeScript SDK
+## 6. Mobile offline architecture
 
-`sdk/typescript` is the shared client both `frontend` and `mobile` are meant to consume (per the architecture doc in §4). It provides:
+The mobile app is architecturally offline-first, not offline-tolerant — it's designed assuming the network will be unavailable some of the time, rather than treating that as an edge case.
 
-- `api-client.ts` / `http.ts` — the core HTTP client.
-- `authentication_module.ts` — auth flow handling.
-- `anchors_api_module.ts`, `analytics_api_module.ts` — typed resource clients.
-- `network_context_management.ts` — the testnet/mainnet runtime switch.
-- `retry_with_backoff.ts`, `request_deduplication.ts`, `request_cancellation.ts` — resilience primitives.
-- `react_native_compatibility.ts` — shims so the same client works in RN's JS environment.
-- `websocket-manager.ts` — realtime subscription handling (see §10).
+```
+①  screen mutates data (offline)
+        │
+        ▼
+②  mobile SQLite: sync_queue table
+    (row keyed by caller-supplied dedup_key,
+     ON CONFLICT DO UPDATE → resets to pending)
+        │  on reconnect
+        ▼
+③  mobile replay loop
+        │  POST /queue/replay
+        ▼
+④  backend QueueProcessor
+    - empty dedup_key            → rejected (programmer error)
+    - already-processed dedup_key → short-circuits, no re-trigger
+    - exceeds max_retries         → resolves Failed (4xx to caller)
+        │
+        ▼
+⑤  domain side-effects applied exactly once
+```
 
-Most modules ship a co-located `.test.ts` file.
+- **Local store**: a SQLite database (`mobile/src/services/database.ts`) holds both read-side cache tables (`corridors`, `anchors`, `assets` — each row a JSON payload plus `updated_at`) and the write-side `sync_queue`. Migrations are append-only and tracked in a `schema_version` table so upgrades never require destructive resets.
+- **Idempotency contract**: every queued mutation carries a caller-chosen `dedup_key`. Resubmitting the same logical mutation reuses the same key, and the backend guarantees it triggers domain side-effects **at most once** regardless of how many times the client retries — this is what makes "replay everything after reconnecting" safe instead of duplicating writes.
+- **Backoff**: failed sync attempts back off exponentially (`delaySec = min(3600, 5 * 6^(attempts-1))`); after 5 attempts a mutation is marked `failed` and surfaced for manual reconciliation rather than retried forever.
+- This composes with the circuit breaker in §3: a replay call that hits a degraded backend goes through the same failure-isolation path as any other RPC call.
 
-## 9. Soroban smart contracts
+## 7. Security architecture
 
-Rust workspace (`cargo build --target wasm32-unknown-unknown --release`, optimized with `opt-level = "z"` and stripped symbols to minimize deployed Wasm size). Gas benchmarks are tracked via Criterion (`docs/GAS_COSTS.md`, `cargo bench --package contract-benches`).
+- **Identity**: SEP-10 (Stellar's challenge-response auth standard) is the primary auth mechanism, backing both the web and mobile clients. The verification path validates account format, home domain, and memo length; nonces live in Redis with a strict TTL and are consumed atomically to block replay; and verification **fails closed** — if Redis is unreachable, auth fails rather than silently allowing an unverifiable challenge through.
+- **Secrets**: HashiCorp Vault is the single source for credentials. Static secrets (API keys, config) come from Vault's KV v2 engine; database credentials are dynamic, leased, and auto-renewed rather than long-lived static passwords. Secrets rotate on a 90-day cycle, and in Kubernetes they're injected via a Vault Agent sidecar rather than baked into pod specs or env vars at build time. The backend process treats missing/placeholder secrets as a fatal boot error, not a soft warning.
+- **Transport-level hardening**: CSP, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, and a restrictive `Permissions-Policy` are applied to every frontend response.
+- **Resilience as a security property**: the circuit breaker (§3) and the fail-closed auth design both exist to make degraded-dependency states fail safely rather than fail open.
 
-| Crate | Purpose | Core invariant (from `docs/contract-invariants.md`) |
+## 8. Smart contract architecture
+
+A Cargo workspace of Soroban contracts, each with a narrow responsibility and an explicit invariant it must never violate:
+
+| Contract | Responsibility | Invariant |
 |---|---|---|
-| `stellar_insights` | Core protocol contract — submits/stores analytics snapshots on-chain | Submissions are authorised, monotonically ordered, and cannot mutate state while paused |
-| `analytics` | Batched snapshot ingestion, rate limiting, diffing, pause/unpause | Snapshot epochs are strictly monotonic; an accepted snapshot cannot be replaced by an older one |
-| `access-control` | Shared role/permission control | Only an authorised admin can change roles or pause state; role membership is idempotent |
-| `escrow` | Holds/releases funds between parties | Reaches exactly one terminal state; funds cannot be released to both parties |
-| `governance` | Proposal creation, vote tallying | Executes only after the voting period, only if quorum + passing rule are met; one vote per voter |
-| `governance-voting` | Voter registration, weighted voting | Vote weights counted exactly once; finalisation is immutable after the deadline |
-| `multi-sig-wallet` | Configurable-threshold multisig | A transaction executes at most once and never below the configured threshold |
-| `time-locked-transactions` | Scheduled transfers | Cannot release before unlock time; one terminal state |
-| `token-swap` | On-chain offer creation/settlement | Filled or cancelled at most once; token movement is atomic and respects quoted amounts |
+| `stellar_analysis` | Core protocol contract — records analytics-snapshot hashes on-chain | Submissions are authorised, epochs strictly monotonic, no mutation while paused |
+| `analytics` | Batched snapshot ingestion with rate limiting and diffing | Snapshot epochs strictly monotonic; an accepted snapshot can't be replaced by an older one |
+| `access-control` | Role/permission control shared across contracts | Only an authorised admin changes roles or pause state; role membership is idempotent |
+| `escrow` | Holds and releases funds between two parties | Reaches exactly one terminal state; funds can't be released to both parties |
+| `governance` / `governance-voting` | Proposal creation, weighted voting, tallying | Executes only after quorum + the voting period; one vote per voter; finalisation is immutable |
+| `multi-sig-wallet` | Configurable-threshold multisig | Executes a transaction at most once, never below the configured threshold |
+| `time-locked-transactions` | Scheduled transfers | Can't release before unlock time; one terminal state |
+| `token-swap` | On-chain offer creation/settlement | Filled or cancelled at most once; atomic, respects quoted amounts |
 | `upgrade` | Governance-gated contract upgrades | Only approved upgrades change the active code/version; one final outcome per proposal |
 
-Every deployable crate is required to carry a `tests/properties.rs` property/fuzz suite exercising its invariant (numeric boundaries, call-order permutations), with `cargo-fuzz` targets for any parsing of attacker-controlled input. CI runs these plus time-boxed fuzz targets and publishes an LCOV report.
+Every deployable crate carries a property/fuzz test suite (`tests/properties.rs`) that exercises its invariant directly — numeric boundaries, call-order permutations — plus `cargo-fuzz` targets for anything that parses attacker-controlled input. This is architecturally deliberate: correctness here is enforced by property tests against a stated invariant, not by example-based unit tests alone, because the failure mode (a violated financial invariant on-chain) is unrecoverable in a way an off-chain bug usually isn't.
 
-## 10. Realtime analytics pipeline
+## 9. Data architecture
 
-Documented end-to-end in `docs/realtime-pipeline.md`. Components:
+| Store | Used by | Holds |
+|---|---|---|
+| PostgreSQL | Backend (production) | Canonical corridor/anchor metrics, ingestion state, alert rules/history |
+| SQLite | Backend (local dev) | Same schema as Postgres, for zero-dependency local development |
+| Redis | Backend | WebSocket pub/sub across instances, rate-limit counters, caching, distributed locks |
+| SQLite | Mobile app | Read-cache of corridors/anchors/assets, plus the offline `sync_queue` |
+| Soroban ledger state | Contracts | Snapshot hashes, escrow balances, multi-sig approvals, governance votes — the subset of state where on-chain verifiability matters more than query flexibility |
 
-- **Backend WebSocket server** (`backend/src/websocket.rs`, referenced as `realtime` module) — full-duplex connections, Redis-backed pub/sub for cross-instance broadcast, rate limiting, and subscription-state persistence so a client can resume its channel subscriptions after a reconnect.
-- **Frontend hooks** (`src/hooks/`) — `useWebSocket` (connection + stale-data detection), `useRealtimeCorridors`, `useRealtimeAnchors`.
-- **Mobile fallback** — when the WebSocket is unavailable, the app falls back to the snapshot API (`GET /api/rpc/snapshot/{corridor|anchor|all}`) and shows a "last updated X minutes ago" indicator, retrying the socket in the background.
-- **Reconciliation** — `POST /api/rpc/reconcile` accepts a `last_known_timestamp` and returns only what changed since then, used after a reconnect or a long offline period.
+The backend's Postgres/SQLite instance is the operational source of truth for *serving* data (fast to query, flexible to index); the Soroban contracts are the source of truth for *verifying* a narrow slice of that data independently of the backend operator's honesty.
 
-Message types are plain JSON with a `type` discriminator: `corridor_update`, `anchor_update`, `health_alert`, `subscribe`, `subscription_confirm`, `subscription_recovered`. Stale-data detection defaults to a 30-second threshold on the frontend. Operational limits: 100 messages/min per connection, 1,000 concurrent connections per backend instance, 10 connections per IP with 20 connection attempts per minute.
+## 10. Deployment architecture
 
-## 11. Offline sync & local persistence
-
-Documented in `docs/offline-sync.md` (tracked against issue #93). The mobile app, frontend cache, and backend queue stay consistent through:
-
-1. **Mobile SQLite** (`mobile/src/services/database.ts`, DB file `stellar_insights.db`) — cached read tables (`corridors`, `anchors`, `assets`, each row a JSON payload + `updated_at`), plus a `sync_queue` table for outbound mutations keyed by a caller-supplied `dedup_key`. Migrations are append-only, tracked in a `schema_version` table.
-2. **Enqueue semantics** — `enqueueSync(endpoint, method, payload, dedupKey)` uses `ON CONFLICT(dedup_key) DO UPDATE` so re-submitting the same logical mutation resets it to `pending` rather than creating a duplicate. Failures back off exponentially (`delaySec = min(3600, 5 * 6^(attempts-1))`), and after 5 attempts the row is marked `failed` for manual reconciliation.
-3. **Backend replay** (`backend/src/queue/replay.rs::QueueProcessor`) — processes each `dedup_key` at most once per process lifetime; an already-processed key short-circuits without re-triggering side effects, and retries beyond `max_retries` resolve as a 4xx `Failed`.
-
-This is the same idempotency pattern (a `dedup_key`/`QueueProcessorHandler` contract) referenced independently in the backend-modules doc's circuit-breaker section — the two subsystems are designed to compose (a replay call can itself go through the circuit breaker).
-
-## 12. Public API surface
-
-Base URL `https://api.stellarinsights.io`, OpenAPI spec at `/api-docs/openapi.json`, interactive Swagger UI at `/swagger-ui`. Auth via Bearer API key or OAuth 2.0 (`/api/oauth/authorize`, `/api/oauth/token`).
-
-| Group | Endpoints |
-|---|---|
-| Anchors | `GET /api/anchors`, `GET /api/anchors/{id}`, `GET /api/anchors/account/{account}`, `GET /api/anchors/{id}/muxed` |
-| Corridors | `GET /api/corridors`, `GET /api/corridors/{source}/{destination}`, `GET /api/corridors/{source}/{destination}/metrics` |
-| Price feed | `GET /api/prices`, `GET /api/prices/{asset}`, `POST /api/prices/convert` |
-| Cost calculator | `POST /api/cost-calculator/estimate`, `POST /api/cost-calculator/routes` |
-| Alerts | `GET/POST /api/alerts/rules`, `PUT/DELETE /api/alerts/rules/{id}`, `GET /api/alerts/history` |
-| Webhooks | `POST/GET /api/webhooks`, `DELETE /api/webhooks/{id}`, `POST /api/webhooks/{id}/test` |
-| Realtime | `GET /api/rpc/snapshot/{type}`, `POST /api/rpc/reconcile`, WebSocket subscription channel |
-
-Standard REST conventions apply throughout: pagination, rate limiting, and a common error-code format (see `docs/API_DOCUMENTATION.md` for full request/response examples).
-
-## 13. Security model
-
-From `docs/security-hardening.md` and `docs/adr/001-security-hardening-strategy.md`:
-
-- **SEP-10 auth** (`backend/src/auth/sep10_simple.rs`) validates challenge requests for account format, home domain, and memo length (≤28 chars); nonces are stored in Redis with a strict TTL and consumed atomically to prevent replay; verification **fails closed** if Redis is unavailable rather than allowing a bypass; the server cross-checks that the home domain and server key in the challenge match its own configuration.
-- **CSP and security headers** are applied both statically (`next.config.ts`) and at runtime (`src/middleware.ts`) on the frontend, so they're present on both static and dynamically-rendered routes.
-- **Secrets** are never in code or env files in production — see §14.
-
-## 14. Secrets management (Vault)
-
-HashiCorp Vault is the central secrets store (`docs/SECRETS_MANAGEMENT.md`, `docs/backend-modules.md`). Key properties:
-
-- **Static secrets** (API keys, config) live in Vault's KV v2 engine.
-- **Dynamic database credentials** are generated per-lease and auto-renewed by a lease manager — the backend never holds a long-lived DB password.
-- **Rotation**: secrets rotate automatically on a 90-day cycle.
-- **Kubernetes**: production secrets are injected via a Vault Agent sidecar rather than baked into pod specs.
-- Required env vars to talk to Vault: `VAULT_ADDR`, `VAULT_TOKEN`, optional `VAULT_NAMESPACE`, `DB_ROLE` (default `stellar-app`).
-- The Vault client composes with the circuit breaker (§5) so secret reads are also protected against cascading Vault outages.
-
-## 15. Infrastructure & deployment
-
-- **Frontend**: deploys to Vercel (see §6 for the `output: 'standalone'` footgun) with a parallel path to self-host via the `k8s/frontend/` manifests (Deployment, HPA, PDB, ServiceAccount, Service) if Vercel isn't the target.
-- **Backend**: `k8s/backend/` — same shape (Deployment, HPA, PDB, ServiceAccount, Service).
-- **Database & cache**: `k8s/database/` (StatefulSet + Service) and `k8s/redis/`.
-- **Ingress & policy**: `k8s/ingress/ingress.yaml`, `k8s/network-policy.yaml`, namespace-scoped via `k8s/namespace.yaml`, composed with `k8s/kustomization.yaml`.
-- **Monitoring stack**: `k8s/monitoring/` — Alertmanager config, an ELK-stack manifest, Prometheus rules, and a `ServiceMonitor`.
-- **Cloud infra (Terraform)**: `terraform/global/` provisions ECR (container registry), S3, DynamoDB (likely Terraform state locking), and IAM — i.e., this is infra-as-code for AWS. `terraform/scripts/` wraps `bootstrap`, `init-state`, `plan`, `apply`, `destroy` as shell scripts rather than a Makefile.
-- **Repo hygiene**: a CI-enforced folder-size guard (`scripts/check_folder_size.sh` + `.github/workflows/enforce-folder-size.yml`) keeps any single folder in the monorepo under 200MB, and large binaries are meant to live in Git LFS rather than history.
-
-## 16. Observability
-
-- **Tracing/metrics**: OpenTelemetry with Jaeger for traces.
-- **Logs**: an ELK stack (`elk/elasticsearch`, `elk/logstash`, `elk/filebeat`), also deployed into k8s via `k8s/monitoring/elk-stack.yaml`.
-- **Dashboards**: a pre-built Grafana dashboard JSON at `docs/grafana/observability-dashboard.json`.
-- **Frontend error tracking**: Sentry, configured separately for client (`sentry.client.config.js`) and server (`sentry.server.config.js`).
-
-## 17. Local development
-
-```bash
-# 1. Postgres for the backend
-docker run --name stellar-postgres -e POSTGRES_PASSWORD=password \
-  -e POSTGRES_DB=stellar_insights -p 5432:5432 -d postgres:14
-
-# 2. Backend (Rust)
-cd backend
-cp .env.example .env   # fill in DATABASE_URL, STELLAR_RPC_URL, JWT_SECRET,
-                        # ENCRYPTION_KEY, SEP10_SERVER_PUBLIC_KEY — the
-                        # server refuses to start on placeholder values
-./scripts/migrate.sh
-cargo run               # listens on 127.0.0.1:8080 by default
-
-# 3. Frontend (Next.js)
-cd frontend
-pnpm install
-pnpm dev
-
-# 4. Mobile (React Native) — this repo
-npm install
-cd ios && pod install && cd ..   # iOS only
-cp .env.example .env
-npm run ios     # or: npm run android
-
-# 5. Contracts (Soroban)
-cd contracts
-rustup target add wasm32-unknown-unknown
-cargo build --target wasm32-unknown-unknown --release
+```
+                    ┌─────────────┐        ┌──────────────────────┐
+                    │   Vercel     │        │      Kubernetes        │
+                    │ (frontend,   │   or   │ (self-hosted frontend, │
+                    │  primary)    │        │  backend, db, redis)   │
+                    └─────────────┘        └──────────────────────┘
+                                                       │
+                                            ┌──────────┴──────────┐
+                                            │  k8s/monitoring/      │
+                                            │  Prometheus, Alert-   │
+                                            │  manager, ELK, Grafana│
+                                            └───────────────────────┘
 ```
 
-Manual API smoke tests:
-```bash
-curl http://localhost:8080/api/rpc/health
-curl http://localhost:8080/api/rpc/snapshot/corridor
-```
+- **Frontend**: primarily deployed to Vercel; a parallel self-hosted path exists via `k8s/frontend/` (Deployment, HPA, PodDisruptionBudget, Service) for anyone not using Vercel.
+- **Backend**: `k8s/backend/` — same shape (Deployment, HPA, PDB, Service), stateless so it scales horizontally behind the shared Redis/Postgres.
+- **Stateful services**: `k8s/database/` (Postgres as a StatefulSet) and `k8s/redis/`.
+- **Networking**: `k8s/ingress/` plus a `k8s/network-policy.yaml` restricting pod-to-pod traffic to what's actually needed.
+- **Cloud infrastructure** is provisioned via Terraform (`terraform/global/`): ECR for container images, S3, DynamoDB (Terraform state locking), and IAM — this is AWS-targeted infrastructure-as-code sitting underneath the Kubernetes layer.
+- **Observability stack**: Prometheus + Alertmanager for metrics/alerting, an ELK stack for logs, OpenTelemetry/Jaeger for traces, and a pre-built Grafana dashboard — all deployed as part of the same Kubernetes manifests as the application (`k8s/monitoring/`), not bolted on separately.
 
-## 18. Known inconsistencies & technical debt
+## 11. Cross-cutting design principles
 
-Worth knowing before you start changing things, since none of these are hypothetical — each was directly observed in the repos:
+A few decisions recur across every layer above, worth naming explicitly since they explain *why* the system is shaped this way:
 
-1. **`contracts/` exists in the monorepo despite a doc and a CI guard saying it shouldn't.** `docs/contract-invariants.md` states the contracts repo is split out specifically so the monorepo's CI doesn't test a stale copy, and that `.github/workflows/contract-fuzzing.yml` fails the build if a `contracts/` directory reappears in `frontend`. It has reappeared anyway (commit `8cc7424a`). Verify which copy is actually deployed before trusting either one.
-2. **Stale org/repo links throughout.** The `.github` org profile and multiple in-repo docs still link to `github.com/Stellar-Insightss/...` (double-s) and `Stellar-inights` (missing a letter) — the org and core repo were renamed to `Stellar-Analysis`/`frontend` without those links being updated.
-3. **`output: 'standalone'` in `next.config.ts` broke the production Vercel deployment.** It's meant for self-hosted Node/Docker deployments; there's no Dockerfile in the repo that consumes it. Removed in commit `db2a9ef1` on `frontend`.
-4. **Duplicate keys in `frontend/package.json`** (`dompurify` and `framer-motion` each listed twice with different version ranges) — a merge artifact; the effective (last-wins) versions matched what was already resolved in `pnpm-lock.yaml`, so deduping was safe. Fixed in the same commit as #3.
-5. **Two lockfiles committed side-by-side** (`package-lock.json` and `pnpm-lock.yaml`) in `frontend/frontend`, despite `packageManager: "pnpm@..."` being pinned in `package.json`. The npm lockfile was removed as part of the same fix.
-6. **`docs/` is not a reliable single source of truth.** It contains a large volume of vendored/generic content unrelated to this project (e.g. the entire upstream Next.js documentation tree, and at least one templated threat-model doc for an unrelated npm package called `resolve`). When citing something from `docs/`, check that the file is actually project-specific (naming like `API_DOCUMENTATION.md`, `contract-invariants.md`, `realtime-pipeline.md`, `SECRETS_MANAGEMENT.md`, `offline-sync.md`, `backend-modules.md`, `security-hardening.md` are trustworthy; generic Next.js API-reference-style filenames are not).
-7. **Mobile `src/features/` completeness varies widely.** Some native-capability modules are fully implemented with hooks, types, tests, and a README (`bluetooth_support`, `nfc_support`); others are near-empty scaffolding (`watch_app`, `ar_features`). Don't assume a feature folder's existence means the feature works.
-8. **Vercel Deployment Protection (SSO) was left enabled on the `frontend` production project**, and the domain `frontend-topaz-seven-64.vercel.app` (the one listed as the repo's GitHub "homepage") was no longer bound to the current project's deployments at all — the current deployment's real URL is auto-generated and team-scoped. Both are dashboard-only settings (Project → Settings → Deployment Protection / Domains) and were not something fixable via a code change.
+1. **Idempotency over locking.** The mobile sync queue, the backend's replay processor, and the analytics snapshot epoch check all use the same pattern: a caller-supplied idempotency key plus "already processed → no-op" semantics, rather than distributed locks. This is what makes "just retry it" a safe default everywhere in the system instead of a source of duplicate side effects.
+2. **Fail closed, not open.** SEP-10 auth failing when Redis is down, the backend refusing to boot on placeholder secrets, and the circuit breaker blocking calls to a degraded RPC endpoint are all the same underlying stance: an uncertain state is treated as unsafe, never as "probably fine."
+3. **Staleness is visible, not hidden.** Both the realtime pipeline (30-second staleness threshold) and the mobile offline queue (explicit `pending`/`failed` states surfaced to the user) treat "we don't have current data" as a state to display, not a state to paper over with the last-known values.
+4. **One client library, many clients.** The shared TypeScript SDK exists specifically so that retry behavior, request deduplication, and network-context (testnet/mainnet) switching are implemented once and used identically by the web dashboard and the mobile app, rather than reimplemented per platform and drifting apart.

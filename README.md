@@ -1,6 +1,6 @@
-# Stellar Insights Mobile
+# Stellar Analysis Mobile
 
-React Native mobile application for Stellar Insights payment analytics.
+React Native mobile application for Stellar Analysis payment analytics.
 
 ## Features
 
@@ -87,8 +87,8 @@ npm run android
 ### iOS setup
 
 1. Download `GoogleService-Info.plist` from the Firebase console (Project Settings → iOS app).
-2. Open Xcode: `open ios/StellarInsights.xcworkspace`
-3. Drag `GoogleService-Info.plist` into the `StellarInsights` target in Xcode (check "Copy items if needed").
+2. Open Xcode: `open ios/StellarAnalysis.xcworkspace`
+3. Drag `GoogleService-Info.plist` into the `StellarAnalysis` target in Xcode (check "Copy items if needed").
 4. Ensure **Push Notifications** and **Background Modes → Remote notifications** capabilities are enabled in Xcode (Signing & Capabilities tab).
 5. Re-run pod install:
 
@@ -184,7 +184,7 @@ Set `ENVFILE=.env.production` when running release builds (see platform steps be
 keytool -genkeypair -v \
   -storetype PKCS12 \
   -keystore android/app/release.keystore \
-  -alias stellar-insights \
+  -alias stellar-analysis \
   -keyalg RSA -keysize 2048 -validity 10000
 ```
 
@@ -196,7 +196,7 @@ android {
         release {
             storeFile file('release.keystore')
             storePassword System.getenv("KEYSTORE_PASSWORD")
-            keyAlias 'stellar-insights'
+            keyAlias 'stellar-analysis'
             keyPassword System.getenv("KEY_PASSWORD")
         }
     }
@@ -226,7 +226,7 @@ Output: `android/app/build/outputs/bundle/release/app-release.aab`
 
 **Configure signing in Xcode:**
 
-1. Open `ios/StellarInsights.xcworkspace` in Xcode.
+1. Open `ios/StellarAnalysis.xcworkspace` in Xcode.
 2. Set the team and provisioning profile under Signing & Capabilities.
 3. Set the scheme to **Release**: Product → Scheme → Edit Scheme → Run → Build Configuration = Release.
 
@@ -235,15 +235,15 @@ Output: `android/app/build/outputs/bundle/release/app-release.aab`
 ```bash
 # Build archive
 ENVFILE=.env.production xcodebuild \
-  -workspace ios/StellarInsights.xcworkspace \
-  -scheme StellarInsights \
+  -workspace ios/StellarAnalysis.xcworkspace \
+  -scheme StellarAnalysis \
   -configuration Release \
-  -archivePath ios/build/StellarInsights.xcarchive \
+  -archivePath ios/build/StellarAnalysis.xcarchive \
   archive
 
 # Export IPA (requires ExportOptions.plist)
 xcodebuild -exportArchive \
-  -archivePath ios/build/StellarInsights.xcarchive \
+  -archivePath ios/build/StellarAnalysis.xcarchive \
   -exportPath ios/build/export \
   -exportOptionsPlist ios/ExportOptions.plist
 ```
@@ -253,7 +253,7 @@ xcodebuild -exportArchive \
 ```bash
 xcrun altool --upload-app \
   --type ios \
-  --file ios/build/export/StellarInsights.ipa \
+  --file ios/build/export/StellarAnalysis.ipa \
   --username "$APPLE_ID" \
   --password "$APPLE_APP_SPECIFIC_PASSWORD"
 ```

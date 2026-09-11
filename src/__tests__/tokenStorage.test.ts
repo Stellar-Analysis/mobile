@@ -20,7 +20,7 @@ const mockSet = Keychain.setGenericPassword as jest.Mock;
 const mockGet = Keychain.getGenericPassword as jest.Mock;
 const mockReset = Keychain.resetGenericPassword as jest.Mock;
 
-const EXPIRY_KEY = '@stellar-insights/token-expiry';
+const EXPIRY_KEY = '@stellar-analysis/token-expiry';
 
 describe('tokenStorage', () => {
   beforeEach(async () => {

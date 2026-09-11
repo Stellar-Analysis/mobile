@@ -29,7 +29,7 @@ interface QueuedTransaction {
  */
 export class MobileContractService {
   private readonly backendUrl: string;
-  private readonly dbName: string = 'StellarInsights';
+  private readonly dbName: string = 'StellarAnalysis';
   private readonly storeName: string = 'transactions';
   private readonly maxQueuedRetries: number = 5;
   private readonly queueRetryIntervalMs: number = 5000;

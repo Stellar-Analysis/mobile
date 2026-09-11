@@ -1,7 +1,7 @@
 /**
- * Typed API Client for Stellar Insights Mobile (React Native)
+ * Typed API Client for Stellar Analysis Mobile (React Native)
  *
- * Provides strongly-typed access to the Stellar Insights API with contract enforcement.
+ * Provides strongly-typed access to the Stellar Analysis API with contract enforcement.
  * Optimized for mobile networks with caching, offline support, and efficient pagination.
  */
 
