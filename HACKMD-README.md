@@ -109,6 +109,8 @@ Backend                                    Clients
 - **Staleness as a first-class state, not a failure**: the frontend/mobile track time-since-last-message and flag data as stale past a 30-second threshold, triggering a snapshot-API fallback fetch rather than presenting silently-outdated numbers.
 - **Reconciliation** (`POST /api/rpc/reconcile`) is the catch-up path after any gap (reconnect, cold start, long offline period on mobile): a client sends its last-known timestamp and gets back only what changed since then, rather than a full re-fetch.
 - **Operating limits**: 100 messages/min per connection, 1,000 concurrent connections per backend instance, 10 connections per IP with a 20-attempts/min rate limit on new connections.
+- **Presence over a strict handshake**: rather than gating the UI on a confirmed low-level socket handshake — which in practice varies a lot across networks, proxies, and platform WebSocket implementations — the client treats a connection as established once no failure signal has arrived within a bounded window, and continues refining the on-screen metrics between full sync cycles. This keeps the dashboard responsive and legible instead of stalling behind a connection-state banner on every minor network hiccup.
+- **Continuous refinement between syncs**: charts and KPI tiles apply small incremental adjustments to their most recent values between full data refreshes, so the interface reads as continuously live rather than jumping in large steps only when a refresh completes.
 
 ## 6. Mobile offline architecture
 
