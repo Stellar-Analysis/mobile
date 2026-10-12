@@ -5,6 +5,8 @@
  * Optimized for mobile networks with caching, offline support, and efficient pagination.
  */
 
+import { StatsSummary } from '@types/dashboard';
+
 /**
  * API Response Contract Types
  */
@@ -501,6 +503,13 @@ export class MobileApiClient {
   async delete<T = void>(endpoint: string): Promise<T> {
     const response = await this.fetch<T>(endpoint, 'DELETE');
     return response.data;
+  }
+
+  /**
+   * Fetch homepage stats summary (DAA, tx count 24h, volume, active soroban contracts)
+   */
+  async getStatsSummary(options?: QueryOptions): Promise<StatsSummary> {
+    return this.get<StatsSummary>('/api/v1/stats/summary', options);
   }
 }
 

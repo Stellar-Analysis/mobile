@@ -6,6 +6,8 @@ import {
   DASHBOARD_CACHE_KEY,
   generateMockDashboard,
   normalizeDashboardResponse,
+  normalizeSummaryResponse,
+  MOCK_STATS_SUMMARY,
   useDashboardScreen,
 } from '@hooks/useDashboardScreen';
 
@@ -143,7 +145,7 @@ describe('useDashboardScreen', () => {
     expect(result.current.dataSource).toBe('mock');
   });
 
-  it('refetches dashboard on demand', async () => {
+  it('refetches dashboard and summary on demand', async () => {
     const mockData = generateMockDashboard();
     (apiClient.get as jest.Mock).mockResolvedValue(mockData);
 
@@ -157,6 +159,38 @@ describe('useDashboardScreen', () => {
       await result.current.refetch();
     });
 
-    expect(apiClient.get).toHaveBeenCalledTimes(2);
+    expect(apiClient.get).toHaveBeenCalledWith('/analytics/dashboard');
+    expect(apiClient.get).toHaveBeenCalledWith('/api/v1/stats/summary');
+    expect(apiClient.get).toHaveBeenCalledTimes(4);
+  });
+
+  it('normalizes stats summary response and exposes summaryStats', async () => {
+    const customSummary = {
+      daily_active_accounts: 2500,
+      tx_count_24h: 50000,
+      payment_volume_24h: 120000,
+      active_soroban_contracts: 88,
+    };
+    (apiClient.get as jest.Mock).mockImplementation((url: string) => {
+      if (url === '/api/v1/stats/summary') {
+        return Promise.resolve({ data: customSummary });
+      }
+      return Promise.resolve(generateMockDashboard());
+    });
+
+    const { result } = renderHook(() => useDashboardScreen());
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    expect(result.current.summaryStats).toEqual(customSummary);
+    expect(result.current.stats?.daily_active_accounts).toBe(2500);
+    expect(result.current.stats?.tx_count_24h).toBe(50000);
+    expect(result.current.stats?.active_soroban_contracts).toBe(88);
+  });
+
+  it('throws for an invalid summary response shape', () => {
+    expect(() => normalizeSummaryResponse({ foo: 'bar' })).toThrow('Invalid stats summary response');
   });
 });

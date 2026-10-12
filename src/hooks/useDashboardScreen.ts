@@ -9,12 +9,27 @@ import {
   DashboardData,
   DashboardDataSource,
   DashboardStats,
+  StatsSummary,
 } from '@types/dashboard';
 
 interface RawDashboardResponse {
   stats?: Partial<DashboardStats>;
   corridor_performance?: CorridorPerformance[];
   data?: DashboardData;
+  summary?: StatsSummary;
+}
+
+interface RawSummaryResponse {
+  daily_active_accounts?: number;
+  daa?: number;
+  tx_count_24h?: number;
+  tx_count?: number;
+  payment_volume_24h?: number;
+  volume_24h?: number;
+  active_soroban_contracts?: number;
+  soroban_contracts?: number;
+  data?: RawSummaryResponse;
+  summary?: RawSummaryResponse;
 }
 
 function isStats(value: unknown): value is DashboardStats {
@@ -39,14 +54,53 @@ export function normalizeDashboardResponse(raw: unknown): DashboardData {
     return {
       stats: payload.stats,
       corridor_performance: payload.corridor_performance,
+      summary: payload.summary,
     };
   }
 
   throw new Error('Invalid dashboard response');
 }
 
+export const MOCK_STATS_SUMMARY: StatsSummary = {
+  daily_active_accounts: 1420,
+  tx_count_24h: 38450,
+  payment_volume_24h: 72000,
+  active_soroban_contracts: 42,
+};
+
+export function normalizeSummaryResponse(raw: unknown): StatsSummary {
+  if (typeof raw !== 'object' || raw === null) {
+    throw new Error('Invalid stats summary response');
+  }
+
+  const response = raw as RawSummaryResponse;
+  const payload = response.data ?? response.summary ?? response;
+
+  const daa = payload.daily_active_accounts ?? payload.daa;
+  const tx = payload.tx_count_24h ?? payload.tx_count;
+  const volume = payload.payment_volume_24h ?? payload.volume_24h;
+  const contracts = payload.active_soroban_contracts ?? payload.soroban_contracts;
+
+  if (
+    typeof daa === 'number' ||
+    typeof tx === 'number' ||
+    typeof volume === 'number' ||
+    typeof contracts === 'number'
+  ) {
+    return {
+      daily_active_accounts: typeof daa === 'number' ? daa : MOCK_STATS_SUMMARY.daily_active_accounts,
+      tx_count_24h: typeof tx === 'number' ? tx : MOCK_STATS_SUMMARY.tx_count_24h,
+      payment_volume_24h: typeof volume === 'number' ? volume : MOCK_STATS_SUMMARY.payment_volume_24h,
+      active_soroban_contracts: typeof contracts === 'number' ? contracts : MOCK_STATS_SUMMARY.active_soroban_contracts,
+    };
+  }
+
+  throw new Error('Invalid stats summary response');
+}
+
 export interface UseDashboardScreenReturn {
   stats: DashboardStats | null;
+  summaryStats: StatsSummary | null;
   corridorPerformance: CorridorPerformance[];
   loading: boolean;
   error: string | null;
@@ -66,6 +120,10 @@ const MOCK_STATS: DashboardStats = {
   success_rate_growth: 1.2,
   active_corridors: 28,
   corridors_growth: 3,
+  daily_active_accounts: 1420,
+  tx_count_24h: 38450,
+  payment_volume_24h: 72000,
+  active_soroban_contracts: 42,
 };
 
 const MOCK_CORRIDOR_PERFORMANCE: CorridorPerformance[] = [
@@ -80,6 +138,7 @@ export function generateMockDashboard(): DashboardData {
   return {
     stats: MOCK_STATS,
     corridor_performance: MOCK_CORRIDOR_PERFORMANCE,
+    summary: MOCK_STATS_SUMMARY,
   };
 }
 
@@ -105,8 +164,18 @@ async function fetchDashboard(): Promise<DashboardData> {
   return normalizeDashboardResponse(response);
 }
 
+export async function fetchStatsSummary(): Promise<StatsSummary> {
+  if (typeof (apiClient as any).getStatsSummary === 'function') {
+    const res = await (apiClient as any).getStatsSummary();
+    return normalizeSummaryResponse(res);
+  }
+  const response = await apiClient.get<unknown>('/api/v1/stats/summary');
+  return normalizeSummaryResponse(response);
+}
+
 export function useDashboardScreen(): UseDashboardScreenReturn {
   const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [summaryStats, setSummaryStats] = useState<StatsSummary | null>(null);
   const [corridorPerformance, setCorridorPerformance] = useState<CorridorPerformance[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -114,8 +183,27 @@ export function useDashboardScreen(): UseDashboardScreenReturn {
   const [isOffline, setIsOffline] = useState(false);
   const [dataSource, setDataSource] = useState<DashboardDataSource | null>(null);
 
-  const applyData = useCallback((data: DashboardData) => {
-    setStats(data.stats);
+  const applyData = useCallback((data: DashboardData, summary?: StatsSummary | null) => {
+    const resolvedSummary =
+      summary ??
+      data.summary ?? {
+        daily_active_accounts:
+          data.stats.daily_active_accounts ?? MOCK_STATS_SUMMARY.daily_active_accounts,
+        tx_count_24h: data.stats.tx_count_24h ?? MOCK_STATS_SUMMARY.tx_count_24h,
+        payment_volume_24h:
+          data.stats.payment_volume_24h ?? data.stats.volume_24h ?? MOCK_STATS_SUMMARY.payment_volume_24h,
+        active_soroban_contracts:
+          data.stats.active_soroban_contracts ?? MOCK_STATS_SUMMARY.active_soroban_contracts,
+      };
+
+    setStats({
+      ...data.stats,
+      daily_active_accounts: resolvedSummary.daily_active_accounts,
+      tx_count_24h: resolvedSummary.tx_count_24h,
+      payment_volume_24h: resolvedSummary.payment_volume_24h,
+      active_soroban_contracts: resolvedSummary.active_soroban_contracts,
+    });
+    setSummaryStats(resolvedSummary);
     setCorridorPerformance(data.corridor_performance);
   }, []);
 
@@ -138,13 +226,14 @@ export function useDashboardScreen(): UseDashboardScreenReturn {
       if (offline) {
         const cached = await readCachedDashboard();
         if (cached) {
-          applyData(cached);
+          applyData(cached, cached.summary);
           setDataSource('cache');
           setWarning('Offline — showing saved dashboard.');
           return;
         }
 
-        applyData(generateMockDashboard());
+        const mockData = generateMockDashboard();
+        applyData(mockData, MOCK_STATS_SUMMARY);
         setDataSource('mock');
         setWarning('Offline — no saved data available. Showing sample dashboard.');
         return;
@@ -152,26 +241,60 @@ export function useDashboardScreen(): UseDashboardScreenReturn {
 
       try {
         const result = await fetchDashboard();
-        applyData(result);
+        let summary: StatsSummary | null = null;
+        try {
+          summary = await fetchStatsSummary();
+        } catch {
+          // If summary endpoint is not yet live or fails, fallback to dashboard summary or mock summary
+          summary = result.summary ?? {
+            daily_active_accounts:
+              result.stats.daily_active_accounts ?? MOCK_STATS_SUMMARY.daily_active_accounts,
+            tx_count_24h: result.stats.tx_count_24h ?? MOCK_STATS_SUMMARY.tx_count_24h,
+            payment_volume_24h:
+              result.stats.payment_volume_24h ?? result.stats.volume_24h ?? MOCK_STATS_SUMMARY.payment_volume_24h,
+            active_soroban_contracts:
+              result.stats.active_soroban_contracts ?? MOCK_STATS_SUMMARY.active_soroban_contracts,
+          };
+        }
+
+        const enrichedResult: DashboardData = {
+          ...result,
+          stats: {
+            ...result.stats,
+            ...(summary
+              ? {
+                  daily_active_accounts: summary.daily_active_accounts,
+                  tx_count_24h: summary.tx_count_24h,
+                  payment_volume_24h: summary.payment_volume_24h,
+                  active_soroban_contracts: summary.active_soroban_contracts,
+                }
+              : {}),
+          },
+          summary: summary ?? undefined,
+        };
+
+        applyData(enrichedResult, summary);
         setDataSource('live');
-        await writeCachedDashboard(result);
+        await writeCachedDashboard(enrichedResult);
         return;
       } catch {
         const cached = await readCachedDashboard();
         if (cached) {
-          applyData(cached);
+          applyData(cached, cached.summary);
           setDataSource('cache');
           setWarning('Live data unavailable. Showing saved dashboard.');
           return;
         }
 
-        applyData(generateMockDashboard());
+        const mockData = generateMockDashboard();
+        applyData(mockData, MOCK_STATS_SUMMARY);
         setDataSource('mock');
         setWarning('Live data unavailable. Showing sample dashboard.');
       }
     } catch {
       setError('Failed to load dashboard');
       setStats(null);
+      setSummaryStats(null);
       setCorridorPerformance([]);
       setDataSource(null);
       setWarning(null);
@@ -186,6 +309,7 @@ export function useDashboardScreen(): UseDashboardScreenReturn {
 
   return {
     stats,
+    summaryStats,
     corridorPerformance,
     loading,
     error,

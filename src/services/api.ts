@@ -4,6 +4,7 @@ import { useAuthStore } from '@store/authStore';
 import { useAppStore } from '@store/appStore';
 import { refreshAuthTokens } from './auth';
 import { logger } from './logger';
+import { StatsSummary } from '@types/dashboard';
 
 class ApiClient {
   private client: AxiosInstance;
@@ -149,6 +150,20 @@ class ApiClient {
       });
     } catch (error) {
       logger.error('Failed to reconcile state', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Fetch homepage stats summary (DAA, tx count 24h, volume, active soroban contracts)
+   * mounted at GET /api/v1/stats/summary
+   */
+  async getStatsSummary(): Promise<StatsSummary> {
+    logger.debug('Fetching stats summary from /api/v1/stats/summary');
+    try {
+      return await this.get<StatsSummary>('/api/v1/stats/summary');
+    } catch (error) {
+      logger.error('Failed to fetch stats summary', error);
       throw error;
     }
   }
